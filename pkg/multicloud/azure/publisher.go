@@ -1,0 +1,213 @@
+// Copyright 2019 Yunion
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package azure
+
+import (
+	"fmt"
+	"strings"
+)
+
+type SPublisherDriver struct {
+	OsType       string
+	GetOsDist    func(offser, sku, version string) string
+	GetOsVersion func(offser, sku, version string) string
+	GetOsArch    func(offser, sku, version string) string
+	GetName      func(offser, sku, version string) string
+}
+
+var publisherDrivers = map[string]SPublisherDriver{
+	// Microsoft Windows Server
+	"MicrosoftWindowsServer": {
+		OsType: "Windows",
+		GetOsDist: func(offer, sku, version string) string {
+			parts := strings.Split(sku, "-")
+			return fmt.Sprintf("Windows Server %s", strings.Join(parts, " "))
+		},
+		GetOsVersion: func(offer, sku, version string) string {
+			parts := strings.Split(sku, "-")
+			return parts[0]
+		},
+		GetOsArch: func(offer, sku, version string) string {
+			return "x86_64"
+		},
+		GetName: func(offer, sku, version string) string {
+			return fmt.Sprintf("%s-%s-%s", offer, sku, version)
+		},
+	},
+	// RHEL
+	"RedHat": {
+		OsType: "Linux",
+		GetOsDist: func(offer, sku, version string) string {
+			return "RHEL"
+		},
+		GetOsVersion: func(offer, sku, version string) string {
+			return sku
+		},
+		GetOsArch: func(offer, sku, version string) string {
+			return "x86_64"
+		},
+		GetName: func(offer, sku, version string) string {
+			return fmt.Sprintf("%s-%s", offer, version)
+		},
+	},
+	// Ubuntu
+	"Canonical": {
+		OsType: "Linux",
+		GetOsDist: func(offer, sku, version string) string {
+			return "Ubuntu"
+		},
+		GetOsVersion: func(offer, sku, version string) string {
+			return sku
+		},
+		GetOsArch: func(offer, sku, version string) string {
+			return "x86_64"
+		},
+		GetName: func(offer, sku, version string) string {
+			return fmt.Sprintf("%s-%s", offer, version)
+		},
+	},
+	// CentOS
+	"OpenLogic": {
+		OsType: "Linux",
+		GetOsDist: func(offer, sku, version string) string {
+			return "CentOS"
+		},
+		GetOsVersion: func(offer, sku, version string) string {
+			return sku
+		},
+		GetOsArch: func(offer, sku, version string) string {
+			return "x86_64"
+		},
+		GetName: func(offer, sku, version string) string {
+			return fmt.Sprintf("%s-%s", offer, version)
+		},
+	},
+	// SUSE
+	"SUSE": {
+		OsType: "Linux",
+		GetOsDist: func(offer, sku, version string) string {
+			return "SUSE"
+		},
+		GetOsVersion: func(offer, sku, version string) string {
+			return sku
+		},
+		GetOsArch: func(offer, sku, version string) string {
+			return "x86_64"
+		},
+		GetName: func(offer, sku, version string) string {
+			return fmt.Sprintf("%s-%s-%s", offer, sku, version)
+		},
+	},
+	// CoreOS
+	"CoreOS": {
+		OsType: "Linux",
+		GetOsDist: func(offer, sku, version string) string {
+			return "CoreOS"
+		},
+		GetOsVersion: func(offer, sku, version string) string {
+			return version
+		},
+		GetOsArch: func(offer, sku, version string) string {
+			return "x86_64"
+		},
+		GetName: func(offer, sku, version string) string {
+			return fmt.Sprintf("%s-%s-%s", offer, sku, version)
+		},
+	},
+	// Debian
+	"credativ": {
+		OsType: "Linux",
+		GetOsDist: func(offer, sku, version string) string {
+			return "Debian"
+		},
+		GetOsVersion: func(offer, sku, version string) string {
+			return sku
+		},
+		GetOsArch: func(offer, sku, version string) string {
+			return "x86_64"
+		},
+		GetName: func(offer, sku, version string) string {
+			return fmt.Sprintf("%s-%s", offer, version)
+		},
+	},
+	// FreeBSD
+	"MicrosoftOSTC": {
+		OsType: "FreeBSD",
+		GetOsDist: func(offer, sku, version string) string {
+			return "FreeBSD"
+		},
+		GetOsVersion: func(offer, sku, version string) string {
+			return sku
+		},
+		GetOsArch: func(offer, sku, version string) string {
+			return "x86_64"
+		},
+		GetName: func(offer, sku, version string) string {
+			return fmt.Sprintf("%s-%s", offer, version)
+		},
+	},
+}
+
+var knownPublishers []string
+
+func init() {
+	knownPublishers = make([]string, len(publisherDrivers))
+	i := 0
+	for k := range publisherDrivers {
+		knownPublishers[i] = strings.ToLower(k)
+		i += 1
+	}
+}
+
+func publisherGetName(publisher, offer, sku, version string) string {
+	driver, ok := publisherDrivers[publisher]
+	if ok {
+		return driver.GetName(offer, sku, version)
+	}
+	return fmt.Sprintf("%s-%s-%s", offer, sku, version)
+}
+
+func publisherGetOsType(publisher string) string {
+	for _publisher, driver := range publisherDrivers {
+		if strings.ToLower(_publisher) == strings.ToLower(publisher) {
+			return driver.OsType
+		}
+	}
+	return "Linux"
+}
+
+func publisherGetOsDist(publisher, offer, sku, version string) string {
+	driver, ok := publisherDrivers[publisher]
+	if ok {
+		return driver.GetOsDist(offer, sku, version)
+	}
+	return offer
+}
+
+func publisherGetOsVersion(publisher, offer, sku, version string) string {
+	driver, ok := publisherDrivers[publisher]
+	if ok {
+		return driver.GetOsVersion(offer, sku, version)
+	}
+	return sku
+}
+
+func publisherGetOsArch(publisher, offer, sku, version string) string {
+	driver, ok := publisherDrivers[publisher]
+	if ok {
+		return driver.GetOsArch(offer, sku, version)
+	}
+	return "x86_64"
+}
