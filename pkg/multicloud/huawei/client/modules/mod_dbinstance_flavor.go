@@ -12,26 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package multicloud
+package modules
 
 import (
-	"fmt"
-
-	api "yunion.io/x/onecloud/pkg/apis/compute"
+	"yunion.io/x/onecloud/pkg/multicloud/huawei/client/auth"
 )
 
-type SDBInstanceBackupBase struct {
-	SResourceBase
+type SDBInstanceFlavorManager struct {
+	SResourceManager
 }
 
-func (backup *SDBInstanceBackupBase) GetBackMode() string {
-	return api.BACKUP_MODE_AUTOMATED
-}
+func NewDBInstanceFlavorManager(regionId string, projectId string, signer auth.Signer, debug bool) *SDBInstanceFlavorManager {
+	return &SDBInstanceFlavorManager{SResourceManager: SResourceManager{
+		SBaseManager:  NewBaseManager(signer, debug),
+		ServiceName:   ServiceNameRDS,
+		Region:        regionId,
+		ProjectId:     projectId,
+		version:       "v3",
+		Keyword:       "flavor",
+		KeywordPlural: "flavor",
 
-func (backup *SDBInstanceBackupBase) Delete() error {
-	return fmt.Errorf("Not Implement Delete")
-}
-
-func (backup *SDBInstanceBackupBase) GetProjectId() string {
-	return ""
+		ResourceKeyword: "flavors",
+	}}
 }

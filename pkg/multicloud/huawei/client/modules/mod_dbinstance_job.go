@@ -15,23 +15,28 @@
 package modules
 
 import (
+	"yunion.io/x/jsonutils"
 	"yunion.io/x/onecloud/pkg/multicloud/huawei/client/auth"
 )
 
-type SDBInstanceBackupManager struct {
+type SDBInstanceJobManager struct {
 	SResourceManager
 }
 
-func NewDBInstanceBackupManager(regionId string, projectId string, signer auth.Signer, debug bool) *SDBInstanceBackupManager {
-	return &SDBInstanceBackupManager{SResourceManager: SResourceManager{
+func NewDBInstanceJobManager(regionId string, projectId string, signer auth.Signer, debug bool) *SDBInstanceJobManager {
+	return &SDBInstanceJobManager{SResourceManager: SResourceManager{
 		SBaseManager:  NewBaseManager(signer, debug),
 		ServiceName:   ServiceNameRDS,
 		Region:        regionId,
 		ProjectId:     projectId,
 		version:       "v3",
-		Keyword:       "backup",
-		KeywordPlural: "backups",
+		Keyword:       "",
+		KeywordPlural: "",
 
-		ResourceKeyword: "backups",
+		ResourceKeyword: "jobs",
 	}}
+}
+
+func (self *SDBInstanceJobManager) Get(id string, querys map[string]string) (jsonutils.JSONObject, error) {
+	return self.GetInContextWithSpec(nil, "", "", map[string]string{"id": id}, "job")
 }

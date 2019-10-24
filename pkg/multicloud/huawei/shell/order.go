@@ -12,26 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package multicloud
+package shell
 
 import (
-	"fmt"
-
-	api "yunion.io/x/onecloud/pkg/apis/compute"
+	"yunion.io/x/onecloud/pkg/multicloud/huawei"
+	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 
-type SDBInstanceBackupBase struct {
-	SResourceBase
-}
-
-func (backup *SDBInstanceBackupBase) GetBackMode() string {
-	return api.BACKUP_MODE_AUTOMATED
-}
-
-func (backup *SDBInstanceBackupBase) Delete() error {
-	return fmt.Errorf("Not Implement Delete")
-}
-
-func (backup *SDBInstanceBackupBase) GetProjectId() string {
-	return ""
+func init() {
+	type OrderListOptions struct {
+		OrderId      string   `help:"Order Id"`
+		ResourceIds  []string `help:"ResourceIds"`
+		MainResource bool     `help:"Main resource"`
+	}
+	shellutils.R(&OrderListOptions{}, "order-list", "List order", func(cli *huawei.SRegion, args *OrderListOptions) error {
+		orders, err := cli.GetOrderResources(args.OrderId, args.ResourceIds, args.MainResource)
+		if err != nil {
+			return err
+		}
+		printList(orders, 0, 0, 0, nil)
+		return nil
+	})
 }
