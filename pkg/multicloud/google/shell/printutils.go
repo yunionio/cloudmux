@@ -12,22 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package multicloud
+package shell
 
-import (
-	"fmt"
+import "yunion.io/x/onecloud/pkg/util/printutils"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-)
-
-type SVpc struct {
-	SResourceBase
+func printList(data interface{}, total, offset, limit int, columns []string) {
+	printutils.PrintInterfaceList(data, total, offset, limit, columns)
 }
 
-func (self *SVpc) GetINatGateways() ([]cloudprovider.ICloudNatGateway, error) {
-	return nil, fmt.Errorf("Not Implemented GetNatGateways")
-}
-
-func (self *SVpc) GetIGlobalNetworkId() string {
-	return ""
+func printObject(obj interface{}) {
+	printutils.PrintInterfaceObject(obj)
 }
