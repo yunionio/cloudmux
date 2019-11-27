@@ -12,22 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package multicloud
+package shell
 
 import (
-	"fmt"
-
-	"yunion.io/x/onecloud/pkg/cloudprovider"
+	"yunion.io/x/onecloud/pkg/multicloud/google"
+	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 
-type SVpc struct {
-	SResourceBase
-}
-
-func (self *SVpc) GetINatGateways() ([]cloudprovider.ICloudNatGateway, error) {
-	return nil, fmt.Errorf("Not Implemented GetNatGateways")
-}
-
-func (self *SVpc) GetIGlobalNetworkId() string {
-	return ""
+func init() {
+	type ProjectListOptions struct {
+		MaxResults int
+		PageToken  string
+	}
+	shellutils.R(&ProjectListOptions{}, "project-list", "List projects", func(cli *google.SRegion, args *ProjectListOptions) error {
+		projects, err := cli.GetClient().GetProjects()
+		if err != nil {
+			return err
+		}
+		printList(projects, 0, 0, 0, nil)
+		return nil
+	})
 }
