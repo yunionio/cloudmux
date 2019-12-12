@@ -12,18 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package multicloud
+package compute
 
-import (
-	"fmt"
-
-	"yunion.io/x/onecloud/pkg/cloudprovider"
+const (
+	GLOBAL_VPC_STATUS_AVAILABLE = "available"
+	GLOBAL_VPC_STATUS_UNKNOWN   = "unknown"
 )
-
-type SVpc struct {
-	SResourceBase
-}
-
-func (self *SVpc) GetINatGateways() ([]cloudprovider.ICloudNatGateway, error) {
-	return nil, fmt.Errorf("Not Implemented GetNatGateways")
-}
