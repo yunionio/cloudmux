@@ -12,21 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cloudprovider
+package compute
 
-// +onecloud:model-api-gen
-type SGeographicInfo struct {
-	// 纬度
-	// example: 26.647003
-	Latitude float32 `list:"user" update:"admin" create:"admin_optional"`
-	// 经度
-	// example: 106.630211
-	Longitude float32 `list:"user" update:"admin" create:"admin_optional"`
+import "yunion.io/x/onecloud/pkg/apis"
 
-	// 城市
-	// example: Guiyang
-	City string `list:"user" width:"32" update:"admin" create:"admin_optional"`
-	// 国家代码
-	// example: CN
-	CountryCode string `list:"user" width:"4" update:"admin" create:"admin_optional"`
+type ExternalProjectDetails struct {
+	apis.StandaloneResourceDetails
+
+	SExternalProject
+	CloudproviderInfo
+
+	Tenant string `json:"tenant"`
 }
