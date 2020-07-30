@@ -12,23 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package shell
+package openstack
 
-import (
-	"yunion.io/x/onecloud/pkg/multicloud/openstack"
-	"yunion.io/x/onecloud/pkg/util/shellutils"
-)
+import "net/url"
 
-func init() {
-	type InstanceNicListOptions struct {
-		Mac string `help:"Mac address for filter nics"`
+type SMessage struct {
+	Id           string
+	MessageLevel string
+	EventId      string
+	ResourceType string
+	UserMessage  string
+}
+
+func (region *SRegion) GetMessages(resourceId string) ([]SMessage, error) {
+	messages := []SMessage{}
+	resource := "messages"
+	query := url.Values{}
+	if len(resourceId) > 0 {
+		query.Set("resource_uuid", resourceId)
 	}
-	shellutils.R(&InstanceNicListOptions{}, "instancenic-list", "List instance nics", func(cli *openstack.SRegion, args *InstanceNicListOptions) error {
-		instances, err := cli.GetPorts(args.Mac)
-		if err != nil {
-			return err
-		}
-		printList(instances, 0, 0, 0, nil)
-		return nil
-	})
+	resp, err := region.bsList(resource, query)
+	if err != nil {
+		return nil, err
+	}
+	err = resp.Unmarshal(&messages, "messages")
+	if err != nil {
+		return nil, err
+	}
+	return messages, nil
 }
