@@ -15,21 +15,21 @@
 package shell
 
 import (
-	"yunion.io/x/onecloud/pkg/multicloud/google"
+	"yunion.io/x/onecloud/pkg/multicloud/huawei"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 
 func init() {
-	type ProjectListOptions struct {
-		MaxResults int
-		PageToken  string
+	type RoleListOptions struct {
+		DomainId string
+		Name     string
 	}
-	shellutils.R(&ProjectListOptions{}, "project-list", "List projects", func(cli *google.SRegion, args *ProjectListOptions) error {
-		projects, err := cli.GetClient().GetProjects()
+	shellutils.R(&RoleListOptions{}, "cloud-policy-list", "List cloudpolicy", func(cli *huawei.SRegion, args *RoleListOptions) error {
+		roles, err := cli.GetClient().GetRoles(args.DomainId, args.Name)
 		if err != nil {
 			return err
 		}
-		printList(projects, 0, 0, 0, nil)
+		printList(roles, 0, 0, 0, nil)
 		return nil
 	})
 }
