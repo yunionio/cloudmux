@@ -12,28 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cloudprovider
+package shell
 
-import "yunion.io/x/jsonutils"
+import (
+	"yunion.io/x/onecloud/pkg/multicloud/huawei"
+	"yunion.io/x/onecloud/pkg/util/shellutils"
+)
 
-type SClouduserCreateConfig struct {
-	Name              string
-	Desc              string
-	Password          string
-	IsConsoleLogin    bool
-	Email             string
-	MobilePhone       string
-	ExternalPolicyIds []string
-}
-
-type SCloudpolicyPermission struct {
-	Name     string
-	Action   string
-	Category string
-}
-
-type SCloudpolicyCreateOptions struct {
-	Name     string
-	Desc     string
-	Document *jsonutils.JSONDict
+func init() {
+	type RoleListOptions struct {
+		DomainId string
+		Name     string
+	}
+	shellutils.R(&RoleListOptions{}, "cloud-policy-list", "List cloudpolicy", func(cli *huawei.SRegion, args *RoleListOptions) error {
+		roles, err := cli.GetClient().GetRoles(args.DomainId, args.Name)
+		if err != nil {
+			return err
+		}
+		printList(roles, 0, 0, 0, nil)
+		return nil
+	})
 }
