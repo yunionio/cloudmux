@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cloudid
-
-import "yunion.io/x/onecloud/pkg/apis"
+package cloudprovider
 
 const (
-	SERVICE_TYPE    = apis.SERVICE_TYPE_CLOUDID
-	SAML_IDP_PREFIX = "/saml/idp"
-	SERVICE_VERSION = ""
+	SAML_ENTITY_ID_ALIYUN_ROLE  = "urn:alibaba:cloudcomputing"
+	SAML_ENTITY_ID_AWS_CN       = "urn:amazon:webservices:cn-north-1"
+	SAML_ENTITY_ID_AWS          = "urn:amazon:webservices"
+	SAML_ENTITY_ID_QCLOUD       = "cloud.tencent.com"
+	SAML_ENTITY_ID_HUAWEI_CLOUD = "https://auth.huaweicloud.com/"
+	SAML_ENTITY_ID_GOOGLE       = "google.com"
 )
