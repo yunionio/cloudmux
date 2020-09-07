@@ -12,20 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cloudprovider
+package aliyun
 
-import "yunion.io/x/onecloud/pkg/util/samlutils"
+import (
+	"yunion.io/x/log"
+	"yunion.io/x/pkg/errors"
 
-const (
-	SAML_ENTITY_ID_ALIYUN_ROLE  = "urn:alibaba:cloudcomputing"
-	SAML_ENTITY_ID_AWS_CN       = "urn:amazon:webservices:cn-north-1"
-	SAML_ENTITY_ID_AWS          = "urn:amazon:webservices"
-	SAML_ENTITY_ID_QCLOUD       = "cloud.tencent.com"
-	SAML_ENTITY_ID_HUAWEI_CLOUD = "https://auth.huaweicloud.com/"
-	SAML_ENTITY_ID_GOOGLE       = "google.com"
+	"yunion.io/x/onecloud/pkg/multicloud"
 )
 
-type SAMLProviderCreateOptions struct {
-	Name     string
-	Metadata samlutils.EntityDescriptor
+type SAMLProvider struct {
+	multicloud.SResourceBase
+	client *SAliyunClient
+}
+
+func (self *SAliyunClient) ListSAMLProviders() ([]SAMLProvider, error) {
+	result := []SAMLProvider{}
+	resp, err := self.ramRequest("ListSAMLProviders", map[string]string{})
+	if err != nil {
+		return nil, errors.Wrapf(err, "ListSAMLProviders")
+	}
+	log.Errorf("result: %s", resp.PrettyString())
+	return result, nil
 }

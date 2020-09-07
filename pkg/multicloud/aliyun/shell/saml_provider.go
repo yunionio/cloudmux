@@ -12,20 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cloudprovider
+package shell
 
-import "yunion.io/x/onecloud/pkg/util/samlutils"
-
-const (
-	SAML_ENTITY_ID_ALIYUN_ROLE  = "urn:alibaba:cloudcomputing"
-	SAML_ENTITY_ID_AWS_CN       = "urn:amazon:webservices:cn-north-1"
-	SAML_ENTITY_ID_AWS          = "urn:amazon:webservices"
-	SAML_ENTITY_ID_QCLOUD       = "cloud.tencent.com"
-	SAML_ENTITY_ID_HUAWEI_CLOUD = "https://auth.huaweicloud.com/"
-	SAML_ENTITY_ID_GOOGLE       = "google.com"
+import (
+	"yunion.io/x/onecloud/pkg/multicloud/aliyun"
+	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 
-type SAMLProviderCreateOptions struct {
-	Name     string
-	Metadata samlutils.EntityDescriptor
+func init() {
+	type SamlProviderListOptions struct {
+		Limit  int `help:"page size"`
+		Offset int `help:"page offset"`
+	}
+	shellutils.R(&SamlProviderListOptions{}, "saml-provider-list", "List saml provider", func(cli *aliyun.SRegion, args *SamlProviderListOptions) error {
+		result, err := cli.GetClient().ListSAMLProviders()
+		if err != nil {
+			return err
+		}
+		printList(result, 0, 0, 0, []string{})
+		return nil
+	})
+
 }
