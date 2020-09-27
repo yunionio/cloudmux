@@ -14,19 +14,12 @@
 
 package shell
 
-import (
-	"yunion.io/x/onecloud/pkg/multicloud/aliyun"
-	"yunion.io/x/onecloud/pkg/multicloud/test"
-	"yunion.io/x/onecloud/pkg/util/shellutils"
-)
+import "yunion.io/x/onecloud/pkg/util/printutils"
 
-func init() {
-	test.TestShell()
-	type RegionListOptions struct {
-	}
-	shellutils.R(&RegionListOptions{}, "region-list", "List regions", func(cli *aliyun.SRegion, args *RegionListOptions) error {
-		regions := cli.GetClient().GetRegions()
-		printList(regions, 0, 0, 0, nil)
-		return nil
-	})
+func printList(data interface{}, total, offset, limit int, columns []string) {
+	printutils.PrintInterfaceList(data, total, offset, limit, columns)
+}
+
+func printObject(obj interface{}) {
+	printutils.PrintInterfaceObject(obj)
 }

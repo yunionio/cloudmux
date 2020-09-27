@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package aliyun
+package apsara
 
 import (
 	"fmt"
@@ -72,7 +72,6 @@ type SEipAddress struct {
 	region *SRegion
 	multicloud.SEipBase
 
-	Name         string
 	AllocationId string
 
 	InternetChargeType TInternetChargeType
@@ -84,13 +83,7 @@ type SEipAddress struct {
 	InstanceId   string
 	Bandwidth    int /* Mbps */
 
-	BusinessStatus     string
-	AllocationTime     time.Time
-	DeletionProtection bool
-	Descritpion        string
-	ISP                string
-	Mode               string
-	Netmode            string
+	AllocationTime time.Time
 
 	OperationLocks string
 
@@ -104,9 +97,6 @@ func (self *SEipAddress) GetId() string {
 }
 
 func (self *SEipAddress) GetName() string {
-	if len(self.Name) > 0 {
-		return self.Name
-	}
 	return self.IpAddress
 }
 
@@ -172,6 +162,7 @@ func (self *SEipAddress) GetAssociationType() string {
 	case EIP_INTANNCE_TYPE_SLB:
 		return api.EIP_ASSOCIATE_TYPE_LOADBALANCER
 	default:
+		//log.Fatalf("unsupported type: %s", self.InstanceType)
 		return "unsupported"
 	}
 }
@@ -266,7 +257,7 @@ func (region *SRegion) GetEips(eipId string, associatedId string, offset int, li
 		}
 	}
 
-	body, err := region.vpcRequest("DescribeEipAddresses", params)
+	body, err := region.ecsRequest("DescribeEipAddresses", params)
 	if err != nil {
 		log.Errorf("DescribeEipAddresses fail %s", err)
 		return nil, 0, err
@@ -296,12 +287,9 @@ func (region *SRegion) GetEip(eipId string) (*SEipAddress, error) {
 	return &eips[0], nil
 }
 
-func (region *SRegion) AllocateEIP(name string, bwMbps int, chargeType TInternetChargeType, projectId string) (*SEipAddress, error) {
+func (region *SRegion) AllocateEIP(bwMbps int, chargeType TInternetChargeType, projectId string) (*SEipAddress, error) {
 	params := make(map[string]string)
 
-	if len(name) > 0 {
-		params["Name"] = name
-	}
 	params["Bandwidth"] = fmt.Sprintf("%d", bwMbps)
 	params["InternetChargeType"] = string(chargeType)
 	params["InstanceChargeType"] = "PostPaid"
@@ -310,7 +298,7 @@ func (region *SRegion) AllocateEIP(name string, bwMbps int, chargeType TInternet
 		params["ResourceGroupId"] = projectId
 	}
 
-	body, err := region.vpcRequest("AllocateEipAddress", params)
+	body, err := region.ecsRequest("AllocateEipAddress", params)
 	if err != nil {
 		log.Errorf("AllocateEipAddress fail %s", err)
 		return nil, err
@@ -325,22 +313,22 @@ func (region *SRegion) AllocateEIP(name string, bwMbps int, chargeType TInternet
 	return region.GetEip(eipId)
 }
 
-func (region *SRegion) CreateEIP(opts *cloudprovider.SEip) (cloudprovider.ICloudEIP, error) {
+func (region *SRegion) CreateEIP(eip *cloudprovider.SEip) (cloudprovider.ICloudEIP, error) {
 	var ctype TInternetChargeType
-	switch opts.ChargeType {
+	switch eip.ChargeType {
 	case api.EIP_CHARGE_TYPE_BY_TRAFFIC:
 		ctype = InternetChargeByTraffic
 	case api.EIP_CHARGE_TYPE_BY_BANDWIDTH:
 		ctype = InternetChargeByBandwidth
 	}
-	return region.AllocateEIP(opts.Name, opts.BandwidthMbps, ctype, opts.ProjectId)
+	return region.AllocateEIP(eip.BandwidthMbps, ctype, eip.ProjectId)
 }
 
 func (region *SRegion) DeallocateEIP(eipId string) error {
 	params := make(map[string]string)
 	params["AllocationId"] = eipId
 
-	_, err := region.vpcRequest("ReleaseEipAddress", params)
+	_, err := region.ecsRequest("ReleaseEipAddress", params)
 	if err != nil {
 		log.Errorf("ReleaseEipAddress fail %s", err)
 	}
@@ -357,7 +345,7 @@ func (region *SRegion) AssociateEip(eipId string, instanceId string) error {
 		}
 	}
 
-	_, err := region.vpcRequest("AssociateEipAddress", params)
+	_, err := region.ecsRequest("AssociateEipAddress", params)
 	if err != nil {
 		log.Errorf("AssociateEipAddress fail %s", err)
 	}
@@ -374,7 +362,7 @@ func (region *SRegion) DissociateEip(eipId string, instanceId string) error {
 		}
 	}
 
-	_, err := region.vpcRequest("UnassociateEipAddress", params)
+	_, err := region.ecsRequest("UnassociateEipAddress", params)
 	if err != nil {
 		log.Errorf("UnassociateEipAddress fail %s", err)
 	}
@@ -386,7 +374,7 @@ func (region *SRegion) UpdateEipBandwidth(eipId string, bw int) error {
 	params["AllocationId"] = eipId
 	params["Bandwidth"] = fmt.Sprintf("%d", bw)
 
-	_, err := region.vpcRequest("ModifyEipAddressAttribute", params)
+	_, err := region.ecsRequest("ModifyEipAddressAttribute", params)
 	if err != nil {
 		log.Errorf("ModifyEipAddressAttribute fail %s", err)
 	}

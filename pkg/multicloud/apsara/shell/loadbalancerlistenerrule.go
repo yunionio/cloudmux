@@ -15,18 +15,21 @@
 package shell
 
 import (
-	"yunion.io/x/onecloud/pkg/multicloud/aliyun"
-	"yunion.io/x/onecloud/pkg/multicloud/test"
+	"yunion.io/x/onecloud/pkg/multicloud/apsara"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 
 func init() {
-	test.TestShell()
-	type RegionListOptions struct {
+	type LoadbalancerListenerRuleListOptions struct {
+		ID   string `help:"ID of loadbalaner"`
+		PORT int    `help:"Port of listener port"`
 	}
-	shellutils.R(&RegionListOptions{}, "region-list", "List regions", func(cli *aliyun.SRegion, args *RegionListOptions) error {
-		regions := cli.GetClient().GetRegions()
-		printList(regions, 0, 0, 0, nil)
+	shellutils.R(&LoadbalancerListenerRuleListOptions{}, "lb-listener-rule-list", "List LoadbalancerListenerRules", func(cli *apsara.SRegion, args *LoadbalancerListenerRuleListOptions) error {
+		rules, err := cli.GetLoadbalancerListenerRules(args.ID, args.PORT)
+		if err != nil {
+			return err
+		}
+		printList(rules, len(rules), 0, 0, []string{})
 		return nil
 	})
 }

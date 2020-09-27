@@ -15,18 +15,19 @@
 package shell
 
 import (
-	"yunion.io/x/onecloud/pkg/multicloud/aliyun"
-	"yunion.io/x/onecloud/pkg/multicloud/test"
+	"yunion.io/x/onecloud/pkg/multicloud/apsara"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 
 func init() {
-	test.TestShell()
-	type RegionListOptions struct {
+	type QuotaListOptions struct {
 	}
-	shellutils.R(&RegionListOptions{}, "region-list", "List regions", func(cli *aliyun.SRegion, args *RegionListOptions) error {
-		regions := cli.GetClient().GetRegions()
-		printList(regions, 0, 0, 0, nil)
+	shellutils.R(&QuotaListOptions{}, "quota-list", "List quota", func(cli *apsara.SRegion, args *QuotaListOptions) error {
+		quotas, err := cli.GetQuotas()
+		if err != nil {
+			return err
+		}
+		printList(quotas, 0, 0, 0, nil)
 		return nil
 	})
 }
