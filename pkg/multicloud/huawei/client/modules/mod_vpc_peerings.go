@@ -12,13 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cloudprovider
+package modules
 
-type VpcPeeringConnectionCreateOptions struct {
-	Name          string
-	Desc          string
-	PeerVpcId     string
-	PeerAccountId string
-	PeerRegionId  string
-	Bandwidth     int //qcloud cross region,Mbps
+import (
+	"yunion.io/x/onecloud/pkg/multicloud/huawei/client/auth"
+)
+
+type SVpcPeeringManager struct {
+	SResourceManager
+}
+
+func NewVpcPeeringManager(regionId string, projectId string, signer auth.Signer, debug bool) *SVpcPeeringManager {
+	return &SVpcPeeringManager{SResourceManager: SResourceManager{
+		SBaseManager:  NewBaseManager(signer, debug),
+		ServiceName:   ServiceNameVPC,
+		Region:        regionId,
+		ProjectId:     "",
+		version:       "v2.0",
+		Keyword:       "peering",
+		KeywordPlural: "peerings",
+
+		ResourceKeyword: "vpc/peerings",
+	}}
 }
