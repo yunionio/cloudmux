@@ -12,21 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package shell
+package apsara
 
 import (
-	"yunion.io/x/onecloud/pkg/multicloud/aliyun"
-	"yunion.io/x/onecloud/pkg/multicloud/test"
-	"yunion.io/x/onecloud/pkg/util/shellutils"
+	"fmt"
+	"strings"
 )
 
-func init() {
-	test.TestShell()
-	type RegionListOptions struct {
+func isError(err error, code string) bool {
+	errStr := fmt.Sprintf("%s", err)
+	if strings.Index(errStr, code) > 0 {
+		return true
+	} else {
+		return false
 	}
-	shellutils.R(&RegionListOptions{}, "region-list", "List regions", func(cli *aliyun.SRegion, args *RegionListOptions) error {
-		regions := cli.GetClient().GetRegions()
-		printList(regions, 0, 0, 0, nil)
-		return nil
-	})
 }

@@ -15,18 +15,30 @@
 package shell
 
 import (
-	"yunion.io/x/onecloud/pkg/multicloud/aliyun"
-	"yunion.io/x/onecloud/pkg/multicloud/test"
+	"yunion.io/x/onecloud/pkg/multicloud/apsara"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 
 func init() {
-	test.TestShell()
-	type RegionListOptions struct {
+	type VpcListOptions struct {
+		Limit  int `help:"page size"`
+		Offset int `help:"page offset"`
 	}
-	shellutils.R(&RegionListOptions{}, "region-list", "List regions", func(cli *aliyun.SRegion, args *RegionListOptions) error {
-		regions := cli.GetClient().GetRegions()
-		printList(regions, 0, 0, 0, nil)
+	shellutils.R(&VpcListOptions{}, "vpc-list", "List vpcs", func(cli *apsara.SRegion, args *VpcListOptions) error {
+		vpcs, total, e := cli.GetVpcs(nil, args.Offset, args.Limit)
+		if e != nil {
+			return e
+		}
+		printList(vpcs, total, args.Offset, args.Limit, []string{})
 		return nil
 	})
+
+	type VpcOptions struct {
+		ID string `help:"VPC id"`
+	}
+
+	shellutils.R(&VpcOptions{}, "vpc-delete", "Delete vpc", func(cli *apsara.SRegion, args *VpcOptions) error {
+		return cli.DeleteVpc(args.ID)
+	})
+
 }

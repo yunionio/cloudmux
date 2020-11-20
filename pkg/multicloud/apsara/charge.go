@@ -12,21 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package shell
+package apsara
 
 import (
-	"yunion.io/x/onecloud/pkg/multicloud/aliyun"
-	"yunion.io/x/onecloud/pkg/multicloud/test"
-	"yunion.io/x/onecloud/pkg/util/shellutils"
+	"time"
+
+	api "yunion.io/x/onecloud/pkg/apis/billing"
 )
 
-func init() {
-	test.TestShell()
-	type RegionListOptions struct {
+func convertChargeType(ct TChargeType) string {
+	switch ct {
+	case PrePaidInstanceChargeType:
+		return api.BILLING_TYPE_PREPAID
+	case PostPaidInstanceChargeType, PostPaidDBInstanceChargeType:
+		return api.BILLING_TYPE_POSTPAID
+	default:
+		return ""
 	}
-	shellutils.R(&RegionListOptions{}, "region-list", "List regions", func(cli *aliyun.SRegion, args *RegionListOptions) error {
-		regions := cli.GetClient().GetRegions()
-		printList(regions, 0, 0, 0, nil)
-		return nil
-	})
+}
+
+func convertExpiredAt(expired time.Time) time.Time {
+	if !expired.IsZero() {
+		now := time.Now()
+		if expired.Sub(now) < time.Hour*24*365*6 {
+			return expired
+		}
+	}
+	return time.Time{}
 }
