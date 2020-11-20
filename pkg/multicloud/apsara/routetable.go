@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package aliyun
+package apsara
 
 import (
 	"fmt"
@@ -22,7 +22,6 @@ import (
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/log"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
 	"yunion.io/x/onecloud/pkg/cloudprovider"
 )
 
@@ -83,28 +82,7 @@ func (route *SRouteEntry) GetCidr() string {
 }
 
 func (route *SRouteEntry) GetNextHopType() string {
-	switch route.NextHopType {
-	case "Instance":
-		return api.Next_HOP_TYPE_INSTANCE
-	case "HaVip":
-		return api.Next_HOP_TYPE_HAVIP
-	case "VpnGateway":
-		return api.Next_HOP_TYPE_VPN
-	case "NatGateway":
-		return api.Next_HOP_TYPE_NAT
-	case "NetworkInterface":
-		return api.Next_HOP_TYPE_NETWORK
-	case "RouterInterface":
-		return api.Next_HOP_TYPE_ROUTER
-	case "IPv6Gateway":
-		return api.Next_HOP_TYPE_IPV6
-	case "InternetGateway":
-		return api.Next_HOP_TYPE_INTERNET
-	case "Next_HOP_TYPE_EGRESS_INTERNET":
-		return api.Next_HOP_TYPE_EGRESS_INTERNET
-	default:
-		return ""
-	}
+	return route.NextHopType
 }
 
 func (route *SRouteEntry) GetNextHop() string {
@@ -229,35 +207,6 @@ func (self *SRouteTable) fetchRoutes() error {
 	return nil
 }
 
-func (self *SRouteTable) RemoteGetRoutes(offset int, limit int) ([]*SRouteEntry, int, error) {
-	if limit > 50 || limit <= 0 {
-		limit = 50
-	}
-	params := make(map[string]string)
-	params["RouteTableId"] = self.RouteTableId
-	params["PageSize"] = fmt.Sprintf("%d", limit)
-	params["PageNumber"] = fmt.Sprintf("%d", (offset/limit)+1)
-
-	body, err := self.region.ecsRequest("DescribeRouteTables", params)
-	if err != nil {
-		log.Errorf("RemoteGetRoutes fail %s", err)
-		return nil, 0, err
-	}
-
-	resp := sDescribeRouteTablesResponse{}
-	err = body.Unmarshal(&resp)
-	if err != nil {
-		log.Errorf("Unmarshal routeEntrys fail %s", err)
-		return nil, 0, err
-	}
-	routeTables := resp.RouteTables.RouteTable
-	if len(routeTables) != 1 {
-		return nil, 0, fmt.Errorf("expecting 1 route table, got %d", len(routeTables))
-	}
-	routeTable := routeTables[0]
-	return routeTable.RouteEntrys.RouteEntry, resp.TotalCount, nil
-}
-
 func (self *SRouteTable) GetAssociations() []cloudprovider.RouteTableAssociation {
 	result := []cloudprovider.RouteTableAssociation{}
 	switch self.RouterType {
@@ -292,6 +241,35 @@ func (self *SRouteTable) UpdateRoute(route cloudprovider.RouteSet) error {
 
 func (self *SRouteTable) RemoveRoute(route cloudprovider.RouteSet) error {
 	return cloudprovider.ErrNotSupported
+}
+
+func (self *SRouteTable) RemoteGetRoutes(offset int, limit int) ([]*SRouteEntry, int, error) {
+	if limit > 50 || limit <= 0 {
+		limit = 50
+	}
+	params := make(map[string]string)
+	params["RouteTableId"] = self.RouteTableId
+	params["PageSize"] = fmt.Sprintf("%d", limit)
+	params["PageNumber"] = fmt.Sprintf("%d", (offset/limit)+1)
+
+	body, err := self.region.ecsRequest("DescribeRouteTables", params)
+	if err != nil {
+		log.Errorf("RemoteGetRoutes fail %s", err)
+		return nil, 0, err
+	}
+
+	resp := sDescribeRouteTablesResponse{}
+	err = body.Unmarshal(&resp)
+	if err != nil {
+		log.Errorf("Unmarshal routeEntrys fail %s", err)
+		return nil, 0, err
+	}
+	routeTables := resp.RouteTables.RouteTable
+	if len(routeTables) != 1 {
+		return nil, 0, fmt.Errorf("expecting 1 route table, got %d", len(routeTables))
+	}
+	routeTable := routeTables[0]
+	return routeTable.RouteEntrys.RouteEntry, resp.TotalCount, nil
 }
 
 func (self *SVpc) RemoteGetRouteTableList(offset int, limit int) ([]*SRouteTable, int, error) {

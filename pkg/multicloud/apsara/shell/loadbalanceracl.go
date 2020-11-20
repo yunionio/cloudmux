@@ -15,18 +15,19 @@
 package shell
 
 import (
-	"yunion.io/x/onecloud/pkg/multicloud/aliyun"
-	"yunion.io/x/onecloud/pkg/multicloud/test"
+	"yunion.io/x/onecloud/pkg/multicloud/apsara"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 
 func init() {
-	test.TestShell()
-	type RegionListOptions struct {
+	type LoadbalancerACLListOptions struct {
 	}
-	shellutils.R(&RegionListOptions{}, "region-list", "List regions", func(cli *aliyun.SRegion, args *RegionListOptions) error {
-		regions := cli.GetClient().GetRegions()
-		printList(regions, 0, 0, 0, nil)
+	shellutils.R(&LoadbalancerACLListOptions{}, "lb-acl-list", "List loadbalanceAcls", func(cli *apsara.SRegion, args *LoadbalancerACLListOptions) error {
+		acls, err := cli.GetLoadBalancerAcls()
+		if err != nil {
+			return err
+		}
+		printList(acls, len(acls), 0, 0, []string{})
 		return nil
 	})
 }

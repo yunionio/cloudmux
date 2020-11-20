@@ -14,19 +14,8 @@
 
 package shell
 
-import (
-	"yunion.io/x/onecloud/pkg/multicloud/aliyun"
-	"yunion.io/x/onecloud/pkg/multicloud/test"
-	"yunion.io/x/onecloud/pkg/util/shellutils"
-)
+import "yunion.io/x/onecloud/pkg/multicloud/objectstore"
 
 func init() {
-	test.TestShell()
-	type RegionListOptions struct {
-	}
-	shellutils.R(&RegionListOptions{}, "region-list", "List regions", func(cli *aliyun.SRegion, args *RegionListOptions) error {
-		regions := cli.GetClient().GetRegions()
-		printList(regions, 0, 0, 0, nil)
-		return nil
-	})
+	objectstore.S3Shell()
 }

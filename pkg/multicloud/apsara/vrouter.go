@@ -12,21 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package shell
+package apsara
 
 import (
-	"yunion.io/x/onecloud/pkg/multicloud/aliyun"
-	"yunion.io/x/onecloud/pkg/multicloud/test"
-	"yunion.io/x/onecloud/pkg/util/shellutils"
+	"time"
 )
 
-func init() {
-	test.TestShell()
-	type RegionListOptions struct {
-	}
-	shellutils.R(&RegionListOptions{}, "region-list", "List regions", func(cli *aliyun.SRegion, args *RegionListOptions) error {
-		regions := cli.GetClient().GetRegions()
-		printList(regions, 0, 0, 0, nil)
-		return nil
-	})
+// "CreationTime":"2017-03-19T13:37:40Z","Description":"","RegionId":"cn-hongkong","RouteTableIds":{"RouteTableId":["vtb-j6c60lectdi80rk5xz43g"]},"VRouterId":"vrt-j6c00qrol733dg36iq4qj","VRouterName":"","VpcId":"vpc-j6c86z3sh8ufhgsxwme0q"
+
+type SRouteTableIds struct {
+	RouteTableId []string
+}
+
+type SVRouter struct {
+	CreationTime  time.Time
+	Description   string
+	RegionId      string
+	RouteTableIds SRouteTableIds
+	VRouterId     string
+	VRouterName   string
+	VpcId         string
 }

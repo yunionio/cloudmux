@@ -15,18 +15,22 @@
 package shell
 
 import (
-	"yunion.io/x/onecloud/pkg/multicloud/aliyun"
-	"yunion.io/x/onecloud/pkg/multicloud/test"
+	"yunion.io/x/onecloud/pkg/multicloud/apsara"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 
 func init() {
-	test.TestShell()
-	type RegionListOptions struct {
+	type NetworkInterfaceListOptions struct {
+		InstanceId string `help:"Id or instance"`
+		Offset     int
+		Limit      int
 	}
-	shellutils.R(&RegionListOptions{}, "region-list", "List regions", func(cli *aliyun.SRegion, args *RegionListOptions) error {
-		regions := cli.GetClient().GetRegions()
-		printList(regions, 0, 0, 0, nil)
+	shellutils.R(&NetworkInterfaceListOptions{}, "network-interface-list", "List networkinterfaces", func(cli *apsara.SRegion, args *NetworkInterfaceListOptions) error {
+		interfaces, total, err := cli.GetNetworkInterfaces(args.InstanceId, args.Offset, args.Limit)
+		if err != nil {
+			return err
+		}
+		printList(interfaces, total, 0, 0, nil)
 		return nil
 	})
 }
