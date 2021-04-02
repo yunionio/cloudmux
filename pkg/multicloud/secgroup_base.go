@@ -14,6 +14,12 @@
 
 package multicloud
 
+import "yunion.io/x/onecloud/pkg/cloudprovider"
+
 type SSecurityGroup struct {
 	SVirtualResourceBase
+}
+
+func (self *SSecurityGroup) GetReferences() ([]cloudprovider.SecurityGroupReference, error) {
+	return []cloudprovider.SecurityGroupReference{}, nil
 }
