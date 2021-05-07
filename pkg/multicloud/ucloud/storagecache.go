@@ -26,14 +26,14 @@ import (
 	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/utils"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/compute/options"
-	"yunion.io/x/onecloud/pkg/mcclient"
-	"yunion.io/x/onecloud/pkg/mcclient/auth"
-	"yunion.io/x/onecloud/pkg/mcclient/modules"
-	"yunion.io/x/onecloud/pkg/multicloud"
-	"yunion.io/x/onecloud/pkg/util/qemuimg"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/compute/options"
+	"yunion.io/x/cloudmux/pkg/mcclient"
+	"yunion.io/x/cloudmux/pkg/mcclient/auth"
+	"yunion.io/x/cloudmux/pkg/mcclient/modules"
+	"yunion.io/x/cloudmux/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/util/qemuimg"
 )
 
 type SStoragecache struct {

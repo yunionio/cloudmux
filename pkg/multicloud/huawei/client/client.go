@@ -17,9 +17,9 @@ package client
 import (
 	"net/http"
 
-	"yunion.io/x/onecloud/pkg/multicloud/huawei/client/auth"
-	"yunion.io/x/onecloud/pkg/multicloud/huawei/client/auth/credentials"
-	"yunion.io/x/onecloud/pkg/multicloud/huawei/client/modules"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei/client/auth"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei/client/auth/credentials"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei/client/modules"
 )
 
 type Client struct {

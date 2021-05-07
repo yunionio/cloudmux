@@ -1,4 +1,4 @@
-// Copyright 2019 Yunion
+// Copyright 2021 Yunion
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 
 package multicloud
 
-import "yunion.io/x/onecloud/pkg/cloudprovider"
+import "yunion.io/x/cloudmux/pkg/cloudprovider"
 
 type SSecurityGroup struct {
 	SVirtualResourceBase

@@ -21,10 +21,10 @@ import (
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/util/netutils"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
-	"yunion.io/x/onecloud/pkg/util/rbacutils"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/util/rbacutils"
 )
 
 // https://docs.ucloud.cn/api/vpc2.0-api/describe_subnet

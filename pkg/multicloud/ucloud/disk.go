@@ -20,16 +20,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
-
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/log"
+	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/utils"
 
-	billing_api "yunion.io/x/onecloud/pkg/apis/billing"
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/api"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 // https://docs.ucloud.cn/api/udisk-api/describe_udisk

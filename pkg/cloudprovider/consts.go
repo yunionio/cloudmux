@@ -16,8 +16,6 @@ package cloudprovider
 
 import (
 	"yunion.io/x/pkg/errors"
-
-	"yunion.io/x/onecloud/pkg/httperrors"
 )
 
 const (
@@ -36,8 +34,9 @@ const (
 	ErrNotImplemented = errors.ErrNotImplemented
 	ErrNotSupported   = errors.ErrNotSupported
 
-	ErrInvalidProvider     = httperrors.ErrInvalidProvider
-	ErrNoBalancePermission = httperrors.ErrNoBalancePermission
+	ErrTooLarge            = errors.Error("TooLargeEntity")
+	ErrInvalidProvider     = errors.Error("InvalidProvider")
+	ErrNoBalancePermission = errors.Error("NoBalancePermission")
 )
 
 const (
@@ -56,12 +55,4 @@ const (
 	CLOUD_CAPABILITY_SAML_AUTH       = "saml_auth" // 是否支持SAML 2.0
 	CLOUD_CAPABILITY_NAT             = "nat"       // NAT网关
 	CLOUD_CAPABILITY_NAS             = "nas"       // NAS
-)
-
-const (
-	CLOUD_ENV_PUBLIC_CLOUD  = "public"
-	CLOUD_ENV_PRIVATE_CLOUD = "private"
-	CLOUD_ENV_ON_PREMISE    = "onpremise"
-
-	CLOUD_ENV_PRIVATE_ON_PREMISE = "private_or_onpremise"
 )

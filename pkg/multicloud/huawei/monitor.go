@@ -17,7 +17,7 @@ package huawei
 import (
 	"time"
 
-	"yunion.io/x/onecloud/pkg/multicloud/huawei/client/modules"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei/client/modules"
 )
 
 func (r *SRegion) GetMetrics() ([]modules.SMetricMeta, error) {

@@ -24,7 +24,7 @@ import (
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/log"
 
-	"yunion.io/x/onecloud/pkg/util/httputils"
+	"yunion.io/x/cloudmux/pkg/util/httputils"
 )
 
 const UCLOUD_API_HOST = "https://api.ucloud.cn"

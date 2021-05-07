@@ -21,10 +21,10 @@ import (
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/errors"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/mcclient"
-	"yunion.io/x/onecloud/pkg/multicloud"
-	"yunion.io/x/onecloud/pkg/util/httputils"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/mcclient"
+	"yunion.io/x/cloudmux/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/util/httputils"
 )
 
 type SProject struct {

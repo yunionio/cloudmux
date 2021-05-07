@@ -20,8 +20,8 @@ import (
 
 	"yunion.io/x/pkg/errors"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/util/rand"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/util/rand"
 )
 
 type SKeypair struct {

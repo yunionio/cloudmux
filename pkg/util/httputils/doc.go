@@ -1,4 +1,4 @@
-// Copyright 2019 Yunion
+// Copyright 2021 Yunion
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,4 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package httputils // import "yunion.io/x/onecloud/pkg/util/httputils"
+package httputils // import "yunion.io/x/cloudmux/pkg/util/httputils"

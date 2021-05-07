@@ -14,7 +14,7 @@
 
 package azure
 
-import "yunion.io/x/onecloud/pkg/multicloud"
+import "yunion.io/x/cloudmux/pkg/multicloud"
 
 type SDBInstanceAccount struct {
 	multicloud.SDBInstanceAccountBase

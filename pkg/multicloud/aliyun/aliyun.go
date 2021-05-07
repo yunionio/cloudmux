@@ -1,4 +1,4 @@
-// Copyright 2019 Yunion
+// Copyright 2021 Yunion
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,16 +24,16 @@ import (
 	alierr "github.com/aliyun/alibaba-cloud-sdk-go/sdk/errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
-	"github.com/pkg/errors"
 
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/log"
+	"yunion.io/x/pkg/errors"
 	v "yunion.io/x/pkg/util/version"
 	"yunion.io/x/pkg/utils"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/util/httputils"
+	"yunion.io/x/cloudmux/pkg/api"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/util/httputils"
 )
 
 const (
@@ -223,7 +223,7 @@ func _jsonRequest(client *sdk.Client, domain string, version string, apiName str
 		}
 	}
 	req.Scheme = "https"
-	req.GetHeaders()["User-Agent"] = "vendor/yunion-OneCloud@" + v.Get().GitVersion
+	req.GetHeaders()["User-Agent"] = "vendor/yunion-cloudmux@" + v.Get().GitVersion
 
 	resp, err := processCommonRequest(client, req)
 	if err != nil {

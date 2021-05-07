@@ -25,10 +25,10 @@ import (
 	"yunion.io/x/pkg/util/secrules"
 	"yunion.io/x/pkg/utils"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/httperrors"
-	"yunion.io/x/onecloud/pkg/multicloud"
-	"yunion.io/x/onecloud/pkg/util/httputils"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/httperrors"
+	"yunion.io/x/cloudmux/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/util/httputils"
 )
 
 const (

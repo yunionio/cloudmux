@@ -1,4 +1,4 @@
-// Copyright 2019 Yunion
+// Copyright 2021 Yunion
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,18 +15,18 @@
 package provider
 
 import (
-	"context"
-	"fmt"
-	"strings"
+	// "context"
+	// "fmt"
+	// "strings"
 
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/pkg/errors"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/httperrors"
-	"yunion.io/x/onecloud/pkg/mcclient"
-	"yunion.io/x/onecloud/pkg/multicloud/aliyun"
+	"yunion.io/x/cloudmux/pkg/api"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	// "yunion.io/x/cloudmux/pkg/httperrors"
+	// "yunion.io/x/cloudmux/pkg/mcclient"
+	"yunion.io/x/cloudmux/pkg/multicloud/aliyun"
 )
 
 type SAliyunProviderFactory struct {
@@ -151,34 +151,38 @@ func (self *SAliyunProviderFactory) GetTTLRange(zoneType cloudprovider.TDnsZoneT
 	return cloudprovider.TTlRange{}
 }
 
-func (self *SAliyunProviderFactory) ValidateCreateCloudaccountData(ctx context.Context, userCred mcclient.TokenCredential, input cloudprovider.SCloudaccountCredential) (cloudprovider.SCloudaccount, error) {
-	output := cloudprovider.SCloudaccount{}
-	if len(input.AccessKeyId) == 0 {
-		return output, errors.Wrap(httperrors.ErrMissingParameter, "access_key_id")
-	}
-	if len(input.AccessKeySecret) == 0 {
-		return output, errors.Wrap(httperrors.ErrMissingParameter, "access_key_secret")
-	}
-	output.AccessUrl = input.Environment
-	output.Account = input.AccessKeyId
-	output.Secret = input.AccessKeySecret
-	return output, nil
-}
+/*
+ * func (self *SAliyunProviderFactory) ValidateCreateCloudaccountData(ctx context.Context, userCred mcclient.TokenCredential, input cloudprovider.SCloudaccountCredential) (cloudprovider.SCloudaccount, error) {
+ *     output := cloudprovider.SCloudaccount{}
+ *     if len(input.AccessKeyId) == 0 {
+ *         return output, errors.Wrap(httperrors.ErrMissingParameter, "access_key_id")
+ *     }
+ *     if len(input.AccessKeySecret) == 0 {
+ *         return output, errors.Wrap(httperrors.ErrMissingParameter, "access_key_secret")
+ *     }
+ *     output.AccessUrl = input.Environment
+ *     output.Account = input.AccessKeyId
+ *     output.Secret = input.AccessKeySecret
+ *     return output, nil
+ * }
+ */
 
-func (self *SAliyunProviderFactory) ValidateUpdateCloudaccountCredential(ctx context.Context, userCred mcclient.TokenCredential, input cloudprovider.SCloudaccountCredential, cloudaccount string) (cloudprovider.SCloudaccount, error) {
-	output := cloudprovider.SCloudaccount{}
-	if len(input.AccessKeyId) == 0 {
-		return output, errors.Wrap(httperrors.ErrMissingParameter, "access_key_id")
-	}
-	if len(input.AccessKeySecret) == 0 {
-		return output, errors.Wrap(httperrors.ErrMissingParameter, "access_key_secret")
-	}
-	output = cloudprovider.SCloudaccount{
-		Account: input.AccessKeyId,
-		Secret:  input.AccessKeySecret,
-	}
-	return output, nil
-}
+/*
+ * func (self *SAliyunProviderFactory) ValidateUpdateCloudaccountCredential(ctx context.Context, userCred mcclient.TokenCredential, input cloudprovider.SCloudaccountCredential, cloudaccount string) (cloudprovider.SCloudaccount, error) {
+ *     output := cloudprovider.SCloudaccount{}
+ *     if len(input.AccessKeyId) == 0 {
+ *         return output, errors.Wrap(httperrors.ErrMissingParameter, "access_key_id")
+ *     }
+ *     if len(input.AccessKeySecret) == 0 {
+ *         return output, errors.Wrap(httperrors.ErrMissingParameter, "access_key_secret")
+ *     }
+ *     output = cloudprovider.SCloudaccount{
+ *         Account: input.AccessKeyId,
+ *         Secret:  input.AccessKeySecret,
+ *     }
+ *     return output, nil
+ * }
+ */
 
 func validateClientCloudenv(client *aliyun.SAliyunClient) error {
 	regions := client.GetIRegions()
@@ -196,11 +200,11 @@ func validateClientCloudenv(client *aliyun.SAliyunClient) error {
 
 	if isFinanceAccount {
 		if regions[0].GetCloudEnv() != "FinanceCloud" {
-			return errors.Wrap(httperrors.ErrInvalidCredential, "aksk is aliyun finance account")
+			return errors.Wrap(cloudprovider.ErrInvalidCredential, "aksk is aliyun finance account")
 		}
 	} else {
 		if regions[0].GetCloudEnv() == "FinanceCloud" {
-			return errors.Wrap(httperrors.ErrInvalidCredential, "aksk is not aliyun finance account")
+			return errors.Wrap(cloudprovider.ErrInvalidCredential, "aksk is not aliyun finance account")
 		}
 	}
 

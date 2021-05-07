@@ -17,7 +17,7 @@ package aliyun
 import (
 	"time"
 
-	"github.com/pkg/errors"
+	"yunion.io/x/pkg/errors"
 )
 
 type SCdnDomainNames struct {

@@ -1,4 +1,4 @@
-// Copyright 2019 Yunion
+// Copyright 2021 Yunion
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,10 +20,10 @@ import (
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/pkg/util/osprofile"
 
-	"yunion.io/x/onecloud/pkg/util/ansible"
-	"yunion.io/x/onecloud/pkg/util/billing"
-	"yunion.io/x/onecloud/pkg/util/cloudinit"
-	"yunion.io/x/onecloud/pkg/util/seclib2"
+	"yunion.io/x/cloudmux/pkg/api"
+	"yunion.io/x/cloudmux/pkg/util/billing"
+	"yunion.io/x/cloudmux/pkg/util/cloudinit"
+	"yunion.io/x/cloudmux/pkg/util/seclib2"
 )
 
 type SDistDefaultAccount struct {
@@ -173,7 +173,7 @@ func generateUserData(adminPublicKey, projectPublicKey, oUserData string) string
 		oCloudConfig, _ = cloudinit.ParseUserData(oUserData)
 	}
 
-	ansibleUser := cloudinit.NewUser(ansible.PUBLIC_CLOUD_ANSIBLE_USER)
+	ansibleUser := cloudinit.NewUser(api.PUBLIC_CLOUD_ANSIBLE_USER)
 	ansibleUser.SshKey(adminPublicKey).SshKey(projectPublicKey).SudoPolicy(cloudinit.USER_SUDO_NOPASSWD)
 
 	cloudConfig := cloudinit.SCloudConfig{

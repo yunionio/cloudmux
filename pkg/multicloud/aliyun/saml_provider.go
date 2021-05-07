@@ -1,4 +1,4 @@
-// Copyright 2019 Yunion
+// Copyright 2021 Yunion
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 
 package aliyun
 
-import (
+/*import (
 	"encoding/base64"
 	"fmt"
 	"time"
@@ -22,13 +22,14 @@ import (
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/pkg/errors"
 
-	"yunion.io/x/onecloud/pkg/apis/cloudid"
-	api "yunion.io/x/onecloud/pkg/apis/cloudid"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/compute/options"
-	"yunion.io/x/onecloud/pkg/multicloud"
-	"yunion.io/x/onecloud/pkg/util/httputils"
-	"yunion.io/x/onecloud/pkg/util/samlutils"
+	"yunion.io/x/cloudmux/pkg/apis/cloudid"
+	api "yunion.io/x/cloudmux/pkg/apis/cloudid"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/compute/options"
+	"yunion.io/x/cloudmux/pkg/util/samlutils"
+
+	"yunion.io/x/cloudmux/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/util/httputils"
 )
 
 type SAMLProvider struct {
@@ -195,4 +196,4 @@ func (self *SAliyunClient) GetICloudSAMLProviders() ([]cloudprovider.ICloudSAMLP
 		ret = append(ret, &sps[i])
 	}
 	return ret, nil
-}
+}*/

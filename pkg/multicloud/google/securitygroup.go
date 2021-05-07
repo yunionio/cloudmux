@@ -25,8 +25,8 @@ import (
 	"yunion.io/x/pkg/util/secrules"
 	"yunion.io/x/pkg/utils"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 const (

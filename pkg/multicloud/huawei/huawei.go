@@ -23,12 +23,12 @@ import (
 	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/util/timeutils"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud/huawei/client"
-	"yunion.io/x/onecloud/pkg/multicloud/huawei/client/auth"
-	"yunion.io/x/onecloud/pkg/multicloud/huawei/client/auth/credentials"
-	"yunion.io/x/onecloud/pkg/multicloud/huawei/obs"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei/client"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei/client/auth"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei/client/auth/credentials"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei/obs"
 )
 
 /*

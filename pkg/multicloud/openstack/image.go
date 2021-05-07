@@ -26,13 +26,13 @@ import (
 
 	"yunion.io/x/jsonutils"
 
-	"yunion.io/x/onecloud/pkg/apis"
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
-	"yunion.io/x/onecloud/pkg/util/imagetools"
-	"yunion.io/x/onecloud/pkg/util/qemuimg"
-	"yunion.io/x/onecloud/pkg/util/rbacutils"
+	"yunion.io/x/cloudmux/pkg/apis"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/util/imagetools"
+	"yunion.io/x/cloudmux/pkg/util/qemuimg"
+	"yunion.io/x/cloudmux/pkg/util/rbacutils"
 )
 
 const (

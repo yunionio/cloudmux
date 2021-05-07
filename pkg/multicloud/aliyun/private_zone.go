@@ -20,9 +20,9 @@ import (
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/pkg/errors"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/api"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 var allowedTtls = []int64{5, 10, 15, 20, 30, 60, 120, 300, 600, 1800, 3600, 43200, 86400}

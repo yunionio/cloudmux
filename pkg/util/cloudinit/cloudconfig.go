@@ -1,4 +1,4 @@
-// Copyright 2019 Yunion
+// Copyright 2021 Yunion
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import (
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/utils"
 
-	"yunion.io/x/onecloud/pkg/util/seclib2"
+	"yunion.io/x/cloudmux/pkg/util/seclib2"
 )
 
 /*

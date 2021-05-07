@@ -26,9 +26,9 @@ import (
 	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/tristate"
 
-	"yunion.io/x/onecloud/pkg/httperrors"
-	"yunion.io/x/onecloud/pkg/util/httputils"
-	"yunion.io/x/onecloud/pkg/util/s3auth"
+	"yunion.io/x/cloudmux/pkg/httperrors"
+	"yunion.io/x/cloudmux/pkg/util/httputils"
+	"yunion.io/x/cloudmux/pkg/util/s3auth"
 )
 
 type SCephAdminApi struct {

@@ -25,11 +25,11 @@ import (
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/utils"
 
-	"yunion.io/x/onecloud/pkg/apis"
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
-	"yunion.io/x/onecloud/pkg/util/imagetools"
+	"yunion.io/x/cloudmux/pkg/apis"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/util/imagetools"
 )
 
 type ImageStatusType string

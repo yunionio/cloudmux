@@ -1,4 +1,4 @@
-// Copyright 2019 Yunion
+// Copyright 2021 Yunion
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ import (
 	"context"
 	"reflect"
 
-	"yunion.io/x/onecloud/pkg/cloudcommon/db/lockman"
+	"yunion.io/x/cloudmux/pkg/cloudcommon/db/lockman"
 )
 
 const (

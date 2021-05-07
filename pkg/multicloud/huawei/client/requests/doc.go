@@ -12,4 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package requests // import "yunion.io/x/onecloud/pkg/multicloud/huawei/client/requests"
+package requests // import "yunion.io/x/cloudmux/pkg/multicloud/huawei/client/requests"

@@ -12,4 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package provider // import "yunion.io/x/onecloud/pkg/multicloud/objectstore/ceph/provider"
+package provider // import "yunion.io/x/cloudmux/pkg/multicloud/objectstore/ceph/provider"

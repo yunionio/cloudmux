@@ -1,4 +1,4 @@
-// Copyright 2019 Yunion
+// Copyright 2021 Yunion
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@ package multicloud
 import (
 	"yunion.io/x/pkg/errors"
 
-	apis "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/api"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 )
 
 type SVpc struct {
@@ -70,7 +70,7 @@ func (self *SVpc) IsSupportSetExternalAccess() bool {
 }
 
 func (self *SVpc) GetExternalAccessMode() string {
-	return apis.VPC_EXTERNAL_ACCESS_MODE_EIP
+	return api.VPC_EXTERNAL_ACCESS_MODE_EIP
 }
 
 func (self *SVpc) AttachInternetGateway(igwId string) error {

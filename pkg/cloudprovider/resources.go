@@ -1,4 +1,4 @@
-// Copyright 2019 Yunion
+// Copyright 2021 Yunion
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,10 +22,9 @@ import (
 	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/tristate"
 
-	"yunion.io/x/onecloud/pkg/mcclient"
-	"yunion.io/x/onecloud/pkg/util/billing"
-	"yunion.io/x/onecloud/pkg/util/rbacutils"
-	"yunion.io/x/onecloud/pkg/util/samlutils"
+	"yunion.io/x/cloudmux/pkg/util/billing"
+	// "yunion.io/x/cloudmux/pkg/util/rbacutils"
+	// "yunion.io/x/cloudmux/pkg/util/samlutils"
 )
 
 type ICloudResource interface {
@@ -195,7 +194,7 @@ type ICloudImage interface {
 	GetImageFormat() string
 	GetCreatedAt() time.Time
 	UEFI() bool
-	GetPublicScope() rbacutils.TRbacScope
+	// GetPublicScope() rbacutils.TRbacScope
 	GetSubImages() []SSubImage
 }
 
@@ -212,9 +211,9 @@ type ICloudStoragecache interface {
 
 	CreateIImage(snapshotId, imageName, osType, imageDesc string) (ICloudImage, error)
 
-	DownloadImage(userCred mcclient.TokenCredential, imageId string, extId string, path string) (jsonutils.JSONObject, error)
+	// DownloadImage(userCred mcclient.TokenCredential, imageId string, extId string, path string) (jsonutils.JSONObject, error)
 
-	UploadImage(ctx context.Context, userCred mcclient.TokenCredential, image *SImageCreateOption, isForce bool) (string, error)
+	// UploadImage(ctx context.Context, userCred mcclient.TokenCredential, image *SImageCreateOption, isForce bool) (string, error)
 }
 
 type ICloudStorage interface {
@@ -573,11 +572,12 @@ type ICloudNetwork interface {
 	GetIpMask() int8
 	GetGateway() string
 	GetServerType() string
+
 	//GetIsPublic() bool
 	// 仅私有云有用，公有云无效
 	// 1. scope = none 非共享, network仅会属于一个项目,并且私有
 	// 2. scope = system 系统共享 云账号共享会跟随云账号共享，云账号非共享,会共享到network所在域
-	GetPublicScope() rbacutils.TRbacScope
+	// GetPublicScope() rbacutils.TRbacScope
 
 	Delete() error
 
@@ -1186,8 +1186,8 @@ type ICloudVpcPeeringConnection interface {
 type ICloudSAMLProvider interface {
 	ICloudResource
 
-	GetMetadataDocument() (*samlutils.EntityDescriptor, error)
-	UpdateMetadata(samlutils.EntityDescriptor) error
+	// GetMetadataDocument() (*samlutils.EntityDescriptor, error)
+	// UpdateMetadata(samlutils.EntityDescriptor) error
 
 	GetAuthUrl() string
 	Delete() error

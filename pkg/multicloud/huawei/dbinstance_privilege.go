@@ -17,7 +17,7 @@ package huawei
 import (
 	"fmt"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
 )
 
 type SDatabasePrivilege struct {

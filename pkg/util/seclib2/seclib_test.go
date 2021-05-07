@@ -19,8 +19,8 @@ import (
 	"testing"
 	"time"
 
-	"yunion.io/x/onecloud/pkg/httperrors"
-	"yunion.io/x/onecloud/pkg/util/httputils"
+	"yunion.io/x/cloudmux/pkg/httperrors"
+	"yunion.io/x/cloudmux/pkg/util/httputils"
 )
 
 func TestRandomPassword2(t *testing.T) {

@@ -12,4 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package progress // import "yunion.io/x/onecloud/pkg/multicloud/azure/progress"
+package progress // import "yunion.io/x/cloudmux/pkg/multicloud/azure/progress"

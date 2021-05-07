@@ -1,4 +1,4 @@
-// Copyright 2019 Yunion
+// Copyright 2021 Yunion
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 package cloudprovider
 
 import (
-	"context"
+	// "context"
 	"fmt"
 	"net/http"
 
@@ -23,9 +23,8 @@ import (
 	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/utils"
 
-	"yunion.io/x/onecloud/pkg/httperrors"
-	"yunion.io/x/onecloud/pkg/mcclient"
-	"yunion.io/x/onecloud/pkg/util/httputils"
+	// "yunion.io/x/cloudmux/pkg/mcclient"
+	"yunion.io/x/cloudmux/pkg/util/httputils"
 )
 
 const (
@@ -184,8 +183,8 @@ type ICloudProviderFactory interface {
 	GetName() string
 
 	ValidateChangeBandwidth(instanceId string, bandwidth int64) error
-	ValidateCreateCloudaccountData(ctx context.Context, userCred mcclient.TokenCredential, input SCloudaccountCredential) (SCloudaccount, error)
-	ValidateUpdateCloudaccountCredential(ctx context.Context, userCred mcclient.TokenCredential, input SCloudaccountCredential, cloudaccount string) (SCloudaccount, error)
+	// ValidateCreateCloudaccountData(ctx context.Context, userCred mcclient.TokenCredential, input SCloudaccountCredential) (SCloudaccount, error)
+	// ValidateUpdateCloudaccountCredential(ctx context.Context, userCred mcclient.TokenCredential, input SCloudaccountCredential, cloudaccount string) (SCloudaccount, error)
 	GetSupportedBrands() []string
 
 	IsPublicCloud() bool
@@ -613,7 +612,7 @@ func (factory *baseProviderFactory) IsSupportSAMLAuth() bool {
 }
 
 func (factory *baseProviderFactory) GetProvider(providerId, providerName, url, username, password string) (ICloudProvider, error) {
-	return nil, httperrors.NewNotImplementedError("Not Implemented GetProvider")
+	return nil, ErrNotImplemented
 }
 
 func (factory *baseProviderFactory) IsOnPremise() bool {

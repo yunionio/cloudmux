@@ -18,7 +18,7 @@ import (
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/pkg/errors"
 
-	"yunion.io/x/onecloud/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SNatDEntry struct {

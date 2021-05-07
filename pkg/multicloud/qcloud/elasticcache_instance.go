@@ -11,11 +11,11 @@ import (
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/log"
 
-	billing_api "yunion.io/x/onecloud/pkg/apis/billing"
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
-	"yunion.io/x/onecloud/pkg/util/billing"
+	billing_api "yunion.io/x/cloudmux/pkg/apis/billing"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/util/billing"
 )
 
 type SElasticcache struct {

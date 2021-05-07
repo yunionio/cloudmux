@@ -1,7 +1,7 @@
 package cloudprovider
 
 import (
-	"yunion.io/x/onecloud/pkg/i18n"
+	"yunion.io/x/cloudmux/pkg/i18n"
 )
 
 type SModelI18nEntry struct {

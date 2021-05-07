@@ -37,16 +37,16 @@ import (
 	"yunion.io/x/pkg/util/regutils"
 	"yunion.io/x/pkg/utils"
 
-	billing_api "yunion.io/x/onecloud/pkg/apis/billing"
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudcommon/db/lockman"
-	cloudtypes "yunion.io/x/onecloud/pkg/cloudcommon/types"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/httperrors"
-	"yunion.io/x/onecloud/pkg/multicloud"
-	"yunion.io/x/onecloud/pkg/util/billing"
-	"yunion.io/x/onecloud/pkg/util/netutils2"
-	"yunion.io/x/onecloud/pkg/util/version"
+	billing_api "yunion.io/x/cloudmux/pkg/apis/billing"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudcommon/db/lockman"
+	cloudtypes "yunion.io/x/cloudmux/pkg/cloudcommon/types"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/httperrors"
+	"yunion.io/x/cloudmux/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/util/billing"
+	"yunion.io/x/cloudmux/pkg/util/netutils2"
+	"yunion.io/x/cloudmux/pkg/util/version"
 )
 
 var VIRTUAL_MACHINE_PROPS = []string{"name", "parent", "runtime", "summary", "config", "guest", "resourcePool", "layoutEx", "snapshot"}

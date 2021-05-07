@@ -18,7 +18,7 @@ import (
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/s3cli"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 )
 
 type IBucketProvider interface {

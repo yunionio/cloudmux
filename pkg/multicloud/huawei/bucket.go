@@ -29,9 +29,9 @@ import (
 	"yunion.io/x/pkg/utils"
 	"yunion.io/x/s3cli"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
-	"yunion.io/x/onecloud/pkg/multicloud/huawei/obs"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei/obs"
 )
 
 type SBucket struct {

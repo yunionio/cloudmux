@@ -27,11 +27,11 @@ import (
 	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/utils"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/mcclient"
-	"yunion.io/x/onecloud/pkg/util/httputils"
-	"yunion.io/x/onecloud/pkg/util/version"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/mcclient"
+	"yunion.io/x/cloudmux/pkg/util/httputils"
+	"yunion.io/x/cloudmux/pkg/util/version"
 )
 
 const (

@@ -38,7 +38,7 @@ import (
 	"yunion.io/x/pkg/util/stringutils"
 	"yunion.io/x/pkg/utils"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 )
 
 type SBinding struct {

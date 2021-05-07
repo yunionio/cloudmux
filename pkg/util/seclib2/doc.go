@@ -12,4 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package seclib2 // import "yunion.io/x/onecloud/pkg/util/seclib2"
+package seclib2 // import "yunion.io/x/cloudmux/pkg/util/seclib2"

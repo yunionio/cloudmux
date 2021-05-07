@@ -1,4 +1,4 @@
-// Copyright 2019 Yunion
+// Copyright 2021 Yunion
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,26 +15,22 @@
 package aliyun
 
 import (
-	"context"
+	// "context"
 	"fmt"
-	"io/ioutil"
-	"os"
+	// "io/ioutil"
+	// "os"
 	"strings"
 	"time"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 
-	"yunion.io/x/jsonutils"
+	// "yunion.io/x/jsonutils"
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/errors"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/compute/options"
-	"yunion.io/x/onecloud/pkg/mcclient"
-	"yunion.io/x/onecloud/pkg/mcclient/auth"
-	"yunion.io/x/onecloud/pkg/mcclient/modules"
-	"yunion.io/x/onecloud/pkg/multicloud"
-	"yunion.io/x/onecloud/pkg/util/qemuimg"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
+	// "yunion.io/x/cloudmux/pkg/util/qemuimg"
 )
 
 type SStoragecache struct {
@@ -103,6 +99,7 @@ func (self *SStoragecache) GetPath() string {
 	return ""
 }
 
+/*
 func (self *SStoragecache) UploadImage(ctx context.Context, userCred mcclient.TokenCredential, image *cloudprovider.SImageCreateOption, isForce bool) (string, error) {
 
 	if len(image.ExternalId) > 0 {
@@ -216,7 +213,7 @@ func (self *SStoragecache) uploadImage(ctx context.Context, userCred mcclient.To
 	}
 
 	return task.ImageId, nil
-}
+}*/
 
 func (self *SStoragecache) CreateIImage(snapshoutId, imageName, osType, imageDesc string) (cloudprovider.ICloudImage, error) {
 	if imageId, err := self.region.createIImage(snapshoutId, imageName, imageDesc); err != nil {
@@ -288,9 +285,10 @@ func (self *SRegion) createIImage(snapshoutId, imageName, imageDesc string) (str
 	}
 }
 
+/*
 func (self *SStoragecache) DownloadImage(userCred mcclient.TokenCredential, imageId string, extId string, path string) (jsonutils.JSONObject, error) {
 	return self.downloadImage(userCred, imageId, extId, path)
-}
+}*/
 
 // 定义进度条监听器。
 type OssProgressListener struct {
@@ -315,6 +313,7 @@ func (listener *OssProgressListener) ProgressChanged(event *oss.ProgressEvent) {
 	}
 }
 
+/*
 func (self *SStoragecache) downloadImage(userCred mcclient.TokenCredential, imageId string, extId string, path string) (jsonutils.JSONObject, error) {
 	err := self.region.GetClient().EnableImageExport()
 	if err != nil {
@@ -352,7 +351,7 @@ func (self *SStoragecache) downloadImage(userCred mcclient.TokenCredential, imag
 			return result, nil
 		}
 	}
-}
+}*/
 
 func (region *SRegion) GetIStoragecaches() ([]cloudprovider.ICloudStoragecache, error) {
 	storageCache := region.getStoragecache()

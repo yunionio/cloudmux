@@ -21,16 +21,15 @@ import (
 	"time"
 
 	"github.com/aokoli/goutils"
-	"github.com/pkg/errors"
 
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/log"
+	"yunion.io/x/pkg/errors"
 
-	billingapi "yunion.io/x/onecloud/pkg/apis/billing"
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
-	"yunion.io/x/onecloud/pkg/util/billing"
+	"yunion.io/x/cloudmux/pkg/api"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/util/billing"
 )
 
 // https://help.aliyun.com/document_detail/60933.html?spm=a2c4g.11186623.6.726.38f82ca9U1Gtxw
@@ -638,7 +637,7 @@ func (self *SRegion) CreateIElasticcaches(ec *cloudprovider.SCloudElasticCacheIn
 	params["VpcId"] = ec.VpcId
 	params["VSwitchId"] = ec.NetworkId
 	params["ChargeType"] = ec.ChargeType
-	if strings.ToLower(ec.ChargeType) == billingapi.BILLING_TYPE_PREPAID && ec.BC != nil {
+	if strings.ToLower(ec.ChargeType) == api.BILLING_TYPE_PREPAID && ec.BC != nil {
 		if ec.BC.GetMonths() >= 1 && ec.BC.GetMonths() <= 9 {
 			params["Period"] = strconv.Itoa(ec.BC.GetMonths())
 		} else if ec.BC.GetMonths() == 12 || ec.BC.GetMonths() == 24 || ec.BC.GetMonths() == 36 {

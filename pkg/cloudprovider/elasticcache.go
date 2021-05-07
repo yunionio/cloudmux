@@ -1,4 +1,4 @@
-// Copyright 2019 Yunion
+// Copyright 2021 Yunion
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 
 package cloudprovider
 
-import "yunion.io/x/onecloud/pkg/util/billing"
+import "yunion.io/x/cloudmux/pkg/util/billing"
 
 // https://support.huaweicloud.com/api-dcs/dcs-zh-api-180423019.html
 // https://help.aliyun.com/document_detail/60873.html?spm=a2c4g.11174283.6.715.7412dce0qSYemb
