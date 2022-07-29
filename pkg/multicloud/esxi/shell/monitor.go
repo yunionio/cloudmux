@@ -18,32 +18,32 @@ import (
 	"yunion.io/x/log"
 
 	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud/ecloud"
+	"yunion.io/x/onecloud/pkg/multicloud/esxi"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 
 func init() {
-	type PListOptions struct {
-	}
-	shellutils.R(&PListOptions{}, "server-producttype-list", "List productTypes", func(cli *ecloud.SRegion,
-		args *PListOptions) error {
-		prod, e := cli.GetProductTypes()
-		if e != nil {
-			return e
-		}
-		printObject(prod)
-		return nil
-	})
-
-	shellutils.R(&cloudprovider.MetricListOptions{}, "metric-list", "List metrics", func(cli *ecloud.SRegion, args *cloudprovider.MetricListOptions) error {
-		metrics, err := cli.GetClient().GetMetrics(args)
+	shellutils.R(&cloudprovider.MetricListOptions{}, "metric-list", "List metrics in a namespace", func(cli *esxi.SESXiClient, args *cloudprovider.MetricListOptions) error {
+		metrics, err := cli.GetMetrics(args)
 		if err != nil {
 			return err
 		}
 		for i := range metrics {
-			log.Infof("metric: %s %s %s", metrics[i].Id, metrics[i].MetricType, metrics[i].Unit)
-			printList(metrics[i].Values, len(metrics[i].Values), 0, 0, []string{})
+			log.Infof("metric %s %s", metrics[i].Id, metrics[i].MetricType)
+			printList(metrics[i].Values, nil)
 		}
+		return nil
+	})
+
+	type SMetricTypeShowOptions struct {
+	}
+
+	shellutils.R(&SMetricTypeShowOptions{}, "metric-type-show", "List metrics", func(cli *esxi.SESXiClient, args *SMetricTypeShowOptions) error {
+		metrics, err := cli.GetMetricTypes()
+		if err != nil {
+			return err
+		}
+		printObject(metrics)
 		return nil
 	})
 

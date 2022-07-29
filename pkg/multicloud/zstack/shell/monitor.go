@@ -15,19 +15,18 @@
 package shell
 
 import (
-	"yunion.io/x/onecloud/pkg/multicloud/jdcloud"
+	"yunion.io/x/onecloud/pkg/cloudprovider"
+	"yunion.io/x/onecloud/pkg/multicloud/aliyun"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 
 func init() {
-	type BalanceShowOptions struct {
-	}
-	shellutils.R(&BalanceShowOptions{}, "balance-show", "Show balance", func(cli *jdcloud.SRegion, args *BalanceShowOptions) error {
-		balance, err := cli.GetClient().DescribeAccountAmount()
+	shellutils.R(&cloudprovider.MetricListOptions{}, "metric-list", "List metrics in a namespace", func(cli *aliyun.SRegion, args *cloudprovider.MetricListOptions) error {
+		metrics, err := cli.GetClient().GetMetrics(args)
 		if err != nil {
 			return err
 		}
-		printObject(balance)
+		printList(metrics, 0, 0, 0, nil)
 		return nil
 	})
 }
