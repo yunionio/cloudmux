@@ -24,10 +24,11 @@ import (
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/errors"
 
-	"yunion.io/x/onecloud/pkg/apis"
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/apis"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei"
 	"yunion.io/x/onecloud/pkg/util/imagetools"
 )
 
@@ -53,7 +54,7 @@ const (
 // https://support.huaweicloud.com/api-ims/zh-cn_topic_0020091565.html
 type SImage struct {
 	multicloud.SImageBase
-	multicloud.HuaweiTags
+	huawei.HuaweiTags
 	storageCache *SStoragecache
 
 	// normalized image info
@@ -333,14 +334,16 @@ func (self *SRegion) GetImageByName(name string) (*SImage, error) {
 	return &images[0], nil
 }
 
-/* https://support.huaweicloud.com/api-ims/zh-cn_topic_0020092109.html
-   os version 取值范围： https://support.huaweicloud.com/api-ims/zh-cn_topic_0031617666.html
-   用于创建私有镜像的源云服务器系统盘大小大于等于40GB且不超过1024GB。
-   目前支持vhd，zvhd、raw，qcow2
-   todo: 考虑使用镜像快速导入。 https://support.huaweicloud.com/api-ims/zh-cn_topic_0133188204.html
-   使用OBS文件创建镜像
+/*
+https://support.huaweicloud.com/api-ims/zh-cn_topic_0020092109.html
 
-   * openstack原生接口支持的格式：https://support.huaweicloud.com/api-ims/zh-cn_topic_0031615566.html
+	os version 取值范围： https://support.huaweicloud.com/api-ims/zh-cn_topic_0031617666.html
+	用于创建私有镜像的源云服务器系统盘大小大于等于40GB且不超过1024GB。
+	目前支持vhd，zvhd、raw，qcow2
+	todo: 考虑使用镜像快速导入。 https://support.huaweicloud.com/api-ims/zh-cn_topic_0133188204.html
+	使用OBS文件创建镜像
+
+	* openstack原生接口支持的格式：https://support.huaweicloud.com/api-ims/zh-cn_topic_0031615566.html
 */
 func (self *SRegion) ImportImageJob(name string, osDist string, osVersion string, osArch string, bucket string, key string, minDiskGB int64) (string, error) {
 	os_version, err := stdVersion(osDist, osVersion, osArch)

@@ -22,13 +22,13 @@ import (
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/errors"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SAppSite struct {
 	multicloud.SResourceBase
-	multicloud.AzureTags
+	AzureTags
 	region         *SRegion
 	appServicePlan *SAppServicePlan
 
@@ -221,7 +221,7 @@ type SApp struct {
 
 type SAppEnvironment struct {
 	multicloud.SResourceBase
-	multicloud.AzureTags
+	AzureTags
 	SAppSite
 }
 

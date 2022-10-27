@@ -21,9 +21,9 @@ import (
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/pkg/util/netutils"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 	"yunion.io/x/onecloud/pkg/util/rbacutils"
 )
 
@@ -34,7 +34,7 @@ Subnets
 // https://support.huaweicloud.com/api-vpc/zh-cn_topic_0020090590.html
 type SNetwork struct {
 	multicloud.SResourceBase
-	multicloud.HcsTags
+	HcsTags
 	wire *SWire
 
 	AvailabilityZone string   `json:"availability_zone"`

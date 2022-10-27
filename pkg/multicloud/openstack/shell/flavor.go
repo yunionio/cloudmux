@@ -17,7 +17,7 @@ package shell
 import (
 	"fmt"
 
-	"yunion.io/x/onecloud/pkg/multicloud/openstack"
+	"yunion.io/x/cloudmux/pkg/multicloud/openstack"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 

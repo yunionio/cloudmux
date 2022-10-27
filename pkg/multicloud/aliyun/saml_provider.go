@@ -23,18 +23,18 @@ import (
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/pkg/errors"
 
-	"yunion.io/x/onecloud/pkg/apis/cloudid"
-	api "yunion.io/x/onecloud/pkg/apis/cloudid"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/apis/cloudid"
+	api "yunion.io/x/cloudmux/pkg/apis/cloudid"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/onecloud/pkg/compute/options"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 	"yunion.io/x/onecloud/pkg/util/httputils"
 	"yunion.io/x/onecloud/pkg/util/samlutils"
 )
 
 type SAMLProvider struct {
 	multicloud.SResourceBase
-	multicloud.AliyunTags
+	AliyunTags
 	client *SAliyunClient
 
 	Arn              string

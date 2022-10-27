@@ -21,14 +21,14 @@ import (
 
 	"yunion.io/x/pkg/errors"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SManagedSQLServerDatabase struct {
 	multicloud.SDBInstanceDatabaseBase
-	multicloud.AzureTags
+	AzureTags
 	rds *SManagedSQLServer
 
 	ID         string `json:"id"`

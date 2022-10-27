@@ -19,8 +19,8 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud/aws"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud/aws"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 

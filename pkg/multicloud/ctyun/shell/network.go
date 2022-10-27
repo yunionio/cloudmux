@@ -15,7 +15,7 @@
 package shell
 
 import (
-	"yunion.io/x/onecloud/pkg/multicloud/ctyun"
+	"yunion.io/x/cloudmux/pkg/multicloud/ctyun"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 

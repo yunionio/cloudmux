@@ -17,8 +17,8 @@ package shell
 import (
 	"fmt"
 
-	huawei "yunion.io/x/onecloud/pkg/multicloud/hcso"
-	"yunion.io/x/onecloud/pkg/multicloud/objectstore"
+	huawei "yunion.io/x/cloudmux/pkg/multicloud/hcso"
+	"yunion.io/x/cloudmux/pkg/multicloud/objectstore"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 

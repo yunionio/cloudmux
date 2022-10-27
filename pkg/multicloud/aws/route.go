@@ -17,13 +17,13 @@ package aws
 import (
 	"strings"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SRoute struct {
 	multicloud.SResourceBase
-	multicloud.AwsTags
+	AwsTags
 	routetable *SRouteTable
 
 	DestinationCIDRBlock string `json:"DestinationCidrBlock"`

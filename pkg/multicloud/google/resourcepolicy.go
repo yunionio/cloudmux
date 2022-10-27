@@ -24,8 +24,7 @@ import (
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/errors"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
 )
 
 type SDailySchedule struct {
@@ -75,7 +74,7 @@ type SSnapshotSchedulePolicy struct {
 type SResourcePolicy struct {
 	region *SRegion
 	SResourceBase
-	multicloud.GoogleTags
+	GoogleTags
 
 	CreationTimestamp      time.Time
 	Region                 string

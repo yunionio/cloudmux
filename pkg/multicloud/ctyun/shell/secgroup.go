@@ -18,8 +18,8 @@ import (
 	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/util/secrules"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud/ctyun"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud/ctyun"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 

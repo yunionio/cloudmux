@@ -21,9 +21,9 @@ import (
 
 	"yunion.io/x/jsonutils"
 
-	"yunion.io/x/onecloud/pkg/multicloud/huawei/client/manager"
-	"yunion.io/x/onecloud/pkg/multicloud/huawei/client/requests"
-	"yunion.io/x/onecloud/pkg/multicloud/huawei/client/responses"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei/client/manager"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei/client/requests"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei/client/responses"
 )
 
 type ServiceNameType string

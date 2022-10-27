@@ -14,12 +14,6 @@
 
 package compute
 
-import (
-	"time"
-
-	"yunion.io/x/onecloud/pkg/apis"
-)
-
 const (
 	// 可用
 	NAS_STATUS_AVAILABLE = "available"
@@ -40,75 +34,3 @@ const (
 	NAS_UPDATE_TAGS        = "update_tags"
 	NAS_UPDATE_TAGS_FAILED = "update_tags_fail"
 )
-
-type FileSystemListInput struct {
-	apis.StatusInfrasResourceBaseListInput
-	apis.ExternalizedResourceBaseListInput
-	ManagedResourceListInput
-
-	RegionalFilterListInput
-}
-
-type FileSystemCreateInput struct {
-	apis.StatusInfrasResourceBaseCreateInput
-	// 协议类型
-	// enum: NFS, SMB, CPFS
-	Protocol string `json:"protocol"`
-
-	// 文件系统类型
-	// enmu: extreme, standard, cpfs
-	FileSystemType string `json:"file_system_type"`
-
-	// 容量大小
-	Capacity int64 `json:"capacity"`
-
-	// IP子网Id
-	NetworkId string `json:"network_id"`
-
-	// 存储类型
-	// enmu: performance, capacity, standard, advance, advance_100, advance_200
-	StorageType string `json:"storage_type"`
-
-	// 可用区Id, 若不指定IP子网，此参数必填
-	ZoneId string `json:"zone_id"`
-
-	//swagger:ignore
-	CloudregionId string `json:"cloudregion_id"`
-
-	// 订阅Id, 若传入network_id此参数可忽略
-	ManagerId string `json:"manager_id"`
-
-	// 包年包月时间周期
-	Duration string `json:"duration"`
-
-	// 是否自动续费(仅包年包月时生效)
-	// default: false
-	AutoRenew bool `json:"auto_renew"`
-
-	// 到期释放时间，仅后付费支持
-	ExpiredAt time.Time `json:"expired_at"`
-
-	// 计费方式
-	// enum: postpaid, prepaid
-	BillingType string `json:"billing_type"`
-	// swagger:ignore
-	BillingCycle string `json:"billing_cycle"`
-}
-
-type FileSystemSyncstatusInput struct {
-}
-
-type FileSystemDetails struct {
-	apis.StatusInfrasResourceBaseDetails
-	ManagedResourceInfo
-	CloudregionResourceInfo
-
-	Vpc     string
-	Network string
-	Zone    string
-}
-
-type FileSystemRemoteUpdateInput struct {
-	// 是否覆盖替换所有标签
-	ReplaceTags *bool `json:"replace_tags" help:"replace all remote tags"`
-}

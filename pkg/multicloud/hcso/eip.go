@@ -22,10 +22,11 @@ import (
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/errors"
 
-	billing_api "yunion.io/x/onecloud/pkg/apis/billing"
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	billing_api "yunion.io/x/cloudmux/pkg/apis/billing"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei"
 )
 
 type TInternetChargeType string
@@ -67,7 +68,7 @@ type SEipAddress struct {
 	region *SRegion
 	port   *Port
 	multicloud.SEipBase
-	multicloud.HuaweiTags
+	huawei.HuaweiTags
 
 	ID                  string    `json:"id"`
 	Status              string    `json:"status"`

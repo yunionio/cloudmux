@@ -21,8 +21,8 @@ import (
 	"yunion.io/x/pkg/errors"
 
 	"yunion.io/x/onecloud/pkg/httperrors"
-	"yunion.io/x/onecloud/pkg/multicloud/huawei/client/manager"
-	"yunion.io/x/onecloud/pkg/multicloud/huawei/client/requests"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei/client/manager"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei/client/requests"
 )
 
 type SCloudEyeManager struct {

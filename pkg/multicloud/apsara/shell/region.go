@@ -15,8 +15,8 @@
 package shell
 
 import (
-	"yunion.io/x/onecloud/pkg/multicloud/apsara"
-	"yunion.io/x/onecloud/pkg/multicloud/test"
+	"yunion.io/x/cloudmux/pkg/multicloud/apsara"
+	"yunion.io/x/cloudmux/pkg/multicloud/test"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 

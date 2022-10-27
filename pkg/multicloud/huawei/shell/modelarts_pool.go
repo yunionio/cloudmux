@@ -18,8 +18,8 @@ package shell
 import (
 	"yunion.io/x/log"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud/huawei"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 

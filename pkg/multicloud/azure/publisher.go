@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"strings"
 
-	"yunion.io/x/onecloud/pkg/apis"
+	"yunion.io/x/cloudmux/pkg/apis"
 )
 
 type SPublisherDriver struct {

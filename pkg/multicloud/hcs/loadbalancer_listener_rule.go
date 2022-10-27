@@ -20,14 +20,15 @@ import (
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/log"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei"
 )
 
 type SElbListenerPolicy struct {
 	multicloud.SResourceBase
 	multicloud.SLoadbalancerRedirectBase
-	multicloud.HuaweiTags
+	huawei.HuaweiTags
 	region   *SRegion
 	lb       *SLoadbalancer
 	listener *SElbListener

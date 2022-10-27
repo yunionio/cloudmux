@@ -12,4 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package openstack // import "yunion.io/x/onecloud/pkg/multicloud/openstack"
+package openstack // import "yunion.io/x/cloudmux/pkg/multicloud/openstack"

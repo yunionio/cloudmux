@@ -22,9 +22,9 @@ import (
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/pkg/errors"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 	"yunion.io/x/onecloud/pkg/util/imagetools"
 )
 
@@ -37,7 +37,7 @@ const (
 // http://ctyun-api-url/apiproxy/v3/order/getImages
 type SImage struct {
 	multicloud.SImageBase
-	multicloud.CtyunTags
+	CtyunTags
 	storageCache *SStoragecache
 
 	// normalized image info

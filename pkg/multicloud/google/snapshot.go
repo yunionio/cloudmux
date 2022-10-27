@@ -20,14 +20,13 @@ import (
 
 	"yunion.io/x/jsonutils"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
 )
 
 type SSnapshot struct {
 	region *SRegion
 	SResourceBase
-	multicloud.GoogleTags
+	GoogleTags
 
 	CreationTimestamp  time.Time
 	Status             string
@@ -58,7 +57,7 @@ func (region *SRegion) GetSnapshot(id string) (*SSnapshot, error) {
 	return snapshot, region.Get("global/snapshots", id, snapshot)
 }
 
-//CREATING, DELETING, FAILED, READY, or UPLOADING
+// CREATING, DELETING, FAILED, READY, or UPLOADING
 func (snapshot *SSnapshot) GetStatus() string {
 	switch snapshot.Status {
 	case "CREATING":

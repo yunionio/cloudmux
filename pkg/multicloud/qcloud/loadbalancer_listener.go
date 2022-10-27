@@ -23,10 +23,10 @@ import (
 
 	"yunion.io/x/jsonutils"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
 	"yunion.io/x/onecloud/pkg/cloudcommon/db/lockman"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 var HTTP_CODES = []string{
@@ -71,7 +71,7 @@ type healthCheck struct {
 type SLBListener struct {
 	multicloud.SResourceBase
 	multicloud.SLoadbalancerRedirectBase
-	multicloud.QcloudTags
+	QcloudTags
 	lb *SLoadbalancer
 
 	Protocol          string            `json:"Protocol"` // 监听器协议类型，取值 TCP | UDP | HTTP | HTTPS | TCP_SSL

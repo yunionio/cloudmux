@@ -32,14 +32,14 @@ import (
 	"yunion.io/x/pkg/errors"
 	"yunion.io/x/s3cli"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 	"yunion.io/x/onecloud/pkg/util/fileutils2"
 )
 
 type SBucket struct {
 	multicloud.SBaseBucket
-	multicloud.AwsTags
+	AwsTags
 
 	region *SRegion
 

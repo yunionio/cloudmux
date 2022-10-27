@@ -24,17 +24,18 @@ import (
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/errors"
 
-	billing_api "yunion.io/x/onecloud/pkg/apis/billing"
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	billing_api "yunion.io/x/cloudmux/pkg/apis/billing"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei"
 	"yunion.io/x/onecloud/pkg/util/billing"
 )
 
 // https://support.huaweicloud.com/api-dcs/dcs-zh-api-180423020.html
 type SElasticcache struct {
 	multicloud.SElasticcacheBase
-	multicloud.HuaweiTags
+	huawei.HuaweiTags
 
 	region *SRegion
 

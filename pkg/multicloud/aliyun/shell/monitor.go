@@ -20,9 +20,9 @@ import (
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/util/timeutils"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/onecloud/pkg/mcclient/modulebase"
-	"yunion.io/x/onecloud/pkg/multicloud/aliyun"
+	"yunion.io/x/cloudmux/pkg/multicloud/aliyun"
 	"yunion.io/x/onecloud/pkg/util/printutils"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )

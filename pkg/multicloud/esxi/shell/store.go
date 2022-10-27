@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"os"
 
-	"yunion.io/x/onecloud/pkg/multicloud/esxi"
+	"yunion.io/x/cloudmux/pkg/multicloud/esxi"
 	"yunion.io/x/onecloud/pkg/util/printutils"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )

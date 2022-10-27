@@ -17,9 +17,9 @@ package manager
 import (
 	"yunion.io/x/jsonutils"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud/hcso/client/auth"
-	"yunion.io/x/onecloud/pkg/multicloud/hcso/client/responses"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud/hcso/client/auth"
+	"yunion.io/x/cloudmux/pkg/multicloud/hcso/client/responses"
 )
 
 type IManagerContext interface {

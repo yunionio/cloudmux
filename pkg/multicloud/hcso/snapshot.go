@@ -19,8 +19,9 @@ import (
 
 	"yunion.io/x/jsonutils"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei"
 )
 
 /*
@@ -49,7 +50,7 @@ type Metadata struct {
 // https://support.huaweicloud.com/api-evs/zh-cn_topic_0051408624.html
 type SSnapshot struct {
 	multicloud.SResourceBase
-	multicloud.HuaweiTags
+	huawei.HuaweiTags
 	region *SRegion
 
 	Metadata                              Metadata `json:"metadata"`

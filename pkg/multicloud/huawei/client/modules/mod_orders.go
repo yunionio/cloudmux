@@ -19,8 +19,8 @@ import (
 
 	"yunion.io/x/jsonutils"
 
-	"yunion.io/x/onecloud/pkg/multicloud/huawei/client/manager"
-	"yunion.io/x/onecloud/pkg/multicloud/huawei/client/responses"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei/client/manager"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei/client/responses"
 )
 
 // domian 客户账号ID https://support.huaweicloud.com/oce_faq/zh-cn_topic_0113714840.html

@@ -20,7 +20,7 @@ import (
 	"net/http"
 	"time"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 )
 
 type SBucket struct {

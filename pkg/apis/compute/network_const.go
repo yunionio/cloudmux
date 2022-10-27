@@ -14,14 +14,6 @@
 
 package compute
 
-import (
-	"time"
-)
-
-const (
-	DefaultDNSServers = "223.5.5.5,223.6.6.6"
-)
-
 const (
 	// # DEFAULT_BANDWIDTH = options.default_bandwidth
 	MAX_BANDWIDTH = 100000
@@ -72,25 +64,3 @@ var (
 		CLOUD_PROVIDER_JDCLOUD,
 	}
 )
-
-type IPAllocationDirection string
-
-const (
-	IPAllocationStepdown IPAllocationDirection = "stepdown"
-	IPAllocationStepup   IPAllocationDirection = "stepup"
-	IPAllocationRadnom   IPAllocationDirection = "random"
-	IPAllocationNone     IPAllocationDirection = "none"
-	IPAllocationDefault                        = ""
-)
-
-type SNetworkUsedAddress struct {
-	IpAddr        string
-	MacAddr       string
-	Owner         string
-	OwnerId       string
-	OwnerStatus   string
-	OwnerType     string
-	AssociateId   string
-	AssociateType string
-	CreatedAt     time.Time
-}

@@ -20,14 +20,14 @@ import (
 
 	"yunion.io/x/pkg/errors"
 
-	"yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SModelartsPoolSku struct {
 	multicloud.SResourceBase
-	multicloud.HuaweiTags
+	HuaweiTags
 	region *SRegion
 
 	Kind   string                          `json:"kind"`

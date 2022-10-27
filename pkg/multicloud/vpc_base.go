@@ -17,8 +17,8 @@ package multicloud
 import (
 	"yunion.io/x/pkg/errors"
 
-	apis "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
+	apis "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 )
 
 type SVpc struct {

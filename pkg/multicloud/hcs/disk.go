@@ -23,10 +23,11 @@ import (
 
 	"yunion.io/x/jsonutils"
 
-	billing_api "yunion.io/x/onecloud/pkg/apis/billing"
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	billing_api "yunion.io/x/cloudmux/pkg/apis/billing"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei"
 )
 
 /*
@@ -90,7 +91,7 @@ type VolumeImageMetadata struct {
 // https://support.huaweicloud.com/api-evs/zh-cn_topic_0124881427.html
 type SDisk struct {
 	multicloud.SDisk
-	multicloud.HuaweiDiskTags
+	huawei.HuaweiDiskTags
 	//details *SResourceDetail
 
 	region *SRegion

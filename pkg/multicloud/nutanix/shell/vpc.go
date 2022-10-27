@@ -15,8 +15,8 @@
 package shell
 
 import (
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud/nutanix"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud/nutanix"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 

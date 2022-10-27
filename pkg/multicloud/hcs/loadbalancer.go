@@ -24,9 +24,10 @@ import (
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/errors"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei"
 )
 
 var LB_ALGORITHM_MAP = map[string]string{
@@ -62,7 +63,7 @@ var LB_HEALTHCHECK_TYPE_MAP = map[string]string{
 
 type SLoadbalancer struct {
 	multicloud.SResourceBase
-	multicloud.HuaweiTags
+	huawei.HuaweiTags
 	region *SRegion
 	subnet *SNetwork
 	eip    *SEip

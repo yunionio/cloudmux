@@ -21,8 +21,8 @@ import (
 
 	"yunion.io/x/pkg/errors"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SPrivateendpointconnection struct {
@@ -43,7 +43,7 @@ type SPrivateendpointconnection struct {
 type SSQLServer struct {
 	region *SRegion
 	multicloud.SDBInstanceBase
-	multicloud.AzureTags
+	AzureTags
 
 	dbs []SSQLServerDatabase
 

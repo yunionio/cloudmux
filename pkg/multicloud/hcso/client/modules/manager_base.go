@@ -26,12 +26,12 @@ import (
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/errors"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/onecloud/pkg/httperrors"
-	"yunion.io/x/onecloud/pkg/multicloud/hcso/client/auth"
-	"yunion.io/x/onecloud/pkg/multicloud/hcso/client/manager"
-	"yunion.io/x/onecloud/pkg/multicloud/hcso/client/requests"
-	"yunion.io/x/onecloud/pkg/multicloud/hcso/client/responses"
+	"yunion.io/x/cloudmux/pkg/multicloud/hcso/client/auth"
+	"yunion.io/x/cloudmux/pkg/multicloud/hcso/client/manager"
+	"yunion.io/x/cloudmux/pkg/multicloud/hcso/client/requests"
+	"yunion.io/x/cloudmux/pkg/multicloud/hcso/client/responses"
 	"yunion.io/x/onecloud/pkg/util/httputils"
 )
 

@@ -20,9 +20,9 @@ import (
 
 	"yunion.io/x/jsonutils"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type Capabilitie struct {
@@ -40,7 +40,7 @@ var STORAGETYPES = []string{STORAGE_STD_LRS, STORAGE_PRE_LRS, STORAGE_STD_SSD}
 
 type SStorage struct {
 	multicloud.SStorageBase
-	multicloud.AzureTags
+	AzureTags
 	zone *SZone
 
 	storageType  string

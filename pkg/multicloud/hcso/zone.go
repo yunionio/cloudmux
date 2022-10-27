@@ -20,9 +20,10 @@ import (
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/errors"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei"
 )
 
 var StorageTypes = []string{
@@ -38,7 +39,7 @@ type ZoneState struct {
 // https://support.huaweicloud.com/api-ecs/zh-cn_topic_0065817728.html
 type SZone struct {
 	multicloud.SResourceBase
-	multicloud.HuaweiTags
+	huawei.HuaweiTags
 	region *SRegion
 	ihosts []cloudprovider.ICloudHost
 

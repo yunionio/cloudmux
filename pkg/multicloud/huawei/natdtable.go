@@ -18,12 +18,12 @@ import (
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/pkg/errors"
 
-	"yunion.io/x/onecloud/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SNatDEntry struct {
 	multicloud.SResourceBase
-	multicloud.HuaweiTags
+	HuaweiTags
 	gateway *SNatGateway
 
 	ID           string `json:"id"`

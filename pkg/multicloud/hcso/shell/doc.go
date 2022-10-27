@@ -12,4 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package shell // import "yunion.io/x/onecloud/pkg/multicloud/hcso/shell"
+package shell // import "yunion.io/x/cloudmux/pkg/multicloud/hcso/shell"

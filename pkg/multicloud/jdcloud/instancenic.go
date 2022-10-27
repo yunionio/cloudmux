@@ -17,7 +17,7 @@ package jdcloud
 import (
 	"github.com/jdcloud-api/jdcloud-sdk-go/services/vm/models"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 )
 
 type SInstanceNic struct {

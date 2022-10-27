@@ -17,8 +17,8 @@ package manager
 import (
 	"yunion.io/x/jsonutils"
 
-	"yunion.io/x/onecloud/pkg/multicloud/huawei/client/auth"
-	"yunion.io/x/onecloud/pkg/multicloud/huawei/client/responses"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei/client/auth"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei/client/responses"
 )
 
 type IManagerContext interface {

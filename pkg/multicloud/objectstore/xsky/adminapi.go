@@ -27,9 +27,10 @@ import (
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/errors"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
 	"yunion.io/x/onecloud/pkg/httperrors"
 	"yunion.io/x/onecloud/pkg/util/httputils"
+
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 )
 
 type SXskyAdminApi struct {

@@ -20,9 +20,10 @@ import (
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/pkg/errors"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei"
 )
 
 // date: 2019.07.15
@@ -39,7 +40,7 @@ const (
 
 type SRouteEntry struct {
 	multicloud.SResourceBase
-	multicloud.HuaweiTags
+	huawei.HuaweiTags
 	routeTable *SRouteTable
 
 	ID          string // route ID
@@ -104,7 +105,7 @@ func (route *SRouteEntry) GetNextHop() string {
 // And some method such as GetId and GetName of ICloudRouteTable has no practical meaning
 type SRouteTable struct {
 	multicloud.SResourceBase
-	multicloud.HuaweiTags
+	huawei.HuaweiTags
 	region *SRegion
 	vpc    *SVpc
 

@@ -22,15 +22,15 @@ import (
 
 	"yunion.io/x/pkg/errors"
 
-	api "yunion.io/x/onecloud/pkg/apis/cloudid"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/cloudid"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 	"yunion.io/x/onecloud/pkg/util/samlutils"
 )
 
 type SAMLProvider struct {
 	multicloud.SResourceBase
-	multicloud.QcloudTags
+	QcloudTags
 	client *SQcloudClient
 
 	Name         string

@@ -15,7 +15,7 @@
 package modules
 
 import (
-	"yunion.io/x/onecloud/pkg/multicloud/huawei/client/manager"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei/client/manager"
 )
 
 type SDBInstanceFlavorManager struct {

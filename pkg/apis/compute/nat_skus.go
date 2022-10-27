@@ -14,35 +14,9 @@
 
 package compute
 
-import "yunion.io/x/onecloud/pkg/apis"
-
 const (
 	NAT_SKU_AVAILABLE = "available"
 	NAT_SKU_SOLDOUT   = "soldout"
 
 	ALIYUN_NAT_SKU_DEFAULT = "Default"
 )
-
-type NatSkuListInput struct {
-	apis.EnabledStatusStandaloneResourceListInput
-	apis.ExternalizedResourceBaseListInput
-
-	RegionalFilterListInput
-
-	PostpaidStatus string `json:"postpaid_stauts"`
-	PrepaidStatus  string `json:"prepaid_status"`
-
-	Providers []string `json:"providers"`
-	// swagger:ignore
-	// Deprecated
-	Provider []string `json:"provider" yunion-deprecated-by:"providers"`
-}
-
-type NatSkuDetails struct {
-	apis.EnabledStatusStandaloneResourceDetails
-
-	CloudregionResourceInfo
-
-	// 云环境
-	CloudEnv string `json:"cloud_env"`
-}

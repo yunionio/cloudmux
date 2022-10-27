@@ -15,13 +15,13 @@
 package aws
 
 import (
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SDBInstanceDatabase struct {
 	multicloud.SDBInstanceDatabaseBase
-	multicloud.AwsTags
+	AwsTags
 
 	DBName string
 }

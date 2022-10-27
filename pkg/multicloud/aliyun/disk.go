@@ -24,9 +24,9 @@ import (
 	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/utils"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SMountInstances struct {
@@ -36,7 +36,7 @@ type SMountInstances struct {
 type SDisk struct {
 	storage *SStorage
 	multicloud.SDisk
-	multicloud.AliyunTags
+	AliyunTags
 
 	IOPS                          int
 	AttachedTime                  time.Time

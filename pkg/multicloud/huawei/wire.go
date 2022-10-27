@@ -23,15 +23,15 @@ import (
 	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/util/netutils"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 // 华为云的子网有点特殊。子网在整个region可用。
 type SWire struct {
 	multicloud.SResourceBase
-	multicloud.HuaweiTags
+	HuaweiTags
 	region *SRegion
 	vpc    *SVpc
 

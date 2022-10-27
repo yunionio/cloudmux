@@ -14,10 +14,6 @@
 
 package compute
 
-import (
-	"yunion.io/x/onecloud/pkg/apis"
-)
-
 const (
 	VPC_STATUS_PENDING       = "pending"
 	VPC_STATUS_AVAILABLE     = "available"
@@ -36,50 +32,6 @@ const (
 
 	CLASSIC_VPC_NAME = "-"
 )
-
-type UsableResourceListInput struct {
-	// filter by network usability of the resource
-	Usable *bool `json:"usable"`
-}
-
-type UsableVpcResourceListInput struct {
-	// filter by Vpc usability of the resource
-	UsableVpc *bool `json:"usable_vpc"`
-}
-
-type VpcListInput struct {
-	apis.EnabledStatusInfrasResourceBaseListInput
-	apis.ExternalizedResourceBaseListInput
-
-	ManagedResourceListInput
-	RegionalFilterListInput
-	GlobalVpcResourceListInput
-
-	DnsZoneFilterListBase
-
-	InterVpcNetworkFilterListBase
-	// 过滤可以加入指定vpc互联的vpc
-	UsableForInterVpcNetworkId string `json:"usable_for_inter_vpc_network_id"`
-
-	UsableResourceListInput
-	UsableVpcResourceListInput
-
-	// 过滤vpc底下有指定zone的ip子网
-	ZoneId string `json:"zone_id"`
-
-	// filter by globalvpc
-	Globalvpc string `json:"globalvpc"`
-
-	// 是否是默认VPC
-	// example: true
-	IsDefault *bool `json:"is_default"`
-
-	// CIDR地址段
-	// example: 192.168.222.0/24
-	CidrBlock []string `json:"cidr_block"`
-
-	OrderByNetworkCount string `json:"order_by_network_count"`
-}
 
 const (
 	VPC_PROVIDER_OVN = "ovn"

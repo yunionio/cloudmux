@@ -23,9 +23,9 @@ import (
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/errors"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SPortDetail struct {
@@ -41,7 +41,7 @@ type SPortDetail struct {
 type SEipAddress struct {
 	region *SRegion
 	multicloud.SEipBase
-	multicloud.OpenStackTags
+	OpenStackTags
 
 	RouterId          string      `json:"router_id"`
 	Status            string      `json:"status"`

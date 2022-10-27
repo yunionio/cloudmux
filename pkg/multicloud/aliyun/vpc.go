@@ -22,8 +22,8 @@ import (
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/errors"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 const (
@@ -43,7 +43,7 @@ type SVSwitchIds struct {
 
 type SVpc struct {
 	multicloud.SVpc
-	multicloud.AliyunTags
+	AliyunTags
 
 	region *SRegion
 

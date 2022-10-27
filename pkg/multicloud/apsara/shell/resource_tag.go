@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"strings"
 
-	"yunion.io/x/onecloud/pkg/multicloud/apsara"
+	"yunion.io/x/cloudmux/pkg/multicloud/apsara"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 

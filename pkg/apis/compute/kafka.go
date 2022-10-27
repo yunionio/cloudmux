@@ -14,8 +14,6 @@
 
 package compute
 
-import "yunion.io/x/onecloud/pkg/apis"
-
 const (
 	KAFKA_STATUS_AVAILABLE     = "available"
 	KAFKA_STATUS_UNAVAILABLE   = "unavailable"
@@ -24,27 +22,3 @@ const (
 	KAFKA_STATUS_DELETE_FAILED = "delete_failed"
 	KAFKA_STATUS_UNKNOWN       = "unknown"
 )
-
-type KafkaCreateInput struct {
-}
-
-// 资源返回详情
-type KafkaDetails struct {
-	apis.VirtualResourceDetails
-	ManagedResourceInfo
-	CloudregionResourceInfo
-	VpcResourceInfoBase
-	NetworkResourceInfoBase
-	ZoneResourceInfoBase
-}
-
-// 资源列表请求参数
-type KafkaListInput struct {
-	apis.VirtualResourceListInput
-	apis.ExternalizedResourceBaseListInput
-	apis.DeletePreventableResourceBaseListInput
-
-	RegionalFilterListInput
-	ManagedResourceListInput
-	VpcFilterListInput
-}

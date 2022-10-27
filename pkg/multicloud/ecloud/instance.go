@@ -22,10 +22,10 @@ import (
 	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/util/sets"
 
-	billing_api "yunion.io/x/onecloud/pkg/apis/billing"
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	billing_api "yunion.io/x/cloudmux/pkg/apis/billing"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 	"yunion.io/x/onecloud/pkg/util/billing"
 )
 
@@ -48,7 +48,7 @@ func (nr *SNovaRequest) GetPort() string {
 
 type SInstance struct {
 	multicloud.SInstanceBase
-	multicloud.EcloudTags
+	EcloudTags
 	multicloud.SBillingBase
 	SZoneRegionBase
 	SCreateTime

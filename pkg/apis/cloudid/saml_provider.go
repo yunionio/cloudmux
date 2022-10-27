@@ -14,8 +14,6 @@
 
 package cloudid
 
-import "yunion.io/x/onecloud/pkg/apis"
-
 const (
 	SAML_PROVIDER_STATUS_AVAILABLE              = "available"
 	SAML_PROVIDER_STATUS_NOT_MATCH              = "not_match"
@@ -29,27 +27,3 @@ const (
 	SAML_PROVIDER_STATUS_UPDATE_METADATA_FAILED = "update_metadata_failed"
 	SAML_PROVIDER_STATUS_SYNC                   = "sync"
 )
-
-type SAMLProviderListInput struct {
-	apis.StatusInfrasResourceBaseListInput
-	CloudaccountResourceListInput
-}
-
-type SAMLProviderDetails struct {
-	apis.StatusInfrasResourceBaseDetails
-	CloudaccountResourceDetails
-
-	SSAMLProvider
-}
-
-type SAMLProviderCreateInput struct {
-	apis.StatusInfrasResourceBaseCreateInput
-
-	CloudaccountId string `json:"cloudaccount_id"`
-
-	// swagger:ignore
-	EntityId string `json:"entity_id"`
-
-	// swagger:ignore
-	MetadataDocument string `json:"metadata_document"`
-}

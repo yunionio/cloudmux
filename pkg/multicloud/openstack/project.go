@@ -21,15 +21,15 @@ import (
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/errors"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
 	"yunion.io/x/onecloud/pkg/mcclient"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 	"yunion.io/x/onecloud/pkg/util/httputils"
 )
 
 type SProject struct {
 	multicloud.SProjectBase
-	multicloud.OpenStackTags
+	OpenStackTags
 	client      *SOpenStackClient
 	Description string
 	Enabled     bool

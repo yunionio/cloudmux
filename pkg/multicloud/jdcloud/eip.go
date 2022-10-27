@@ -22,15 +22,15 @@ import (
 	"github.com/jdcloud-api/jdcloud-sdk-go/services/vpc/client"
 	"github.com/jdcloud-api/jdcloud-sdk-go/services/vpc/models"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SEip struct {
 	region *SRegion
 	multicloud.SEipBase
-	multicloud.JdcloudTags
+	JdcloudTags
 
 	models.ElasticIp
 }

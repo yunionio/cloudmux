@@ -21,15 +21,15 @@ import (
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/log"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SStorage struct {
 	zone *SZone
 	multicloud.SStorageBase
-	multicloud.HuaweiTags
+	HuaweiTags
 	storageType string // volume_type 目前支持“SSD”，“SAS”和“SATA”三种
 }
 

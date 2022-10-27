@@ -25,9 +25,9 @@ import (
 	"sync"
 	"time"
 
-	"yunion.io/x/onecloud/pkg/multicloud/huawei/client/auth/credentials"
-	"yunion.io/x/onecloud/pkg/multicloud/huawei/client/auth/signers"
-	"yunion.io/x/onecloud/pkg/multicloud/huawei/client/requests"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei/client/auth/credentials"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei/client/auth/signers"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei/client/requests"
 )
 
 type Signer interface {

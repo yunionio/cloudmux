@@ -21,9 +21,9 @@ import (
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/log"
 
-	cloudid_api "yunion.io/x/onecloud/pkg/apis/cloudid"
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	huawei "yunion.io/x/onecloud/pkg/multicloud/hcso"
+	cloudid_api "yunion.io/x/cloudmux/pkg/apis/cloudid"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	huawei "yunion.io/x/cloudmux/pkg/multicloud/hcso"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 

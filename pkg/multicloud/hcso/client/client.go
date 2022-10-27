@@ -17,10 +17,10 @@ package client
 import (
 	"net/http"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud/hcso/client/auth"
-	"yunion.io/x/onecloud/pkg/multicloud/hcso/client/auth/credentials"
-	"yunion.io/x/onecloud/pkg/multicloud/hcso/client/modules"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud/hcso/client/auth"
+	"yunion.io/x/cloudmux/pkg/multicloud/hcso/client/auth/credentials"
+	"yunion.io/x/cloudmux/pkg/multicloud/hcso/client/modules"
 )
 
 type Client struct {

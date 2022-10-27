@@ -14,7 +14,7 @@
 
 package cloudid
 
-import "yunion.io/x/onecloud/pkg/apis"
+import "yunion.io/x/cloudmux/pkg/apis"
 
 const (
 	SERVICE_TYPE    = apis.SERVICE_TYPE_CLOUDID

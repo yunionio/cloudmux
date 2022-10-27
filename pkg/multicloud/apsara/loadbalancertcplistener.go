@@ -21,15 +21,15 @@ import (
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/pkg/utils"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SLoadbalancerTCPListener struct {
 	multicloud.SResourceBase
 	multicloud.SLoadbalancerRedirectBase
-	multicloud.ApsaraTags
+	ApsaraTags
 	lb *SLoadbalancer
 
 	ListenerPort      int    //	负载均衡实例前端使用的端口。

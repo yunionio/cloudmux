@@ -24,10 +24,10 @@ import (
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/errors"
 
-	billing "yunion.io/x/onecloud/pkg/apis/billing"
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	billing "yunion.io/x/cloudmux/pkg/apis/billing"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SDBParameterGroup struct {
@@ -75,7 +75,7 @@ type SVpcSecurityGroups struct {
 
 type SDBInstance struct {
 	multicloud.SDBInstanceBase
-	multicloud.AwsTags
+	AwsTags
 
 	region *SRegion
 
@@ -617,7 +617,7 @@ func (self *SRegion) ListRdsResourceTags(arn string) (map[string]string, error) 
 	params := map[string]string{
 		"ResourceName": arn,
 	}
-	tags := multicloud.AwsTags{}
+	tags := AwsTags{}
 	err := self.rdsRequest("ListTagsForResource", params, &tags)
 	if err != nil {
 		return nil, errors.Wrapf(err, "ListTagsForResource")

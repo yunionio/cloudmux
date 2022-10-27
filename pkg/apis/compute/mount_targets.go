@@ -14,8 +14,6 @@
 
 package compute
 
-import "yunion.io/x/onecloud/pkg/apis"
-
 const (
 	MOUNT_TARGET_STATUS_AVAILABLE     = "available"
 	MOUNT_TARGET_STATUS_UNAVAILABLE   = "unavailable"
@@ -25,52 +23,3 @@ const (
 	MOUNT_TARGET_STATUS_DELETE_FAILED = "delete_failed"
 	MOUNT_TARGET_STATUS_UNKNOWN       = "unknown"
 )
-
-type MountTargetListInput struct {
-	apis.StatusStandaloneResourceListInput
-	apis.ExternalizedResourceBaseListInput
-
-	AccessGroupFilterListInput
-	VpcFilterListInput
-	NetworkFilterListInput
-
-	// 文件系统Id
-	FileSystemId string `json:"file_system_id"`
-}
-
-type MountTargetDetails struct {
-	apis.StatusStandaloneResourceDetails
-	AccessGroupResourceInfo
-	VpcResourceInfo
-	NetworkResourceInfo
-
-	FileSystem string
-}
-
-type MountTargetCreateInput struct {
-	apis.StatusStandaloneResourceCreateInput
-
-	// 网络类型
-	// enmu: vpc, classic
-	// default: vpc
-	NetworkType string `json:"network_type"`
-
-	// 文件系统Id
-	// required: true
-	FileSystemId string `json:"file_system_id"`
-
-	// Ip子网名称或Id, network_type == vpc时有效
-	// required: true
-	NetworkId string `json:"network_id"`
-	// swagger:ignore
-	Network string `json:"network" yunion-deprecated-by:"network_id"`
-
-	// swagger:ignore
-	VpcId string `json:"vpc_id"`
-
-	// 权限组Id
-	AccessGroupId string `json:"access_group_id"`
-}
-
-type MountTargetSyncstatusInput struct {
-}

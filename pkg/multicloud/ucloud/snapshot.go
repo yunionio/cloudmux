@@ -20,15 +20,15 @@ import (
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/pkg/errors"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 // https://docs.ucloud.cn/api/udisk-api/describe_udisk_snapshot
 type SSnapshot struct {
 	multicloud.SResourceBase
-	multicloud.UcloudTags
+	UcloudTags
 	region *SRegion
 
 	Comment          string `json:"Comment"`

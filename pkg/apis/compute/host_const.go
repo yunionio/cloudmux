@@ -133,31 +133,3 @@ var HOST_TYPES = []string{
 	HOST_TYPE_PROXMOX,
 	HOST_TYPE_REMOTEFILE,
 }
-
-var NIC_TYPES = []string{NIC_TYPE_IPMI, NIC_TYPE_ADMIN}
-
-const (
-	ACCESS_MAC_ANY = "00:00:00:00:00:00"
-)
-
-const (
-	BOOT_MODE_PXE = "pxe"
-	BOOT_MODE_ISO = "iso"
-)
-
-const (
-	HOST_HEALTH_PREFIX              = "/onecloud/kvm/host/health"
-	HOST_HEALTH_STATUS_RUNNING      = "running"
-	HOST_HEALTH_STATUS_RECONNECTING = "reconnecting"
-	HOST_HEALTH_STATUS_UNKNOWN      = "unknown"
-	HOST_HEALTH_LOCK_PREFIX         = "host-health"
-)
-
-const (
-	HOSTMETA_AUTO_MIGRATE_ON_HOST_DOWN     = "__auto_migrate_on_host_down"
-	HOSTMETA_AUTO_MIGRATE_ON_HOST_SHUTDOWN = "__auto_migrate_on_host_shutdown"
-)
-
-const (
-	HOSTMETA_RESERVED_CPUS_INFO = "reserved_cpus_info"
-)

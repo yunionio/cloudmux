@@ -14,10 +14,6 @@
 
 package compute
 
-import (
-	"yunion.io/x/onecloud/pkg/apis"
-)
-
 const (
 	MODELARTS_POOL_STATUS_RUNNING       = "running"
 	MODELARTS_POOL_STATUS_ABNORMAL      = "abnormal"
@@ -27,61 +23,3 @@ const (
 	MODELARTS_POOL_STATUS_ERROR         = "error"
 	MODELARTS_POOL_STATUS_UNKNOWN       = "unknown"
 )
-
-type ModelartsPoolCreateInput struct {
-	apis.VirtualResourceCreateInput
-	DeletePreventableCreateInput
-
-	CloudregionResourceInput
-	CloudproviderResourceInput
-
-	NodeCount int
-}
-
-type ModelartsPoolUpdateInput struct {
-	apis.StatusInfrasResourceBaseCreateInput
-	CloudproviderResourceInput
-	WorkType string `json:"work_type"`
-}
-
-// 资源返回详情
-type ModelartsPoolDetails struct {
-	apis.SVirtualResourceBase
-	apis.VirtualResourceDetails
-
-	apis.SExternalizedResourceBase
-	SBillingResourceBase
-	ManagedResourceInfo
-	CloudregionResourceInfo
-}
-
-func (self ModelartsPoolDetails) GetMetricTags() map[string]string {
-	ret := map[string]string{
-		"id":                  self.Id,
-		"modelarts_pool_id":   self.Id,
-		"modelarts_pool_name": self.Name,
-		"status":              self.Status,
-		"tenant_id":           self.ProjectId,
-		"brand":               self.Brand,
-		"domain_id":           self.DomainId,
-		"account_id":          self.AccountId,
-		"account":             self.Account,
-		"external_id":         self.ExternalId,
-	}
-	return ret
-}
-
-type ModelartsPoolListInput struct {
-	apis.VirtualResourceListInput
-	apis.ExternalizedResourceBaseListInput
-	ManagedResourceListInput
-	RegionalFilterListInput
-	apis.DeletePreventableResourceBaseListInput
-}
-
-type ModelartsPoolSyncstatusInput struct {
-}
-
-type ModelartsPoolChangeConfigInput struct {
-	NodeCount int
-}

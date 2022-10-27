@@ -24,10 +24,10 @@ import (
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/errors"
 
-	"yunion.io/x/onecloud/pkg/apis"
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/apis"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 	"yunion.io/x/onecloud/pkg/util/imagetools"
 )
 
@@ -53,7 +53,7 @@ const (
 // https://support.huaweicloud.com/api-ims/zh-cn_topic_0020091565.html
 type SImage struct {
 	multicloud.SImageBase
-	multicloud.HuaweiTags
+	HuaweiTags
 	storageCache *SStoragecache
 
 	// normalized image info

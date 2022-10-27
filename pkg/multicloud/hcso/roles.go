@@ -18,8 +18,8 @@ import (
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/pkg/errors"
 
-	api "yunion.io/x/onecloud/pkg/apis/cloudid"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
+	api "yunion.io/x/cloudmux/pkg/apis/cloudid"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 )
 
 type SRole struct {

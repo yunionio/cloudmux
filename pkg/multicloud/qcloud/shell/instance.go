@@ -18,8 +18,8 @@ import (
 	"fmt"
 	"strings"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud/qcloud"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud/qcloud"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 

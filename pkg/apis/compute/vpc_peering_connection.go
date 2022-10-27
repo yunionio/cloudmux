@@ -14,8 +14,6 @@
 
 package compute
 
-import "yunion.io/x/onecloud/pkg/apis"
-
 const (
 	VPC_PEERING_CONNECTION_STATUS_CREATING       = "creating"
 	VPC_PEERING_CONNECTION_STATUS_CREATE_FAILED  = "create_failed"
@@ -25,30 +23,3 @@ const (
 	VPC_PEERING_CONNECTION_STATUS_DELETING       = "deleting"
 	VPC_PEERING_CONNECTION_STATUS_UNKNOWN        = "unknown"
 )
-
-type VpcPeeringConnectionDetails struct {
-	apis.EnabledStatusInfrasResourceBaseDetails
-	VpcResourceInfo
-
-	PeerVpcName string
-}
-
-type VpcPeeringConnectionCreateInput struct {
-	apis.EnabledStatusInfrasResourceBaseCreateInput
-	SVpcResourceBase
-	PeerVpcId string
-	//跨区域vpc对等连接带宽，仅对腾讯云有效
-	//单位Mbps,可选值 10,20,50,100,200,500,1000
-	Bandwidth int
-}
-
-type VpcPeeringConnectionListInput struct {
-	apis.EnabledStatusInfrasResourceBaseListInput
-	apis.ExternalizedResourceBaseListInput
-	VpcFilterListInput
-	PeerVpcId string
-}
-
-type VpcPeeringConnectionUpdateInput struct {
-	apis.EnabledStatusInfrasResourceBaseUpdateInput
-}

@@ -19,7 +19,7 @@ import (
 
 	"yunion.io/x/pkg/errors"
 
-	"yunion.io/x/onecloud/pkg/multicloud/aliyun"
+	"yunion.io/x/cloudmux/pkg/multicloud/aliyun"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 

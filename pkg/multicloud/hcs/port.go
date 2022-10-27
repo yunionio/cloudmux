@@ -21,9 +21,10 @@ import (
 
 	"yunion.io/x/pkg/utils"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei"
 )
 
 type SFixedIP struct {
@@ -50,7 +51,7 @@ func (fixip *SFixedIP) IsPrimary() bool {
 
 type Port struct {
 	multicloud.SNetworkInterfaceBase
-	multicloud.HuaweiTags
+	huawei.HuaweiTags
 	region          *SRegion
 	Id              string `json:"id"`
 	Name            string `json:"name"`

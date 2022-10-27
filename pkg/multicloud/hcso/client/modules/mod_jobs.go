@@ -19,8 +19,8 @@ import (
 
 	"yunion.io/x/jsonutils"
 
-	"yunion.io/x/onecloud/pkg/multicloud/hcso/client/manager"
-	"yunion.io/x/onecloud/pkg/multicloud/hcso/client/responses"
+	"yunion.io/x/cloudmux/pkg/multicloud/hcso/client/manager"
+	"yunion.io/x/cloudmux/pkg/multicloud/hcso/client/responses"
 )
 
 type SJobManager struct {

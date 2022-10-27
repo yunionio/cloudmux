@@ -21,8 +21,8 @@ import (
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/pkg/errors"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SSqlserverUserDetails struct {
@@ -31,7 +31,7 @@ type SSqlserverUserDetails struct {
 
 type SDBInstanceAccount struct {
 	multicloud.SDBInstanceAccountBase
-	multicloud.GoogleTags
+	GoogleTags
 	rds *SDBInstance
 
 	Kind                 string

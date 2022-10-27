@@ -1,1 +1,1 @@
-package shell // import "yunion.io/x/onecloud/pkg/multicloud/proxmox/shell"
+package shell // import "yunion.io/x/cloudmux/pkg/multicloud/proxmox/shell"

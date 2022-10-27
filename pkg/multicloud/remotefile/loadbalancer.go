@@ -17,7 +17,7 @@ package remotefile
 import (
 	"context"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 )
 
 type SLoadbalancer struct {

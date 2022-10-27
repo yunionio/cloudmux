@@ -25,18 +25,19 @@ import (
 
 	"yunion.io/x/onecloud/pkg/apis"
 	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
 	modules "yunion.io/x/onecloud/pkg/mcclient/modules/compute"
 	"yunion.io/x/onecloud/pkg/mcclient/modules/identity"
 	"yunion.io/x/onecloud/pkg/mcclient/modules/logger"
 	"yunion.io/x/onecloud/pkg/mcclient/modules/monitor"
 	"yunion.io/x/onecloud/pkg/mcclient/modules/webconsole"
-	"yunion.io/x/onecloud/pkg/multicloud"
+
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SInstance struct {
 	multicloud.SInstanceBase
-	multicloud.CloudpodsTags
+	CloudpodsTags
 
 	host *SHost
 	api.ServerDetails

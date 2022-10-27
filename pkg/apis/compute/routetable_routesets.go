@@ -14,8 +14,6 @@
 
 package compute
 
-import "yunion.io/x/onecloud/pkg/apis"
-
 const (
 	ROUTE_ENTRY_TYPE_CUSTOM    = "Custom" // 自定义路由
 	ROUTE_ENTRY_TYPE_SYSTEM    = "System" // 系统路由
@@ -48,30 +46,3 @@ const (
 	ROUTE_ENTRY_STATUS_DISABLED   = "disabled"
 	ROUTE_ENTRY_STATUS_UNKNOWN    = "unknown"
 )
-
-type RouteTableRouteSetCreateInput struct {
-	apis.StatusStandaloneResourceCreateInput
-	RouteTableId string
-	Cidr         string `json:"cidr"`
-	NextHopType  string `json:"next_hop_type"`
-	NextHopId    string `json:"next_hop_id"`
-	ExtNextHopId string `json:"ext_next_hop_id"`
-}
-
-type RouteTableRouteSetUpdateInput struct {
-	apis.StatusStandaloneResourceBaseUpdateInput
-	Cidr         string `json:"cidr"`
-	NextHopType  string `json:"next_hop_type"`
-	NextHopId    string `json:"next_hop_id"`
-	ExtNextHopId string `json:"ext_next_hop_id"`
-}
-
-type RouteTableRouteSetListInput struct {
-	apis.StatusStandaloneResourceListInput
-	apis.ExternalizedResourceBaseListInput
-	RouteTableFilterList
-	Type        string `json:"type"`
-	NextHopType string `json:"next_hop_type"`
-	NextHopId   string `json:"next_hop_id"`
-	Cidr        string `json:"cidr"`
-}

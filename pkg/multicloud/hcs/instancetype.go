@@ -21,16 +21,16 @@ import (
 
 	"yunion.io/x/pkg/errors"
 
-	"yunion.io/x/onecloud/pkg/apis"
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/apis"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 // https://support.huaweicloud.com/api-ecs/zh-cn_topic_0020212656.html
 type SInstanceType struct {
 	multicloud.SResourceBase
-	multicloud.HcsTags
+	HcsTags
 
 	Id           string       `json:"id"`
 	Name         string       `json:"name"`

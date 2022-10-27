@@ -21,8 +21,8 @@ import (
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/pkg/errors"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type AddressSpace struct {
@@ -44,7 +44,7 @@ type VirtualNetworkPropertiesFormat struct {
 
 type SVpc struct {
 	multicloud.SVpc
-	multicloud.AzureTags
+	AzureTags
 	region *SRegion
 
 	ID         string

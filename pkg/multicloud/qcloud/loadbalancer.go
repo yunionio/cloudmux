@@ -26,10 +26,10 @@ import (
 	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/utils"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
 	"yunion.io/x/onecloud/pkg/cloudcommon/db/lockman"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 const (
@@ -53,7 +53,7 @@ todo:
 // https://cloud.tencent.com/document/api/214/30694#LoadBalancer
 type SLoadbalancer struct {
 	multicloud.SLoadbalancerBase
-	multicloud.QcloudTags
+	QcloudTags
 	region *SRegion
 
 	Status            int64     `json:"Status"` // 0：创建中，1：正常运行

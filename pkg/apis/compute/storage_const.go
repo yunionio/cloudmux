@@ -14,10 +14,6 @@
 
 package compute
 
-import (
-	"yunion.io/x/onecloud/pkg/apis"
-)
-
 const (
 	STORAGE_LOCAL     = "local"
 	STORAGE_BAREMETAL = "baremetal"
@@ -164,79 +160,3 @@ var (
 	// 目前来说只支持这些
 	SHARED_STORAGE = []string{STORAGE_NFS, STORAGE_GPFS, STORAGE_RBD}
 )
-
-func IsDiskTypeMatch(t1, t2 string) bool {
-	switch t1 {
-	case DISK_TYPE_ROTATE:
-		if t2 == DISK_TYPE_SSD {
-			return false
-		} else {
-			return true
-		}
-	case DISK_TYPE_SSD:
-		if t2 == DISK_TYPE_ROTATE {
-			return false
-		} else {
-			return true
-		}
-	default:
-		return true
-	}
-}
-
-type StorageResourceInput struct {
-	// 存储（ID或Name）
-	StorageId string `json:"storage_id"`
-	// swagger:ignore
-	// Deprecated
-	// filter by storage_id
-	Storage string `json:"storage" yunion-deprecated-by:"storage_id"`
-}
-
-type StorageFilterListInputBase struct {
-	StorageResourceInput
-
-	// 以存储名称排序
-	// pattern:asc|desc
-	OrderByStorage string `json:"order_by_storage"`
-}
-
-type StorageFilterListInput struct {
-	StorageFilterListInputBase
-
-	StorageShareFilterListInput
-
-	ZonalFilterListInput
-	ManagedResourceListInput
-}
-
-type StorageShareFilterListInput struct {
-	// filter shared storage
-	Share *bool `json:"share"`
-	// filter local storage
-	Local *bool `json:"local"`
-}
-
-type StorageListInput struct {
-	apis.EnabledStatusInfrasResourceBaseListInput
-	apis.ExternalizedResourceBaseListInput
-	SchedtagResourceInput
-
-	ManagedResourceListInput
-	ZonalFilterListInput
-
-	UsableResourceListInput
-	StorageShareFilterListInput
-
-	// filter by host schedtag
-	HostSchedtagId string `json:"host_schedtag_id"`
-
-	// filter by cachedimage
-	ImageId string `json:"image_id"`
-
-	// filter storages which attached the specified host
-	HostId string `json:"host_id"`
-
-	// filter storages of baremetal host
-	IsBaremetal *bool `json:"is_baremetal"`
-}

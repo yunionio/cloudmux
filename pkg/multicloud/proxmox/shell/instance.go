@@ -17,7 +17,7 @@ package shell
 import (
 	"strconv"
 
-	"yunion.io/x/onecloud/pkg/multicloud/proxmox"
+	"yunion.io/x/cloudmux/pkg/multicloud/proxmox"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 

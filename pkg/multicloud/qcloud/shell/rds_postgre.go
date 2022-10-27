@@ -17,7 +17,7 @@ package shell
 import (
 	"yunion.io/x/pkg/errors"
 
-	"yunion.io/x/onecloud/pkg/multicloud/qcloud"
+	"yunion.io/x/cloudmux/pkg/multicloud/qcloud"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 

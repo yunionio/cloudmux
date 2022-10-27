@@ -24,9 +24,9 @@ import (
 	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/utils"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud/huawei/client/manager"
-	"yunion.io/x/onecloud/pkg/multicloud/huawei/client/responses"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei/client/manager"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei/client/responses"
 	"yunion.io/x/onecloud/pkg/util/httputils"
 )
 

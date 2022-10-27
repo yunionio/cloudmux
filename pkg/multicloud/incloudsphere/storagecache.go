@@ -23,14 +23,14 @@ import (
 	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/utils"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/onecloud/pkg/mcclient"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SStoragecache struct {
 	multicloud.SResourceBase
-	multicloud.InCloudSphereTags
+	InCloudSphereTags
 
 	zone *SZone
 }

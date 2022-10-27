@@ -27,8 +27,8 @@ import (
 	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/util/sets"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 )
 
 var DATACENTER_PROPS = []string{"name", "parent", "datastore", "network"}

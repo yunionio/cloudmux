@@ -27,8 +27,8 @@ import (
 	"yunion.io/x/pkg/util/secrules"
 	"yunion.io/x/pkg/utils"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SecurityGroupPolicy struct {
@@ -63,7 +63,7 @@ type SecurityGroupPolicySet struct {
 
 type SSecurityGroup struct {
 	multicloud.SSecurityGroup
-	multicloud.QcloudTags
+	QcloudTags
 	region                 *SRegion
 	SecurityGroupId        string    //		安全组实例ID，例如：sg-ohuuioma。
 	SecurityGroupName      string    //		安全组名称，可任意命名，但不得超过60个字符。

@@ -14,7 +14,7 @@
 
 package bingocloud
 
-import "yunion.io/x/onecloud/pkg/cloudprovider"
+import "yunion.io/x/cloudmux/pkg/cloudprovider"
 
 type SInstanceNic struct {
 	Association string `json:"association"`

@@ -19,7 +19,7 @@ import (
 	"strings"
 	"time"
 
-	"yunion.io/x/onecloud/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SubjectAlternativeNames struct {
@@ -28,7 +28,7 @@ type SubjectAlternativeNames struct {
 
 type SLoadbalancerServerCertificate struct {
 	multicloud.SResourceBase
-	multicloud.AliyunTags
+	AliyunTags
 	region *SRegion
 
 	ServerCertificateId     string                  //	服务器证书ID。

@@ -21,7 +21,7 @@ import (
 
 	osslib "github.com/aliyun/aliyun-oss-go-sdk/oss"
 
-	"yunion.io/x/onecloud/pkg/multicloud/aliyun"
+	"yunion.io/x/cloudmux/pkg/multicloud/aliyun"
 	"yunion.io/x/onecloud/pkg/util/fileutils2"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )

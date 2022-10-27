@@ -22,7 +22,7 @@ import (
 
 	"yunion.io/x/pkg/util/regutils"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 )
 
 func getSystemOwnerIds() []string {

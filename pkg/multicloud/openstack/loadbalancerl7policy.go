@@ -20,9 +20,9 @@ import (
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/pkg/errors"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SLoadbalancerL7PolicyCreateParams struct {
@@ -41,7 +41,7 @@ type SLoadbalancerL7PolicyCreateParams struct {
 
 type SLoadbalancerL7Policy struct {
 	multicloud.SResourceBase
-	multicloud.OpenStackTags
+	OpenStackTags
 	region             *SRegion
 	l7rules            []SLoadbalancerL7Rule
 	ListenerID         string      `json:"listener_id"`

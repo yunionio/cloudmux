@@ -17,12 +17,12 @@ package azure
 import (
 	"strings"
 
-	"yunion.io/x/onecloud/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SKubeNodePool struct {
 	multicloud.SResourceBase
-	multicloud.AzureTags
+	AzureTags
 
 	cluster *SKubeCluster
 

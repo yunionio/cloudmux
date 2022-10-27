@@ -20,14 +20,14 @@ import (
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/pkg/errors"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SRouteSet struct {
 	multicloud.SResourceBase
-	multicloud.QcloudTags
+	QcloudTags
 	RouteID                  int    `json:"RouteId"`
 	RouteItemID              string `json:"RouteItemId"`
 	DestinationIpv6CidrBlock string `json:"DestinationIpv6CidrBlock,omitempty"`
@@ -39,7 +39,7 @@ type SRouteSet struct {
 }
 type SRouteTableSet struct {
 	multicloud.SResourceBase
-	multicloud.QcloudTags
+	QcloudTags
 	vpc            *SVpc
 	VpcID          string                     `json:"VpcId"`
 	RouteTableID   string                     `json:"RouteTableId"`

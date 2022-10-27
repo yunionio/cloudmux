@@ -1,1 +1,1 @@
-package hcs // import "yunion.io/x/onecloud/pkg/multicloud/hcs"
+package hcs // import "yunion.io/x/cloudmux/pkg/multicloud/hcs"

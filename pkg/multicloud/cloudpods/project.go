@@ -15,16 +15,17 @@
 package cloudpods
 
 import (
-	"yunion.io/x/onecloud/pkg/apis/compute"
 	api "yunion.io/x/onecloud/pkg/apis/identity"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
 	modules "yunion.io/x/onecloud/pkg/mcclient/modules/identity"
-	"yunion.io/x/onecloud/pkg/multicloud"
+
+	"yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SProject struct {
 	multicloud.SProjectBase
-	multicloud.CloudpodsTags
+	CloudpodsTags
 
 	cli *SCloudpodsClient
 

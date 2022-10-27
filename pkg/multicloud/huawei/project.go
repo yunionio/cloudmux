@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"strings"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
 )
 
 // https://support.huaweicloud.com/api-iam/zh-cn_topic_0057845625.html

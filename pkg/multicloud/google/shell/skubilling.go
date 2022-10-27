@@ -21,7 +21,7 @@ import (
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/pkg/errors"
 
-	"yunion.io/x/onecloud/pkg/multicloud/google"
+	"yunion.io/x/cloudmux/pkg/multicloud/google"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 

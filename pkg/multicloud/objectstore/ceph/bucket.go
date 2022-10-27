@@ -18,9 +18,9 @@ import (
 	"context"
 	"strconv"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/onecloud/pkg/httperrors"
-	"yunion.io/x/onecloud/pkg/multicloud/objectstore"
+	"yunion.io/x/cloudmux/pkg/multicloud/objectstore"
 )
 
 type SCephRadosBucket struct {

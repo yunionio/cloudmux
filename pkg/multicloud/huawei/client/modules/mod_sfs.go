@@ -17,8 +17,8 @@ package modules
 import (
 	"yunion.io/x/jsonutils"
 
-	"yunion.io/x/onecloud/pkg/multicloud/huawei/client/manager"
-	"yunion.io/x/onecloud/pkg/multicloud/huawei/client/responses"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei/client/manager"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei/client/responses"
 )
 
 type SfsTurboManager struct {

@@ -14,8 +14,6 @@
 
 package compute
 
-import "yunion.io/x/onecloud/pkg/apis"
-
 const (
 	ELASTIC_SEARCH_STATUS_AVAILABLE     = "available"
 	ELASTIC_SEARCH_STATUS_UNAVAILABLE   = "unavailable"
@@ -24,31 +22,3 @@ const (
 	ELASTIC_SEARCH_STATUS_DELETE_FAILED = "delete_failed"
 	ELASTIC_SEARCH_STATUS_UNKNOWN       = "unknown"
 )
-
-// 资源创建参数, 目前仅占位
-type ElasticSearchCreateInput struct {
-}
-
-// 资源返回详情
-type ElasticSearchDetails struct {
-	apis.VirtualResourceDetails
-	ManagedResourceInfo
-	CloudregionResourceInfo
-	VpcResourceInfoBase
-	NetworkResourceInfoBase
-	ZoneResourceInfoBase
-}
-
-// 资源列表请求参数
-type ElasticSearchListInput struct {
-	apis.VirtualResourceListInput
-	apis.ExternalizedResourceBaseListInput
-	apis.DeletePreventableResourceBaseListInput
-
-	RegionalFilterListInput
-	ManagedResourceListInput
-	VpcFilterListInput
-}
-
-type ElasticSearchAccessInfoInput struct {
-}

@@ -37,9 +37,9 @@ import (
 	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/utils"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/onecloud/pkg/httperrors"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SContainer struct {
@@ -83,7 +83,7 @@ type AccountProperties struct {
 
 type SStorageAccount struct {
 	multicloud.SBaseBucket
-	multicloud.AzureTags
+	AzureTags
 
 	region *SRegion
 

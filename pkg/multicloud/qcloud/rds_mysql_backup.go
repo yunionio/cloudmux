@@ -23,14 +23,14 @@ import (
 	"yunion.io/x/pkg/util/timeutils"
 	"yunion.io/x/pkg/utils"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SMySQLInstanceBackup struct {
 	multicloud.SDBInstanceBackupBase
-	multicloud.QcloudTags
+	QcloudTags
 	rds *SMySQLInstance
 
 	Name        string

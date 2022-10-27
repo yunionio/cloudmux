@@ -21,15 +21,15 @@ import (
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/pkg/errors"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 // https://help.apsara.com/document_detail/61081.html?spm=a2c4g.11186623.6.752.3d7630beuL57kI
 type SElasticcacheBackup struct {
 	multicloud.SElasticcacheBackupBase
-	multicloud.ApsaraTags
+	ApsaraTags
 
 	cacheDB *SElasticcache
 

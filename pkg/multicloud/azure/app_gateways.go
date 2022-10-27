@@ -20,7 +20,7 @@ import (
 
 	"yunion.io/x/pkg/errors"
 
-	"yunion.io/x/onecloud/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SGatewayipconfiguration struct {
@@ -179,7 +179,7 @@ type SApplicationGatewayProperties struct {
 type SApplicationGateway struct {
 	region *SRegion
 	multicloud.SResourceBase
-	multicloud.AzureTags
+	AzureTags
 
 	Name       string                        `json:"name"`
 	Id         string                        `json:"id"`

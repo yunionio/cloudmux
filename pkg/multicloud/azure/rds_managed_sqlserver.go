@@ -20,14 +20,14 @@ import (
 
 	"yunion.io/x/pkg/errors"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SManagedSQLServer struct {
 	region *SRegion
 	multicloud.SDBInstanceBase
-	multicloud.AzureTags
+	AzureTags
 
 	Location string `json:"location"`
 	ID       string `json:"id"`

@@ -19,9 +19,9 @@ import (
 
 	"yunion.io/x/jsonutils"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 var storageTypes = []string{
@@ -34,7 +34,7 @@ var storageTypes = []string{
 
 type SStorage struct {
 	multicloud.SStorageBase
-	multicloud.JdcloudTags
+	JdcloudTags
 	zone        *SZone
 	storageType string
 }

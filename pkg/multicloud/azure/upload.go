@@ -29,8 +29,8 @@ import (
 	"github.com/Microsoft/azure-vhd-utils/vhdcore/footer"
 	"github.com/Microsoft/azure-vhd-utils/vhdcore/validator"
 
-	"yunion.io/x/onecloud/pkg/multicloud/azure/concurrent"
-	"yunion.io/x/onecloud/pkg/multicloud/azure/progress"
+	"yunion.io/x/cloudmux/pkg/multicloud/azure/concurrent"
+	"yunion.io/x/cloudmux/pkg/multicloud/azure/progress"
 )
 
 // DiskUploadContext type describes VHD upload context, this includes the disk stream to read from, the ranges of

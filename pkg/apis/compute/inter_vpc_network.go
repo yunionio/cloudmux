@@ -14,8 +14,6 @@
 
 package compute
 
-import "yunion.io/x/onecloud/pkg/apis"
-
 const (
 	INTER_VPC_NETWORK_STATUS_AVAILABLE          = "available"
 	INTER_VPC_NETWORK_STATUS_CREATING           = "creating"
@@ -31,47 +29,3 @@ const (
 	INTER_VPC_NETWORK_STATUS_UPDATEROUTE_FAILED = "update_route_failed"
 	INTER_VPC_NETWORK_STATUS_UNKNOWN            = "unknown"
 )
-
-type InterVpcNetworkListInput struct {
-	apis.EnabledStatusInfrasResourceBaseListInput
-	ManagedResourceListInput
-}
-
-type InterVpcNetworkCreateInput struct {
-	apis.EnabledStatusInfrasResourceBaseCreateInput
-	ManagerId string `json:"manager_id"`
-}
-
-type InterVpcNetworkUpdateInput struct {
-	apis.EnabledStatusInfrasResourceBaseUpdateInput
-}
-
-type InterVpcNetworkDetails struct {
-	apis.EnabledStatusInfrasResourceBaseDetails
-	ManagedResourceInfo
-	VpcCount int `json:"vpc_count"`
-}
-
-type InterVpcNetworkSyncstatusInput struct {
-}
-
-type InterVpcNetworkAddVpcInput struct {
-	// 待加入的vpc id
-	// vpc和当前vpc互联所必须是同一平台，且运营平台一致，例如aws中国区不能和aws国际区运营平台不一致
-	// 可以通过 /vpcs?usable_for_inter_vpc_network_id=<当前vpc互联id> 过滤可以加入的vpc列表
-	// required: true
-	VpcId string `json:"vpc_id"`
-}
-
-type InterVpcNetworkRemoveVpcInput struct {
-	VpcId string
-}
-
-type InterVpcNetworkFilterListBase struct {
-	InterVpcNetworkId string `json:"inter_vpc_network_id"`
-}
-
-type InterVpcNetworkManagerListInput struct {
-	apis.EnabledStatusInfrasResourceBaseListInput
-	ManagedResourceListInput
-}

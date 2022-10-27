@@ -17,7 +17,7 @@ package shell
 import (
 	"time"
 
-	"yunion.io/x/onecloud/pkg/multicloud/aws"
+	"yunion.io/x/cloudmux/pkg/multicloud/aws"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 

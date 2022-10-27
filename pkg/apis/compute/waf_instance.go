@@ -14,11 +14,6 @@
 
 package compute
 
-import (
-	"yunion.io/x/onecloud/pkg/apis"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-)
-
 const (
 	WAF_ACTION_ALLOW      = "Allow"
 	WAF_ACTION_BLOCK      = "Block"
@@ -33,46 +28,3 @@ const (
 	WAF_STATUS_UPDATING      = "updating"
 	WAF_STATUS_UNKNOWN       = "unknown"
 )
-
-type WafInstanceCreateInput struct {
-	apis.EnabledStatusInfrasResourceBaseCreateInput
-
-	// 阿里云CNAME介入回源地址,支持IP和域名,域名仅支持输入一个
-	// 此参数和cloud_resources两者必须指定某一个
-	SourceIps cloudprovider.WafSourceIps `json:"source_ips"`
-
-	// 关联云资源列表
-	// 阿里云要求输入此参数或source_ips
-	CloudResources []cloudprovider.SCloudResource
-
-	CloudregionResourceInput
-	CloudproviderResourceInput
-
-	Type cloudprovider.TWafType
-
-	DefaultAction *cloudprovider.DefaultAction
-}
-
-type WafInstanceDetails struct {
-	apis.EnabledStatusInfrasResourceBaseDetails
-	ManagedResourceInfo
-	CloudregionResourceInfo
-	SWafInstance
-
-	Rules []SWafRule
-}
-
-type WafInstanceListInput struct {
-	apis.EnabledStatusInfrasResourceBaseListInput
-	apis.ExternalizedResourceBaseListInput
-
-	ManagedResourceListInput
-	RegionalFilterListInput
-}
-
-type WafSyncstatusInput struct {
-}
-
-type WafDeleteRuleInput struct {
-	WafRuleId string
-}

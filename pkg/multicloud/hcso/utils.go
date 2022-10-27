@@ -24,10 +24,11 @@ import (
 	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/utils"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud/hcso/client/manager"
-	"yunion.io/x/onecloud/pkg/multicloud/hcso/client/responses"
 	"yunion.io/x/onecloud/pkg/util/httputils"
+
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud/hcso/client/manager"
+	"yunion.io/x/cloudmux/pkg/multicloud/hcso/client/responses"
 )
 
 // 常用的方法

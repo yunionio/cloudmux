@@ -17,7 +17,7 @@ package shell
 import (
 	"time"
 
-	"yunion.io/x/onecloud/pkg/multicloud/huawei"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 

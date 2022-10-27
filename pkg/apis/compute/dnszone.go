@@ -14,12 +14,6 @@
 
 package compute
 
-import (
-	"yunion.io/x/jsonutils"
-
-	"yunion.io/x/onecloud/pkg/apis"
-)
-
 /*
 
 Architecture For DnsZone
@@ -88,95 +82,3 @@ const (
 	DNS_ZONE_STATUS_DELETE_FAILED           = "delete_failed"           // 删除失败
 	DNS_ZONE_STATUS_UNKNOWN                 = "unknown"                 // 未知
 )
-
-type DnsZoneFilterListBase struct {
-	DnsZoneId string `json:"dns_zone_id"`
-}
-
-type DnsZoneCreateInput struct {
-	apis.EnabledStatusInfrasResourceBaseCreateInput
-
-	// 区域类型
-	//
-	//
-	// | 类型            | 说明    |
-	// |----------       |---------|
-	// | PublicZone      | 公有    |
-	// | PrivateZone     | 私有    |
-	ZoneType string `json:"zone_type"`
-	// 额外参数
-
-	// VPC id列表, 仅在zone_type为PrivateZone时生效, vpc列表必须属于同一个账号
-	VpcIds []string `json:"vpc_ids"`
-
-	// 云账号Id, 仅在zone_type为PublicZone时生效, 若为空则不会在云上创建
-	CloudaccountId string `json:"cloudaccount_id"`
-
-	// 额外信息
-	Options *jsonutils.JSONDict `json:"options"`
-}
-
-type DnsZoneDetails struct {
-	apis.EnabledStatusInfrasResourceBaseDetails
-	SDnsZone
-
-	// Dns记录数量
-	DnsRecordsetCount int `json:"dns_recordset_count"`
-	// 关联vpc数量
-	VpcCount int `json:"vpc_count"`
-	// Cache info
-	CloudCaches []jsonutils.JSONObject `json:"cloud_caches"`
-}
-
-type DnsZoneListInput struct {
-	apis.EnabledStatusInfrasResourceBaseListInput
-
-	// 区域类型
-	//
-	//
-	// | 类型            | 说明    |
-	// |----------       |---------|
-	// | PublicZone      | 公有    |
-	// | PrivateZone     | 私有    |
-	ZoneType string `json:"zone_type"`
-
-	// Filter dns zone By vpc
-	VpcId     string `json:"vpc_id"`
-	WithCache bool   `json:"with_cache"`
-}
-
-type DnsZoneSyncStatusInput struct {
-}
-
-type DnsZoneCacheInput struct {
-	// 云账号Id
-	//
-	//
-	// | 要求                                |
-	// |----------                            |
-	// | 1. dns zone 状态必须为available        |
-	// | 2. dns zone zone_type 必须为PublicZone |
-	// | 3. 指定云账号未在云上创建相应的 dns zone |
-	CloudaccountId string
-}
-
-type DnsZoneUnacheInput struct {
-	// 云账号Id
-	CloudaccountId string
-}
-
-type DnsZoneAddVpcsInput struct {
-	// VPC id列表
-	VpcIds []string `json:"vpc_ids"`
-}
-
-type DnsZoneRemoveVpcsInput struct {
-	// VPC id列表
-	VpcIds []string `json:"vpc_ids"`
-}
-
-type DnsZoneSyncRecordSetsInput struct {
-}
-
-type DnsZonePurgeInput struct {
-}

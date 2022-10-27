@@ -19,12 +19,10 @@ import (
 	"net/url"
 
 	"yunion.io/x/pkg/errors"
-
-	"yunion.io/x/onecloud/pkg/multicloud"
 )
 
 type SAppServicePlan struct {
-	multicloud.AzureTags
+	AzureTags
 	region *SRegion
 
 	Properties SAppServicePlanProperties

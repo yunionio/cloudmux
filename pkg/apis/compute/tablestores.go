@@ -14,30 +14,7 @@
 
 package compute
 
-import "yunion.io/x/onecloud/pkg/apis"
-
 const (
 	TABLESTORE_STATUS_RUNNING = "running"
 	TABLESTORE_STATUS_UNKNOWN = "unknown"
 )
-
-type TablestoreCreateInput struct {
-	apis.VirtualResourceCreateInput
-}
-
-type TablestoreUpdateInput struct {
-	apis.VirtualResourceBaseUpdateInput
-}
-
-type TablestoreListInput struct {
-	apis.VirtualResourceListInput
-	apis.ExternalizedResourceBaseListInput
-	RegionalFilterListInput
-	ManagedResourceListInput
-}
-
-type TablestoreDetails struct {
-	apis.VirtualResourceDetails
-	CloudregionResourceInfo
-	ManagedResourceInfo
-}

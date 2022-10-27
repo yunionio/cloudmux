@@ -28,10 +28,10 @@ import (
 	"yunion.io/x/pkg/util/seclib"
 	"yunion.io/x/pkg/utils"
 
-	billing_api "yunion.io/x/onecloud/pkg/apis/billing"
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	billing_api "yunion.io/x/cloudmux/pkg/apis/billing"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 	"yunion.io/x/onecloud/pkg/util/billing"
 	"yunion.io/x/onecloud/pkg/util/imagetools"
 )
@@ -80,7 +80,7 @@ type SVpcAttributes struct {
 
 type SInstance struct {
 	multicloud.SInstanceBase
-	multicloud.AliyunTags
+	AliyunTags
 
 	host *SHost
 
@@ -169,13 +169,6 @@ func (self *SRegion) GetInstances(zoneId string, ids []string, offset int, limit
 	}
 	total, _ := body.Int("TotalCount")
 	return instances, int(total), nil
-}
-
-type SAliyunTag struct {
-	ResourceId   string
-	ResourceType string
-	TagKey       string
-	TagValue     string
 }
 
 func (self *SInstance) GetSecurityGroupIds() ([]string, error) {

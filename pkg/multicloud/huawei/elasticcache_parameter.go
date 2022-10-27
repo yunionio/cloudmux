@@ -17,14 +17,14 @@ package huawei
 import (
 	"fmt"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 // https://support.huaweicloud.com/api-dcs/dcs-zh-api-180423027.html
 type SElasticcacheParameter struct {
 	multicloud.SElasticcacheParameterBase
-	multicloud.HuaweiTags
+	HuaweiTags
 
 	cacheDB *SElasticcache
 

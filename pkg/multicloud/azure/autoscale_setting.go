@@ -16,12 +16,10 @@ package azure
 
 import (
 	"net/url"
-
-	"yunion.io/x/onecloud/pkg/multicloud"
 )
 
 type SAutoscaleSettingResource struct {
-	multicloud.AzureTags
+	AzureTags
 	region *SRegion
 
 	Properties SAutoscaleSettingProperties

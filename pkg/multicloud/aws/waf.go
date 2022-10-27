@@ -23,9 +23,9 @@ import (
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/pkg/errors"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 const (
@@ -56,7 +56,7 @@ type SVisibilityConfig struct {
 
 type SWebAcl struct {
 	multicloud.SResourceBase
-	multicloud.AwsTags
+	AwsTags
 	region *SRegion
 	*wafv2.WebACL
 

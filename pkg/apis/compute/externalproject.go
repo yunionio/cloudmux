@@ -14,8 +14,6 @@
 
 package compute
 
-import "yunion.io/x/onecloud/pkg/apis"
-
 const (
 	EXTERNAL_PROJECT_STATUS_AVAILABLE   = "available"   // 可用
 	EXTERNAL_PROJECT_STATUS_UNAVAILABLE = "unavailable" // 不可用
@@ -29,24 +27,3 @@ var (
 		CLOUD_PROVIDER_AZURE,
 	}
 )
-
-type ExternalProjectDetails struct {
-	apis.VirtualResourceDetails
-	ManagedResourceInfo
-
-	SExternalProject
-}
-
-type ExternalProjectChangeProjectInput struct {
-	apis.ProjectizedResourceInput
-}
-
-type ExternalProjectCreateInput struct {
-	apis.VirtualResourceCreateInput
-
-	CloudaccountId string `json:"cloudaccount_id"`
-	ManagerId      string `json:"manager_id"`
-
-	// swagger:ignore
-	ExternalId string `json:"external_id"`
-}

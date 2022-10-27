@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"strings"
 
-	"yunion.io/x/onecloud/pkg/multicloud/aliyun"
+	"yunion.io/x/cloudmux/pkg/multicloud/aliyun"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 

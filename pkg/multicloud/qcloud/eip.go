@@ -23,10 +23,10 @@ import (
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/errors"
 
-	billing_api "yunion.io/x/onecloud/pkg/apis/billing"
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	billing_api "yunion.io/x/cloudmux/pkg/apis/billing"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 const (
@@ -48,7 +48,7 @@ const (
 type SEipAddress struct {
 	region *SRegion
 	multicloud.SEipBase
-	multicloud.QcloudTags
+	QcloudTags
 
 	AddressId             string    //	EIP的ID，是EIP的唯一标识。
 	AddressName           string    //	EIP名称。

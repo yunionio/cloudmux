@@ -1,1 +1,1 @@
-package shell // import "yunion.io/x/onecloud/pkg/multicloud/hcs/shell"
+package shell // import "yunion.io/x/cloudmux/pkg/multicloud/hcs/shell"

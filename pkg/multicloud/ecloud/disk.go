@@ -19,10 +19,10 @@ import (
 	"fmt"
 	"time"
 
-	billing_api "yunion.io/x/onecloud/pkg/apis/billing"
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	billing_api "yunion.io/x/cloudmux/pkg/apis/billing"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SDisk struct {
@@ -30,7 +30,7 @@ type SDisk struct {
 	// TODO instance
 
 	multicloud.SDisk
-	multicloud.EcloudTags
+	EcloudTags
 	multicloud.SBillingBase
 	SZoneRegionBase
 	SCreateTime

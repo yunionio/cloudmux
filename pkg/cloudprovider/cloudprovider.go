@@ -174,6 +174,7 @@ type ProviderConfig struct {
 
 	DefaultRegion string
 	ProxyFunc     httputils.TransportProxyFunc
+	Debug         bool
 
 	UpdatePermission func(service, permission string)
 }

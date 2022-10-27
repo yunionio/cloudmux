@@ -24,8 +24,8 @@ import (
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/pkg/errors"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type projectInfo struct {
@@ -40,7 +40,7 @@ type projectInfo struct {
 // https://cloud.tencent.com/document/api/400/13675
 type SCertificate struct {
 	multicloud.SResourceBase
-	multicloud.QcloudTags
+	QcloudTags
 	region *SRegion
 
 	CertificateID       string      `json:"CertificateId"`

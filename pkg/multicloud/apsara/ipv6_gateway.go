@@ -20,13 +20,13 @@ import (
 
 	"yunion.io/x/pkg/errors"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SIPv6Gateway struct {
 	multicloud.SResourceBase
-	multicloud.ApsaraTags
+	ApsaraTags
 	region *SRegion
 
 	Status             string    `json:"Status"`

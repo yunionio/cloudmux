@@ -15,8 +15,8 @@
 package modules
 
 import (
-	"yunion.io/x/onecloud/pkg/multicloud/hcso/client/manager"
-	"yunion.io/x/onecloud/pkg/multicloud/hcso/client/requests"
+	"yunion.io/x/cloudmux/pkg/multicloud/hcso/client/manager"
+	"yunion.io/x/cloudmux/pkg/multicloud/hcso/client/requests"
 )
 
 type SNatGatewayManager struct {

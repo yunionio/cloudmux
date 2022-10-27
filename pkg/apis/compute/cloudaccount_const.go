@@ -15,9 +15,10 @@
 package compute
 
 import (
-	"yunion.io/x/onecloud/pkg/apis"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
 	"yunion.io/x/onecloud/pkg/util/choices"
+
+	"yunion.io/x/cloudmux/pkg/apis"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 )
 
 const (

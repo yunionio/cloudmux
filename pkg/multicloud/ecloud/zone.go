@@ -17,13 +17,13 @@ package ecloud
 import (
 	"fmt"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SZone struct {
 	multicloud.SResourceBase
-	multicloud.EcloudTags
+	EcloudTags
 	region *SRegion
 	host   *SHost
 

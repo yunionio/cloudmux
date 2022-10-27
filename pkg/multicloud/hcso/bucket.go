@@ -29,14 +29,15 @@ import (
 	"yunion.io/x/pkg/utils"
 	"yunion.io/x/s3cli"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
-	"yunion.io/x/onecloud/pkg/multicloud/huawei/obs"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei/obs"
 )
 
 type SBucket struct {
 	multicloud.SBaseBucket
-	multicloud.HuaweiTags
+	huawei.HuaweiTags
 
 	region *SRegion
 
@@ -78,9 +79,10 @@ func (b *SBucket) GetCreatedAt() time.Time {
 }
 
 /*
- service returned error: Status=405 Method Not Allowed, Code=MethodNotAllowed,
- Message=The specified method is not allowed against this resource.,
- RequestId=00000175B0E9D138440B9EF092DF8A7A
+	service returned error: Status=405 Method Not Allowed, Code=MethodNotAllowed,
+	Message=The specified method is not allowed against this resource.,
+	RequestId=00000175B0E9D138440B9EF092DF8A7A
+
 https://support.huaweicloud.com/productdesc-modelarts/modelarts_01_0017.html
 */
 func (b *SBucket) GetStorageClass() string {

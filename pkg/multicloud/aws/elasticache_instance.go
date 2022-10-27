@@ -26,10 +26,10 @@ import (
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/errors"
 
-	billingapi "yunion.io/x/onecloud/pkg/apis/billing"
-	api "yunion.io/x/onecloud/pkg/apis/compute"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	billingapi "yunion.io/x/cloudmux/pkg/apis/billing"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 	"yunion.io/x/onecloud/pkg/util/billing"
 )
 
@@ -189,7 +189,7 @@ func (region *SRegion) DescribeCacheSubnetGroups(Id string) ([]*elasticache.Cach
 
 type SElasticache struct {
 	multicloud.SElasticcacheBase
-	multicloud.AwsTags
+	AwsTags
 
 	region        *SRegion
 	replicaGroup  *elasticache.ReplicationGroup

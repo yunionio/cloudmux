@@ -15,13 +15,13 @@
 package ucloud
 
 import (
-	"yunion.io/x/onecloud/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 // https://docs.ucloud.cn/api/summary/get_project_list
 type SProject struct {
 	multicloud.SProjectBase
-	multicloud.UcloudTags
+	UcloudTags
 	ProjectID     string `json:"ProjectId"`
 	ProjectName   string `json:"ProjectName"`
 	ParentID      string `json:"ParentId"`

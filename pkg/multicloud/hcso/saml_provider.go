@@ -23,10 +23,11 @@ import (
 	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/util/stringutils"
 
-	api "yunion.io/x/onecloud/pkg/apis/cloudid"
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
-	"yunion.io/x/onecloud/pkg/multicloud/hcso/client/modules"
+	api "yunion.io/x/cloudmux/pkg/apis/cloudid"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/multicloud/hcso/client/modules"
+	"yunion.io/x/cloudmux/pkg/multicloud/huawei"
 	"yunion.io/x/onecloud/pkg/util/samlutils"
 )
 
@@ -37,7 +38,7 @@ type SAMLProviderLinks struct {
 
 type SAMLProvider struct {
 	multicloud.SResourceBase
-	multicloud.HuaweiTags
+	huawei.HuaweiTags
 	client *SHuaweiClient
 
 	Id          string

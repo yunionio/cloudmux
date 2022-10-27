@@ -19,7 +19,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 
-	"yunion.io/x/onecloud/pkg/multicloud/hcso/client/auth/credentials"
+	"yunion.io/x/cloudmux/pkg/multicloud/hcso/client/auth/credentials"
 )
 
 type AccessKeySigner struct {

@@ -18,7 +18,7 @@ import (
 	"context"
 	"fmt"
 
-	"yunion.io/x/onecloud/pkg/multicloud/qcloud"
+	"yunion.io/x/cloudmux/pkg/multicloud/qcloud"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 

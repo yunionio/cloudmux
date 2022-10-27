@@ -15,7 +15,7 @@
 package shell
 
 import (
-	"yunion.io/x/onecloud/pkg/multicloud/jdcloud"
+	"yunion.io/x/cloudmux/pkg/multicloud/jdcloud"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 

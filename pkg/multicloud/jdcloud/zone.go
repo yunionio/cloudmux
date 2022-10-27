@@ -17,8 +17,8 @@ package jdcloud
 import (
 	"fmt"
 
-	"yunion.io/x/onecloud/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type sZoneIden struct {
@@ -79,7 +79,7 @@ var ZonesInRegion = map[string][]sZoneIden{
 
 type SZone struct {
 	multicloud.SResourceBase
-	multicloud.JdcloudTags
+	JdcloudTags
 	region *SRegion
 
 	ihost     cloudprovider.ICloudHost

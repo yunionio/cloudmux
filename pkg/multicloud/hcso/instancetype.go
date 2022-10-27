@@ -18,8 +18,8 @@ import (
 	"strconv"
 	"strings"
 
-	"yunion.io/x/onecloud/pkg/apis"
-	"yunion.io/x/onecloud/pkg/multicloud"
+	"yunion.io/x/cloudmux/pkg/apis"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 // https://support.huaweicloud.com/api-ecs/zh-cn_topic_0020212656.html

@@ -15,7 +15,7 @@
 package shell
 
 import (
-	"yunion.io/x/onecloud/pkg/multicloud/objectstore"
+	"yunion.io/x/cloudmux/pkg/multicloud/objectstore"
 )
 
 func init() {
