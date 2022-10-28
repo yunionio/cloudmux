@@ -31,7 +31,7 @@ require (
 	moul.io/http2curl/v2 v2.3.0
 	yunion.io/x/jsonutils v1.0.1-0.20220819091305-3bab322ab4fd
 	yunion.io/x/log v1.0.0
-	yunion.io/x/onecloud v0.3.9-2
+	yunion.io/x/onecloud v0.3.10-0-alpha.0
 	yunion.io/x/pkg v1.0.1-0.20220819080140-55b265a8658e
 	yunion.io/x/s3cli v0.0.0-20190917004522-13ac36d8687e
 	yunion.io/x/structarg v0.0.0-20220312084958-9c6c79c7d1c6
@@ -115,5 +115,4 @@ require (
 replace (
 	github.com/go-logr/logr => github.com/go-logr/logr v0.4.0
 	github.com/jaypipes/ghw => github.com/zexi/ghw v0.9.1
-	yunion.io/x/onecloud => ../onecloud
 )
