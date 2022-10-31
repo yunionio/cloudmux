@@ -76,6 +76,15 @@ func init() {
 		return nil
 	})
 
+	shellutils.R(&InstanceOperationOptions{}, "instance-vnc", "Show instance vnc info", func(cli *hcs.SRegion, args *InstanceOperationOptions) error {
+		ret, err := cli.GetInstanceVNCUrl(args.ID)
+		if err != nil {
+			return err
+		}
+		printObject(ret)
+		return nil
+	})
+
 	shellutils.R(&InstanceOperationOptions{}, "instance-interface-list", "List instance interface", func(cli *hcs.SRegion, args *InstanceOperationOptions) error {
 		ret, err := cli.GetInstanceInterfaces(args.ID)
 		if err != nil {
