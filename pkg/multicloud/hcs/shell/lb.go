@@ -32,21 +32,8 @@ func init() {
 		return nil
 	})
 
-	type ElbCreateOptions struct {
-		Name      string `help:"loadblancer name"`
-		SUBNET    string `help:"subnet id"`
-		PrivateIP string `help:"loadbalancer private ip address"`
-		EipID     string `help:"loadbalancer public ip id"`
-	}
-	shellutils.R(&ElbCreateOptions{}, "elb-create", "create loadbalancer", func(cli *hcs.SRegion, args *ElbCreateOptions) error {
-		loadbalancer := &cloudprovider.SLoadbalancer{
-			Name:       args.Name,
-			NetworkIDs: []string{args.SUBNET},
-			EipID:      args.EipID,
-			Address:    args.PrivateIP,
-		}
-
-		elb, err := cli.CreateLoadBalancer(loadbalancer)
+	shellutils.R(&cloudprovider.SLoadbalancerCreateOptions{}, "elb-create", "create loadbalancer", func(cli *hcs.SRegion, args *cloudprovider.SLoadbalancerCreateOptions) error {
+		elb, err := cli.CreateLoadBalancer(args)
 		if err != nil {
 			return err
 		}
