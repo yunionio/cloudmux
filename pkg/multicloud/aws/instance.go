@@ -1078,6 +1078,7 @@ func (self *SRegion) ReplaceSystemDisk(ctx context.Context, instanceId string, i
 		keypair,
 		userdata,
 		nil,
+		false,
 	)
 	if err == nil {
 		defer self.DeleteVM(_id)
