@@ -37,3 +37,6 @@ GO_BUILD := go build $(GO_BUILD_FLAGS)
 
 cmd/%: prepare_dir
 	$(GO_BUILD) -o $(BIN_DIR)/$(shell basename $@) $(REPO_PREFIX)/$@
+
+test:
+	go test $(GO_BUILD_FLAGS) $(shell go list ./...)
