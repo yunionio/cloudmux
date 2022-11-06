@@ -1,6 +1,10 @@
-# cloudmux
+# CloudMuX
 
-## Command line tool
+CloudMuX is an in-process Multi-Cloud Library written entirely in Golang. It provides consistent interfaces to access OpenAPIs of various cloud providers. Cloudpods CMP service is built upon CloudMux.
+
+## Command line tool -- cmx
+
+cmx is the command line tool based on CloudMux. cmx is a compact utility to access various clouds.
 
 ### Complile
 
