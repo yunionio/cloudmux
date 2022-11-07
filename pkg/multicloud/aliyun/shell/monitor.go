@@ -20,9 +20,6 @@ import (
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/util/timeutils"
 
-	"yunion.io/x/onecloud/pkg/mcclient/modulebase"
-	"yunion.io/x/onecloud/pkg/util/printutils"
-
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/aliyun"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
@@ -90,11 +87,7 @@ func init() {
 		if err != nil {
 			return err
 		}
-		result := &modulebase.ListResult{
-			Data:  data,
-			Total: len(data),
-		}
-		printutils.PrintJSONList(result, nil)
+		printList(data, 0, 0, 0, nil)
 		return nil
 	})
 }
