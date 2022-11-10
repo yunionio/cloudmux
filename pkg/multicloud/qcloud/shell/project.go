@@ -21,9 +21,11 @@ import (
 
 func init() {
 	type ProjectListOptions struct {
+		Limit  int `default:"1000"`
+		Offset int
 	}
 	shellutils.R(&ProjectListOptions{}, "project-list", "List project", func(cli *qcloud.SRegion, args *ProjectListOptions) error {
-		projects, err := cli.GetClient().GetProjects()
+		projects, _, err := cli.GetClient().GetProjects(args.Offset, args.Limit)
 		if err != nil {
 			return err
 		}

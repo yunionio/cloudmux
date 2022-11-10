@@ -21,11 +21,12 @@ import (
 
 func init() {
 	type NatDTableListOptions struct {
-		VPCID string `help:"Vpc ID"`
-		NATID string `help:"Nat ID"`
+		Offset int
+		Limit  int    `default:"10"`
+		NATID  string `help:"Nat ID"`
 	}
 	shellutils.R(&NatDTableListOptions{}, "dtable-list", "List nat dtables", func(cli *qcloud.SRegion, args *NatDTableListOptions) error {
-		tables, err := cli.GetDTables(args.NATID, args.VPCID)
+		tables, _, err := cli.GetDTables(args.NATID, args.Offset, args.Limit)
 		if err != nil {
 			return err
 		}
