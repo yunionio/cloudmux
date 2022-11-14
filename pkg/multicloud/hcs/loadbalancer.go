@@ -300,7 +300,7 @@ func (self *SLoadbalancer) GetILoadBalancerBackendGroupById(groupId string) (clo
 	return ret, self.region.lbGet("lbaas/pools/"+groupId, ret)
 }
 
-func (self *SLoadbalancer) CreateILoadBalancerListener(ctx context.Context, listener *cloudprovider.SLoadbalancerListener) (cloudprovider.ICloudLoadbalancerListener, error) {
+func (self *SLoadbalancer) CreateILoadBalancerListener(ctx context.Context, listener *cloudprovider.SLoadbalancerListenerCreateOptions) (cloudprovider.ICloudLoadbalancerListener, error) {
 	ret, err := self.region.CreateLoadBalancerListener(listener)
 	if err != nil {
 		return nil, err
@@ -334,21 +334,21 @@ func (self *SRegion) GetLoadBalancerListeners(lbId string) ([]SElbListener, erro
 	return ret, self.lbList("lbaas/listeners", params, &ret)
 }
 
-func (self *SRegion) CreateLoadBalancerListener(listener *cloudprovider.SLoadbalancerListener) (SElbListener, error) {
+func (self *SRegion) CreateLoadBalancerListener(listener *cloudprovider.SLoadbalancerListenerCreateOptions) (SElbListener, error) {
 	params := map[string]interface{}{
 		"name":            listener.Name,
 		"description":     listener.Description,
 		"protocol":        LB_PROTOCOL_MAP[listener.ListenerType],
 		"protocol_port":   listener.ListenerPort,
-		"loadbalancer_id": listener.LoadbalancerID,
+		"loadbalancer_id": listener.LoadbalancerId,
 		"http2_enable":    listener.EnableHTTP2,
 	}
-	if len(listener.BackendGroupID) > 0 {
-		params["default_pool_id"] = listener.BackendGroupID
+	if len(listener.BackendGroupId) > 0 {
+		params["default_pool_id"] = listener.BackendGroupId
 	}
 
 	if listener.ListenerType == api.LB_LISTENER_TYPE_HTTPS {
-		params["default_tls_container_ref"] = listener.CertificateID
+		params["default_tls_container_ref"] = listener.CertificateId
 	}
 
 	if listener.XForwardedFor {
