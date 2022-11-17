@@ -87,4 +87,13 @@ func init() {
 		return cli.CreateSecurityGroupRule(args.SECGROUP_ID, rule)
 	})
 
+	type SecurityGroupSetOptions struct {
+		PORT_ID     string
+		SecgroupIds []string
+	}
+
+	shellutils.R(&SecurityGroupSetOptions{}, "security-group-set", "Set security group", func(cli *hcs.SRegion, args *SecurityGroupSetOptions) error {
+		return cli.SetSecurityGroups(args.SecgroupIds, args.PORT_ID)
+	})
+
 }
