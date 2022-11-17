@@ -355,7 +355,7 @@ func (self *SInstance) GetIDisks() ([]cloudprovider.ICloudDisk, error) {
 		if err != nil {
 			return nil, err
 		}
-
+		disk.storage = &SStorage{zone: self.host.zone, storageType: disk.VolumeType}
 		disks = append(disks, *disk)
 	}
 
