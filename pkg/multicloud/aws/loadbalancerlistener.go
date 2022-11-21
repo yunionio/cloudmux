@@ -546,7 +546,7 @@ func (self *SRegion) GetElbListener(listenerId string) (*SElbListener, error) {
 	return nil, errors.Wrap(cloudprovider.ErrNotFound, "GetElbListener")
 }
 
-func (self *SRegion) CreateElbListener(listener *cloudprovider.SLoadbalancerListenerCreateOptions) (*SElbListener, error) {
+func (self *SRegion) CreateElbListener(lbId string, listener *cloudprovider.SLoadbalancerListenerCreateOptions) (*SElbListener, error) {
 	client, err := self.GetElbV2Client()
 	if err != nil {
 		return nil, errors.Wrap(err, "GetElbV2Client")
@@ -554,7 +554,7 @@ func (self *SRegion) CreateElbListener(listener *cloudprovider.SLoadbalancerList
 
 	listenerType := strings.ToUpper(listener.ListenerType)
 	params := &elbv2.CreateListenerInput{}
-	params.SetLoadBalancerArn(listener.LoadbalancerId)
+	params.SetLoadBalancerArn(lbId)
 	params.SetPort(int64(listener.ListenerPort))
 	params.SetProtocol(listenerType)
 	action := &elbv2.Action{}

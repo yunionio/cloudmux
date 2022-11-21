@@ -304,7 +304,7 @@ func (self *SLoadbalancer) GetILoadBalancerBackendGroupById(groupId string) (clo
 }
 
 func (self *SLoadbalancer) CreateILoadBalancerListener(ctx context.Context, listener *cloudprovider.SLoadbalancerListenerCreateOptions) (cloudprovider.ICloudLoadbalancerListener, error) {
-	ret, err := self.region.CreateLoadBalancerListener(listener)
+	ret, err := self.region.CreateLoadBalancerListener(listener, self.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -346,13 +346,13 @@ func (self *SRegion) GetLoadBalancerListeners(lbId string) ([]SElbListener, erro
 	return ret, self.lbListAll("elb/listeners", params, "listeners", &ret)
 }
 
-func (self *SRegion) CreateLoadBalancerListener(listener *cloudprovider.SLoadbalancerListenerCreateOptions) (SElbListener, error) {
+func (self *SRegion) CreateLoadBalancerListener(listener *cloudprovider.SLoadbalancerListenerCreateOptions, lbId string) (SElbListener, error) {
 	params := map[string]interface{}{
 		"name":            listener.Name,
 		"description":     listener.Description,
 		"protocol":        LB_PROTOCOL_MAP[listener.ListenerType],
 		"protocol_port":   listener.ListenerPort,
-		"loadbalancer_id": listener.LoadbalancerId,
+		"loadbalancer_id": lbId,
 		"http2_enable":    listener.EnableHTTP2,
 	}
 	if len(listener.BackendGroupId) > 0 {

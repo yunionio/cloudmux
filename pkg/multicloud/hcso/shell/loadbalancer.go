@@ -68,30 +68,13 @@ func init() {
 		return nil
 	})
 
-	type ElbListenerCreateOptions struct {
-		Name          string `help:"listener name"`
-		Desc          string `help:"listener Description"`
-		Http2         bool   `help:"http2 enable status"`
-		PoolID        string `help:"default backend group id"`
-		CertId        string `help:"default certification id"`
-		XForwardedFor bool   `help:"XForwardedFor enable status"`
-		LISTENER_TYPE string `help:"listener type" choices:"tcp|udp|http|https"`
-		LISTENER_PORT int    `help:"listener port"`
-		ELB_ID        string `help:"loadbalancer id"`
+	type LbListenerCreateOptions struct {
+		LB_ID string
+		cloudprovider.SLoadbalancerListenerCreateOptions
 	}
-	shellutils.R(&ElbListenerCreateOptions{}, "elb-listener-create", "create loadbalancer listener", func(cli *huawei.SRegion, args *ElbListenerCreateOptions) error {
-		input := &cloudprovider.SLoadbalancerListener{
-			Name:           args.Name,
-			LoadbalancerID: args.ELB_ID,
-			ListenerType:   args.LISTENER_TYPE,
-			ListenerPort:   args.LISTENER_PORT,
-			BackendGroupID: args.PoolID,
-			EnableHTTP2:    args.Http2,
-			CertificateID:  args.CertId,
-			Description:    args.Desc,
-			XForwardedFor:  args.XForwardedFor,
-		}
-		listener, err := cli.CreateLoadBalancerListener(input)
+
+	shellutils.R(&LbListenerCreateOptions{}, "elb-listener-create", "create loadbalancer listener", func(cli *huawei.SRegion, args *LbListenerCreateOptions) error {
+		listener, err := cli.CreateLoadBalancerListener(args.LB_ID, &args.SLoadbalancerListenerCreateOptions)
 		if err != nil {
 			return err
 		}
@@ -110,11 +93,11 @@ func init() {
 		LISTENER_ID   string `help:"listener id"`
 	}
 	shellutils.R(&ElbListenerUpdateOptions{}, "elb-listener-update", "update loadbalancer listener", func(cli *huawei.SRegion, args *ElbListenerUpdateOptions) error {
-		input := &cloudprovider.SLoadbalancerListener{
+		input := &cloudprovider.SLoadbalancerListenerCreateOptions{
 			Name:           args.Name,
-			BackendGroupID: args.PoolID,
+			BackendGroupId: args.PoolID,
 			EnableHTTP2:    args.Http2,
-			CertificateID:  args.CertId,
+			CertificateId:  args.CertId,
 			Description:    args.Desc,
 			XForwardedFor:  args.XForwardedFor,
 		}
@@ -285,7 +268,7 @@ func init() {
 			Name:           args.Name,
 			Domain:         args.Domain,
 			Path:           args.Path,
-			BackendGroupID: args.PoolID,
+			BackendGroupId: args.PoolID,
 		}
 
 		elblp, err := cli.CreateLoadBalancerPolicy(args.LISTENER_ID, rule)

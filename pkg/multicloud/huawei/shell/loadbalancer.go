@@ -76,8 +76,13 @@ func init() {
 		return nil
 	})
 
-	shellutils.R(&cloudprovider.SLoadbalancerListenerCreateOptions{}, "elb-listener-create", "create loadbalancer listener", func(cli *huawei.SRegion, args *cloudprovider.SLoadbalancerListenerCreateOptions) error {
-		listener, err := cli.CreateLoadBalancerListener(args)
+	type LbListenerCreateOptions struct {
+		LBID string
+		cloudprovider.SLoadbalancerListenerCreateOptions
+	}
+
+	shellutils.R(&LbListenerCreateOptions{}, "elb-listener-create", "create loadbalancer listener", func(cli *huawei.SRegion, args *LbListenerCreateOptions) error {
+		listener, err := cli.CreateLoadBalancerListener(&args.SLoadbalancerListenerCreateOptions, args.LBID)
 		if err != nil {
 			return err
 		}
