@@ -88,18 +88,17 @@ func init() {
 		ELB_ID        string `help:"loadbalancer id"`
 	}
 	shellutils.R(&ElbListenerCreateOptions{}, "elb-listener-create", "create loadbalancer listener", func(cli *hcs.SRegion, args *ElbListenerCreateOptions) error {
-		input := &cloudprovider.SLoadbalancerListener{
+		input := &cloudprovider.SLoadbalancerListenerCreateOptions{
 			Name:           args.Name,
-			LoadbalancerID: args.ELB_ID,
 			ListenerType:   args.LISTENER_TYPE,
 			ListenerPort:   args.LISTENER_PORT,
-			BackendGroupID: args.PoolID,
+			BackendGroupId: args.PoolID,
 			EnableHTTP2:    args.Http2,
-			CertificateID:  args.CertId,
+			CertificateId:  args.CertId,
 			Description:    args.Desc,
 			XForwardedFor:  args.XForwardedFor,
 		}
-		listener, err := cli.CreateLoadBalancerListener(input)
+		listener, err := cli.CreateLoadBalancerListener(args.ELB_ID, input)
 		if err != nil {
 			return err
 		}
@@ -118,11 +117,11 @@ func init() {
 		LISTENER_ID   string `help:"listener id"`
 	}
 	shellutils.R(&ElbListenerUpdateOptions{}, "elb-listener-update", "update loadbalancer listener", func(cli *hcs.SRegion, args *ElbListenerUpdateOptions) error {
-		input := &cloudprovider.SLoadbalancerListener{
+		input := &cloudprovider.SLoadbalancerListenerCreateOptions{
 			Name:           args.Name,
-			BackendGroupID: args.PoolID,
+			BackendGroupId: args.PoolID,
 			EnableHTTP2:    args.Http2,
-			CertificateID:  args.CertId,
+			CertificateId:  args.CertId,
 			Description:    args.Desc,
 			XForwardedFor:  args.XForwardedFor,
 		}
@@ -293,7 +292,7 @@ func init() {
 			Name:           args.Name,
 			Domain:         args.Domain,
 			Path:           args.Path,
-			BackendGroupID: args.PoolID,
+			BackendGroupId: args.PoolID,
 		}
 
 		elblp, err := cli.CreateLoadBalancerPolicy(args.LISTENER_ID, rule)
