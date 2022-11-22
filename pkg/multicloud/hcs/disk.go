@@ -411,8 +411,8 @@ func (self *SRegion) AttachDisk(instanceId string, diskId string, device string)
 			"device":   device,
 		},
 	}
-	res := fmt.Sprintf("servers/%s/os-volume_attachments", instanceId)
-	return self.perform("ecs", "v2", res, "action", params, nil)
+	res := fmt.Sprintf("servers/%s", instanceId)
+	return self.perform("ecs", "v2", res, "os-volume_attachments", params, nil)
 }
 
 type SDiskType struct {
