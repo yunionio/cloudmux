@@ -407,7 +407,7 @@ func (self *SRegion) DetachDisk(instanceId string, diskId string) error {
 func (self *SRegion) AttachDisk(instanceId string, diskId string, device string) error {
 	params := map[string]interface{}{
 		"volumeAttachment": map[string]interface{}{
-			"volumeId": instanceId,
+			"volumeId": diskId,
 			"device":   device,
 		},
 	}
