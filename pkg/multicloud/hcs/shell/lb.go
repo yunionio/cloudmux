@@ -148,78 +148,22 @@ func init() {
 	})
 
 	type ElbBackendGroupCreateOptions struct {
-		Name                    string `help:"backend group name"`
-		Desc                    string `help:"backend group description"`
-		PROTOCOL                string `help:"backend group protocol" choices:"tcp|udp|http"`
-		ALGORITHM               string `help:"backend group algorithm" choices:"rr|wlc|sch"`
-		ListenerID              string `help:"listener id to binding"`
-		ElbID                   string `help:"loadbalancer id belong to"`
-		StickySessionType       string `help:"sticky session type" choices:"insert|server"`
-		StickySessionCookieName string `help:"sticky session cookie name"`
-		StickySessionTimeout    int    `help:"sticky session timeout. udp/tcp 1~60. http 1~1440"`
-		HealthCheck             bool   `help:"enable health check"`
-		HealthCheckType         string `help:"health check type protocol" choices:"tcp|udp|http"`
-		HealthCheckTimeout      int    `help:"health check timeout"`
-		HealthCheckDomain       string `help:"health check domain"`
-		HealthCheckURI          string `help:"health check uri path"`
-		HealthCheckInterval     int    `help:"health check interval"`
-		HealthCheckRise         int    `help:"health check max retries"`
+		Name      string `help:"backend group name"`
+		Desc      string `help:"backend group description"`
+		PROTOCOL  string `help:"backend group protocol" choices:"tcp|udp|http"`
+		ALGORITHM string `help:"backend group algorithm" choices:"rr|wlc|sch"`
+		ElbID     string `help:"loadbalancer id belong to"`
 	}
 	shellutils.R(&ElbBackendGroupCreateOptions{}, "elb-backend-group-create", "Create backend groups", func(cli *hcs.SRegion, args *ElbBackendGroupCreateOptions) error {
-		var health *cloudprovider.SLoadbalancerHealthCheck
-		if args.HealthCheck {
-			health = &cloudprovider.SLoadbalancerHealthCheck{
-				HealthCheckType:     args.HealthCheckType,
-				HealthCheckTimeout:  args.HealthCheckTimeout,
-				HealthCheckDomain:   args.HealthCheckDomain,
-				HealthCheckURI:      args.HealthCheckURI,
-				HealthCheckInterval: args.HealthCheckInterval,
-				HealthCheckRise:     args.HealthCheckRise,
-			}
+		opts := &cloudprovider.SLoadbalancerBackendGroup{
+			Name:      args.Name,
+			Protocol:  args.PROTOCOL,
+			Scheduler: args.ALGORITHM,
 		}
-
-		var sticky *cloudprovider.SLoadbalancerStickySession
-		if len(args.StickySessionType) > 0 {
-			sticky = &cloudprovider.SLoadbalancerStickySession{
-				StickySessionCookie:        args.StickySessionCookieName,
-				StickySessionType:          args.StickySessionType,
-				StickySessionCookieTimeout: args.StickySessionTimeout,
-			}
-		}
-
-		group := &cloudprovider.SLoadbalancerBackendGroup{
-			Name:           args.Name,
-			LoadbalancerID: args.ElbID,
-			ListenerID:     args.ListenerID,
-			ListenType:     args.PROTOCOL,
-			Scheduler:      args.ALGORITHM,
-			StickySession:  sticky,
-			HealthCheck:    health,
-		}
-
-		elbbg, err := cli.CreateLoadBalancerBackendGroup(group)
+		elbbg, err := cli.CreateLoadBalancerBackendGroup(args.ElbID, opts)
 		if err != nil {
 			return err
 		}
-
-		printObject(elbbg)
-		return nil
-	})
-
-	type ElbBackendGroupUpdateOptions struct {
-		POOL_ID string `help:"backend group id"`
-		Name    string `help:"backend group name"`
-	}
-	shellutils.R(&ElbBackendGroupUpdateOptions{}, "elb-backend-group-update", "Update backend groups", func(cli *hcs.SRegion, args *ElbBackendGroupUpdateOptions) error {
-		group := &cloudprovider.SLoadbalancerBackendGroup{
-			Name: args.Name,
-		}
-
-		elbbg, err := cli.UpdateLoadBalancerBackendGroup(args.POOL_ID, group)
-		if err != nil {
-			return err
-		}
-
 		printObject(elbbg)
 		return nil
 	})
