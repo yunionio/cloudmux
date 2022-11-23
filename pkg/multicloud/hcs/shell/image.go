@@ -53,4 +53,24 @@ func init() {
 		printObject(img)
 		return nil
 	})
+
+	type ImageImportOptions struct {
+		Name      string
+		OsDist    string
+		OsVersion string
+		OsArch    string
+		Bucket    string
+		Key       string
+		MinDiskGb int64
+	}
+
+	shellutils.R(&ImageImportOptions{}, "image-import", "Import image", func(cli *hcs.SRegion, args *ImageImportOptions) error {
+		img, err := cli.ImportImageJob(args.Name, args.OsDist, args.OsVersion, args.OsArch, args.Bucket, args.Key, args.MinDiskGb)
+		if err != nil {
+			return err
+		}
+		printObject(img)
+		return nil
+	})
+
 }
