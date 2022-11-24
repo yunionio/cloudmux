@@ -40,4 +40,12 @@ func init() {
 		return cli.CreateBucket(args.NAME, args.Storage, args.Acl)
 	})
 
+	type BucketDeleteOptions struct {
+		NAME string
+	}
+
+	shellutils.R(&BucketDeleteOptions{}, "bucket-delete", "Delete bucket", func(cli *hcs.SRegion, args *BucketDeleteOptions) error {
+		return cli.DeleteIBucket(args.NAME)
+	})
+
 }
