@@ -31,6 +31,15 @@ func init() {
 		return nil
 	})
 
+	shellutils.R(&VpcListOptions{}, "external-vpc-list", "List vpcs", func(cli *hcs.SRegion, args *VpcListOptions) error {
+		vpcs, err := cli.GetExternalVpcs()
+		if err != nil {
+			return nil
+		}
+		printList(vpcs, 0, 0, 0, nil)
+		return nil
+	})
+
 	type VpcCreateOptions struct {
 		NAME string
 		CIDR string

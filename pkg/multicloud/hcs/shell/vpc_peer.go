@@ -21,10 +21,9 @@ import (
 
 func init() {
 	type VpcPeerListOptions struct {
-		VpcId string
 	}
 	shellutils.R(&VpcPeerListOptions{}, "vpc-peer-list", "List vpc peers", func(cli *hcs.SRegion, args *VpcPeerListOptions) error {
-		peers, err := cli.GetVpcPeerings(args.VpcId)
+		peers, err := cli.GetVpcPeerings()
 		if err != nil {
 			return nil
 		}

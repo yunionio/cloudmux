@@ -32,12 +32,30 @@ func init() {
 		return nil
 	})
 
+	shellutils.R(&NetworkListOptions{}, "external-network-list", "List subnets", func(cli *hcs.SRegion, args *NetworkListOptions) error {
+		networks, e := cli.GetExternalNetworks(args.Vpc)
+		if e != nil {
+			return e
+		}
+		printList(networks, 0, 0, 0, nil)
+		return nil
+	})
+
 	type NetworkIdOptions struct {
 		ID string
 	}
 
 	shellutils.R(&NetworkIdOptions{}, "network-show", "Show subnets", func(cli *hcs.SRegion, args *NetworkIdOptions) error {
 		network, e := cli.GetNetwork(args.ID)
+		if e != nil {
+			return e
+		}
+		printObject(network)
+		return nil
+	})
+
+	shellutils.R(&NetworkIdOptions{}, "external-network-show", "Show subnets", func(cli *hcs.SRegion, args *NetworkIdOptions) error {
+		network, e := cli.GetExternalNetwork(args.ID)
 		if e != nil {
 			return e
 		}
