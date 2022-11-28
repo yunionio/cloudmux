@@ -46,6 +46,15 @@ func init() {
 		return nil
 	})
 
+	shellutils.R(&InstanceIdOptions{}, "instance-vnc", "Show instance vnc", func(cli *cloudpods.SRegion, args *InstanceIdOptions) error {
+		vnc, err := cli.GetInstanceVnc(args.ID, "")
+		if err != nil {
+			return err
+		}
+		printObject(vnc)
+		return nil
+	})
+
 	type InstanceSaveImageOptions struct {
 		ID   string
 		NAME string
