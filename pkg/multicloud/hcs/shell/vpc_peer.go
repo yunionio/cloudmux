@@ -15,6 +15,7 @@
 package shell
 
 import (
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/hcs"
 	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
@@ -46,6 +47,24 @@ func init() {
 
 	shellutils.R(&VpcPeerIdOption{}, "vpc-peer-delete", "Delete vpc peer", func(cli *hcs.SRegion, args *VpcPeerIdOption) error {
 		return cli.DeleteVpcPeering(args.ID)
+	})
+
+	type PeerCreateOptions struct {
+		NAME    string
+		VPC_ID  string
+		PEER_ID string
+	}
+
+	shellutils.R(&PeerCreateOptions{}, "vpc-peer-create", "Create vpc peer", func(cli *hcs.SRegion, args *PeerCreateOptions) error {
+		ret, err := cli.CreateVpcPeering(args.VPC_ID, &cloudprovider.VpcPeeringConnectionCreateOptions{
+			Name:      args.NAME,
+			PeerVpcId: args.PEER_ID,
+		})
+		if err != nil {
+			return err
+		}
+		printObject(ret)
+		return nil
 	})
 
 }
