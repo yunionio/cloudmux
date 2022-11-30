@@ -37,6 +37,8 @@ type BaseOptions struct {
 	Secret     string `help:"Secret" default:"$HCS_SECRET" metavar:"HCS_SECRET"`
 	RegionId   string `help:"RegionId" default:"$HCS_REGION" metavar:"HCS_REGION"`
 	ProjectId  string `help:"RegionId" default:"$HCS_PROJECT_ID" metavar:"HCS_PROJECT_ID"`
+	Account    string `help:"oc account"`
+	Password   string `help:"oc password"`
 	SUBCOMMAND string `help:"hcscli subcommand" subcommand:"true"`
 }
 
@@ -108,7 +110,7 @@ func newClient(options *BaseOptions) (*hcs.SRegion, error) {
 				cloudprovider.ProviderConfig{
 					ProxyFunc: proxyFunc,
 				},
-			),
+			).WithAccount(options.Account, options.Password),
 	)
 	if err != nil {
 		return nil, err
