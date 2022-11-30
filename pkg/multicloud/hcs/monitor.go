@@ -122,7 +122,6 @@ func (self *SHcsClient) getServerMetrics(opts *cloudprovider.MetricListOptions) 
 			result = append(result, ret)
 		}
 	}
-	log.Errorf("%s result: %s", opts.ResourceId, jsonutils.Marshal(result).PrettyString())
 	return result, nil
 }
 
