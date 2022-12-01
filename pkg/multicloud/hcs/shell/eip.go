@@ -47,6 +47,7 @@ func init() {
 
 	type EipAllocateOptions struct {
 		NAME       string `help:"eip name"`
+		Ip         string
 		BW         int    `help:"Bandwidth limit in Mbps"`
 		BGP        string `help:"bgp type"`
 		SubnetId   string
@@ -54,7 +55,7 @@ func init() {
 		ProjectId  string
 	}
 	shellutils.R(&EipAllocateOptions{}, "eip-create", "Allocate an EIP", func(cli *hcs.SRegion, args *EipAllocateOptions) error {
-		eip, err := cli.AllocateEIP(args.NAME, args.BW, hcs.TInternetChargeType(args.ChargeType), args.BGP, args.SubnetId, args.ProjectId)
+		eip, err := cli.AllocateEIP(args.NAME, args.Ip, args.BW, hcs.TInternetChargeType(args.ChargeType), args.BGP, args.SubnetId, args.ProjectId)
 		if err != nil {
 			return err
 		}
