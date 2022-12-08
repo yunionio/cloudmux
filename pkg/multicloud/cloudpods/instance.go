@@ -525,10 +525,15 @@ type SMetricData struct {
 func (cli *SCloudpodsClient) GetMetrics(opts *cloudprovider.MetricListOptions) ([]cloudprovider.MetricValues, error) {
 	brandArr := []string{"OneCloud", "VMware"}
 	metrics := []SMetricData{}
+	if opts.ResourceType != cloudprovider.METRIC_RESOURCE_TYPE_HOST && opts.ResourceType != cloudprovider.METRIC_RESOURCE_TYPE_RDS {
+		return nil, nil
+	}
 	for i := 0; i < len(brandArr); i++ {
 		params := map[string]interface{}{
 			"metric_name": opts.MetricType,
-			"tags": map[string]interface{}{
+			"start_time":  time.Now().Add(-6 * time.Minute).Format(time.RFC3339),
+			"end_time":    time.Now().Format(time.RFC3339),
+			"tag_pairs": map[string]interface{}{
 				"brand": brandArr[i],
 			},
 		}
