@@ -14,7 +14,7 @@
 
 package shell
 
-import "yunion.io/x/onecloud/pkg/util/printutils"
+import "yunion.io/x/pkg/util/printutils"
 
 func printList(data interface{}, columns []string) {
 	printutils.PrintInterfaceList(data, 0, 0, 0, columns)

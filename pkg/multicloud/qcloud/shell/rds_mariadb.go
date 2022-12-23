@@ -17,8 +17,9 @@ package shell
 import (
 	"github.com/pkg/errors"
 
+	"yunion.io/x/pkg/util/shellutils"
+
 	"yunion.io/x/cloudmux/pkg/multicloud/qcloud"
-	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 
 func init() {

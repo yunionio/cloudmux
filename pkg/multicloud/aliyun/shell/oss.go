@@ -21,9 +21,10 @@ import (
 
 	osslib "github.com/aliyun/aliyun-oss-go-sdk/oss"
 
+	"yunion.io/x/pkg/util/fileutils"
+	"yunion.io/x/pkg/util/shellutils"
+
 	"yunion.io/x/cloudmux/pkg/multicloud/aliyun"
-	"yunion.io/x/onecloud/pkg/util/fileutils2"
-	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 
 type progressListener struct {
@@ -138,10 +139,10 @@ func init() {
 		if len(args.Acl) > 0 {
 			options = append(options, osslib.ObjectACL(str2AclType(args.Acl)))
 		}
-		if fileutils2.IsFile(args.FILE) {
+		if fileutils.IsFile(args.FILE) {
 			err = bucket.UploadFile(args.KEY, args.FILE, 4*1024*1024, options...)
 			return err
-		} else if fileutils2.IsDir(args.FILE) {
+		} else if fileutils.IsDir(args.FILE) {
 			return filepath.Walk(args.FILE, func(path string, info os.FileInfo, err error) error {
 				if err != nil {
 					return err

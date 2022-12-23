@@ -15,19 +15,8 @@
 package shell
 
 import (
-	// "context"
-	// "fmt"
-	// "io"
-	// "mime"
 	"net/http"
-	// "os"
-	// "path/filepath"
 	"strings"
-	// "time"
-
-	// "yunion.io/x/onecloud/pkg/util/fileutils2"
-	// "yunion.io/x/onecloud/pkg/util/streamutils"
-	// "yunion.io/x/pkg/errors"
 
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
 )
