@@ -17,8 +17,9 @@ package shell
 import (
 	"os"
 
+	"yunion.io/x/pkg/util/shellutils"
+
 	"yunion.io/x/cloudmux/pkg/multicloud/zstack"
-	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 
 func init() {

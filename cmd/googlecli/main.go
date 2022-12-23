@@ -16,6 +16,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -25,13 +26,12 @@ import (
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/errors"
+	"yunion.io/x/pkg/util/shellutils"
 	"yunion.io/x/structarg"
 
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/google"
 	_ "yunion.io/x/cloudmux/pkg/multicloud/google/shell"
-	"yunion.io/x/onecloud/pkg/util/fileutils2"
-	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 
 type BaseOptions struct {
@@ -75,11 +75,11 @@ func showErrorAndExit(e error) {
 
 func newClient(options *BaseOptions) (*google.SRegion, error) {
 	if len(options.AuthFile) > 0 {
-		jsonStr, err := fileutils2.FileGetContents(options.AuthFile)
+		jsonBytes, err := ioutil.ReadFile(options.AuthFile)
 		if err != nil {
 			return nil, errors.Wrap(err, "FileGetContents")
 		}
-		jsonCfg, err := jsonutils.ParseString(jsonStr)
+		jsonCfg, err := jsonutils.Parse(jsonBytes)
 		if err != nil {
 			return nil, errors.Wrap(err, "jsonutils.ParseString")
 		}

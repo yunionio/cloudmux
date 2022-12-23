@@ -39,4 +39,13 @@ cmd/%: prepare_dir
 	$(GO_BUILD) -o $(BIN_DIR)/$(shell basename $@) $(REPO_PREFIX)/$@
 
 test:
-	go test $(GO_BUILD_FLAGS) $(shell go list ./...)
+	go test -v $(GO_BUILD_FLAGS) ./...
+
+fmt:
+	goimports -w -local "yunion.io/x/:yunion.io/x/onecloud:yunion.io/x/cloudmux" pkg cmd
+
+GOPROXY ?= direct
+
+mod:
+	GOPROXY=$(GOPROXY) go get -d $(patsubst %,%@master,$(shell GO111MODULE=on go mod edit -print  | sed -n -e 's|.*\(yunion.io/x/[a-z].*\) v.*|\1|p'))
+	go mod tidy
