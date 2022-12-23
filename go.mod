@@ -26,49 +26,41 @@ require (
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4
 	golang.org/x/net v0.0.0-20220418201149-a630d4f3e7a2
 	golang.org/x/oauth2 v0.0.0-20210514164344-f6687ab2804c
-	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
+	golang.org/x/text v0.3.7
 	gopkg.in/fatih/set.v0 v0.2.1
 	moul.io/http2curl/v2 v2.3.0
 	yunion.io/x/jsonutils v1.0.1-0.20220819091305-3bab322ab4fd
 	yunion.io/x/log v1.0.0
-	yunion.io/x/onecloud v0.3.10-0-alpha.1
-	yunion.io/x/pkg v1.0.1-0.20220819080140-55b265a8658e
+	yunion.io/x/pkg v1.0.1-0.20221223155549-5478754887c8
 	yunion.io/x/s3cli v0.0.0-20190917004522-13ac36d8687e
 	yunion.io/x/structarg v0.0.0-20220312084958-9c6c79c7d1c6
 )
 
 require (
 	cloud.google.com/go v0.65.0 // indirect
-	github.com/Azure/go-autorest v14.2.0+incompatible // indirect
 	github.com/Azure/go-autorest/autorest/adal v0.8.2 // indirect
 	github.com/Azure/go-autorest/autorest/azure/cli v0.3.1 // indirect
 	github.com/Azure/go-autorest/autorest/date v0.2.0 // indirect
+	github.com/Azure/go-autorest/autorest/to v0.4.0 // indirect
 	github.com/Azure/go-autorest/logger v0.1.0 // indirect
 	github.com/Azure/go-autorest/tracing v0.5.0 // indirect
+	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/beevik/etree v1.1.0 // indirect
-	github.com/coreos/go-semver v0.3.0 // indirect
-	github.com/coreos/go-systemd/v22 v22.3.2 // indirect
+	github.com/bitly/go-simplejson v0.5.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/dimchansky/utfbom v1.1.0 // indirect
+	github.com/dnaeon/go-vcr v1.2.0 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
-	github.com/gin-contrib/sse v0.1.0 // indirect
-	github.com/gin-gonic/gin v1.7.7 // indirect
-	github.com/go-playground/locales v0.13.0 // indirect
-	github.com/go-playground/universal-translator v0.17.0 // indirect
-	github.com/go-playground/validator/v10 v10.4.1 // indirect
 	github.com/gofrs/uuid v4.1.0+incompatible // indirect
-	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-plus/errors v1.0.0 // indirect
 	github.com/golang-plus/uuid v1.0.0 // indirect
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.0.5 // indirect
-	github.com/hako/durafmt v0.0.0-20180520121703-7b7ae1e72ead // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/jstemmer/go-junit-report v0.9.1 // indirect
-	github.com/leodido/go-urn v1.2.0 // indirect
 	github.com/ma314smith/signedxml v0.0.0-20210628192057-abc5b481ae1c // indirect
 	github.com/mattn/go-colorable v0.1.9 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
@@ -78,26 +70,16 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/mozillazg/go-httpheader v0.2.1 // indirect
-	github.com/mozillazg/go-pinyin v0.15.0 // indirect
+	github.com/mozillazg/go-pinyin v0.19.0 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
+	github.com/stretchr/testify v1.7.1 // indirect
 	github.com/texttheater/golang-levenshtein v0.0.0-20180516184445-d188e65d659e // indirect
-	github.com/tjfoc/gmsm v1.4.1 // indirect
-	github.com/tredoe/osutil v1.0.6 // indirect
-	github.com/ugorji/go/codec v1.1.7 // indirect
-	github.com/vishvananda/netlink v1.1.0 // indirect
-	github.com/vishvananda/netns v0.0.0-20211101163701-50045581ed74 // indirect
-	go.etcd.io/etcd/api/v3 v3.5.0 // indirect
-	go.etcd.io/etcd/client/pkg/v3 v3.5.0 // indirect
-	go.etcd.io/etcd/client/v3 v3.5.0 // indirect
+	github.com/tredoe/osutil/v2 v2.0.0-rc.16 // indirect
 	go.opencensus.io v0.22.4 // indirect
-	go.uber.org/atomic v1.7.0 // indirect
-	go.uber.org/multierr v1.6.0 // indirect
-	go.uber.org/zap v1.17.0 // indirect
 	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616 // indirect
 	golang.org/x/mod v0.4.2 // indirect
 	golang.org/x/sys v0.0.0-20220829200755-d48e67d00261 // indirect
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
-	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20210220033141-f8bda1e9f3ba // indirect
 	golang.org/x/tools v0.1.2 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
@@ -106,13 +88,7 @@ require (
 	google.golang.org/genproto v0.0.0-20210602131652-f16073e35f0c // indirect
 	google.golang.org/grpc v1.38.0 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
-	gopkg.in/ini.v1 v1.44.0 // indirect
+	gopkg.in/ini.v1 v1.62.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	yunion.io/x/executor v0.0.0-20211018100936-39a2cd966656 // indirect
-	yunion.io/x/sqlchemy v1.1.2-0.20220923040147-ddd3e96868af // indirect
-)
-
-replace (
-	github.com/go-logr/logr => github.com/go-logr/logr v0.4.0
-	github.com/jaypipes/ghw => github.com/zexi/ghw v0.9.1
+	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )

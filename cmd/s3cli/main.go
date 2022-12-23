@@ -18,15 +18,15 @@ import (
 	"fmt"
 	"os"
 
+	"yunion.io/x/pkg/util/shellutils"
 	"yunion.io/x/structarg"
 
-	api "yunion.io/x/onecloud/pkg/apis/compute"
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/objectstore"
 	"yunion.io/x/cloudmux/pkg/multicloud/objectstore/ceph"
 	_ "yunion.io/x/cloudmux/pkg/multicloud/objectstore/shell"
 	"yunion.io/x/cloudmux/pkg/multicloud/objectstore/xsky"
-	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 
 type BaseOptions struct {

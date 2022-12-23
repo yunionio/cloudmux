@@ -16,10 +16,10 @@ package shell
 
 import (
 	"yunion.io/x/log"
+	"yunion.io/x/pkg/util/shellutils"
 
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/ecloud"
-	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 
 func init() {

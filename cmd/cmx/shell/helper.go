@@ -24,11 +24,11 @@ import (
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/errors"
+	"yunion.io/x/pkg/util/printutils"
+	"yunion.io/x/pkg/util/shellutils"
 
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/cloudprovider/generic"
-	"yunion.io/x/onecloud/pkg/util/shellutils"
-	"yunion.io/x/onecloud/pkg/util/printutils"
 )
 
 var (
