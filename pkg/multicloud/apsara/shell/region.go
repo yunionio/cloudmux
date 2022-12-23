@@ -15,9 +15,10 @@
 package shell
 
 import (
+	"yunion.io/x/pkg/util/shellutils"
+
 	"yunion.io/x/cloudmux/pkg/multicloud/apsara"
 	"yunion.io/x/cloudmux/pkg/multicloud/test"
-	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 
 func init() {

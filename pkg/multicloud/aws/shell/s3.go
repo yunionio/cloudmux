@@ -20,10 +20,11 @@ import (
 
 	"github.com/aws/aws-sdk-go/service/s3"
 
+	"yunion.io/x/pkg/util/printutils"
+	"yunion.io/x/pkg/util/shellutils"
+	"yunion.io/x/pkg/util/streamutils"
+
 	"yunion.io/x/cloudmux/pkg/multicloud/aws"
-	"yunion.io/x/onecloud/pkg/util/printutils"
-	"yunion.io/x/onecloud/pkg/util/shellutils"
-	"yunion.io/x/onecloud/pkg/util/streamutils"
 )
 
 func init() {

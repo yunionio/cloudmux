@@ -18,9 +18,10 @@ import (
 	"fmt"
 	"sort"
 
+	"yunion.io/x/pkg/util/shellutils"
+
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/azure"
-	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 
 func init() {

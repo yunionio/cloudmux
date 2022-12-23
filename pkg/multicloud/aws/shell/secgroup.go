@@ -19,10 +19,10 @@ import (
 
 	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/util/secrules"
+	"yunion.io/x/pkg/util/shellutils"
 
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/aws"
-	"yunion.io/x/onecloud/pkg/util/shellutils"
 )
 
 func init() {

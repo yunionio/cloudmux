@@ -19,11 +19,11 @@ import (
 	"net/url"
 	"testing"
 
+	"yunion.io/x/pkg/util/httputils"
 	"yunion.io/x/s3cli"
 
 	"yunion.io/x/cloudmux/pkg/apis/compute"
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
-	"yunion.io/x/onecloud/pkg/util/httputils"
 )
 
 func TestProxyFunc(t *testing.T) {
