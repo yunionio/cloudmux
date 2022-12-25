@@ -24,10 +24,10 @@ jobs:
           set -o xtrace
           workdir="$HOME/go/src/yunion.io/x"
           mkdir -p "$workdir"
-          mv "$HOME/work/pkg/pkg" "$workdir/"
+          mv "$HOME/work/cloudmux/cloudmux" "$workdir/"
 
           export GOPATH="$HOME/go"
-          export GO111MODULE=off
-          cd "$workdir/pkg"
+          export GO111MODULE=on
+          cd "$workdir/cloudmux"
           make mod
           make test
