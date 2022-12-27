@@ -53,7 +53,7 @@ func init() {
 	}
 
 	shellutils.R(&UnTagOptions{}, "untag-resource", "un tags of a specific resource", func(cli *aliyun.SRegion, args *UnTagOptions) error {
-		return cli.UntagResource(args.SERVICE, args.RESTYPE, args.ID, args.KEY)
+		return cli.UntagResource(args.SERVICE, args.RESTYPE, args.ID, args.KEY, false)
 	})
 
 	type TagSetOptions struct {
