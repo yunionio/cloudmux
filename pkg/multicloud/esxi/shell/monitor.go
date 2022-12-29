@@ -16,6 +16,7 @@ package shell
 
 import (
 	"yunion.io/x/log"
+	"yunion.io/x/pkg/util/printutils"
 	"yunion.io/x/pkg/util/shellutils"
 
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
@@ -30,7 +31,7 @@ func init() {
 		}
 		for i := range metrics {
 			log.Infof("metric %s %s", metrics[i].Id, metrics[i].MetricType)
-			printList(metrics[i].Values, nil)
+			printutils.PrintInterfaceList(metrics[i].Values, 0, 0, 0, nil)
 		}
 		return nil
 	})
