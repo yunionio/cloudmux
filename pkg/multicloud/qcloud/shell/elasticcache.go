@@ -32,6 +32,21 @@ func init() {
 		return nil
 	})
 
+	type MemcacheListOptions struct {
+		Ids    []string
+		Limit  int
+		Offset int
+	}
+
+	shellutils.R(&MemcacheListOptions{}, "memcache-list", "List memcaches", func(cli *qcloud.SRegion, args *MemcacheListOptions) error {
+		redis, _, err := cli.GetMemcaches(args.Ids, args.Limit, args.Offset)
+		if err != nil {
+			return err
+		}
+		printList(redis, 0, 0, 0, []string{})
+		return nil
+	})
+
 	type RedisParameterListOptions struct {
 		INSTANCEID string `json:"instanceid"`
 	}
