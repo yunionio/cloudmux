@@ -345,4 +345,21 @@ func init() {
 		return nil
 	})
 
+	type VirtualMachineMigrateOptions struct {
+		VirtualMachineShowOptions
+		HOST_ID string
+	}
+
+	shellutils.R(&VirtualMachineMigrateOptions{}, "vm-migrate", "Migrate vm", func(cli *esxi.SESXiClient, args *VirtualMachineMigrateOptions) error {
+		vm, err := getVM(cli, &args.VirtualMachineShowOptions)
+		if err != nil {
+			return err
+		}
+		err = vm.MigrateVM(args.HOST_ID)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+
 }
