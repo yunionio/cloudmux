@@ -104,4 +104,20 @@ func init() {
 		print(certId)
 		return nil
 	})
+
+	type LbLisListOptions struct {
+		LB_ID    string
+		Ids      []string
+		Protocol string
+	}
+
+	shellutils.R(&LbLisListOptions{}, "lblis-list", "List lb listener", func(cli *qcloud.SRegion, args *LbLisListOptions) error {
+		lis, err := cli.GetLoadbalancerListeners(args.LB_ID, args.Ids, args.Protocol)
+		if err != nil {
+			return err
+		}
+		printList(lis, 0, 0, 0, nil)
+		return nil
+	})
+
 }
