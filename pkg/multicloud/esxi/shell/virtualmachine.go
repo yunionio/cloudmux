@@ -362,4 +362,28 @@ func init() {
 		return nil
 	})
 
+	type VirtualMachieRebuildRootOptions struct {
+		VirtualMachineShowOptions
+		ImagePath  string
+		TemplateId string
+	}
+
+	shellutils.R(&VirtualMachieRebuildRootOptions{}, "vm-rebuild-root", "Rebuild vm root", func(cli *esxi.SESXiClient, args *VirtualMachieRebuildRootOptions) error {
+		vm, err := getVM(cli, &args.VirtualMachineShowOptions)
+		if err != nil {
+			return err
+		}
+		if len(args.TemplateId) > 0 {
+			temp, err := cli.SearchTemplateVM(args.TemplateId)
+			if err != nil {
+				return errors.Wrapf(err, "SearchTemplateVM")
+			}
+			args.ImagePath, err = temp.GetRootImagePath()
+			if err != nil {
+				return errors.Wrapf(err, "CopyRootDisk")
+			}
+		}
+		return vm.DoRebuildRoot(context.Background(), args.ImagePath, "")
+	})
+
 }
