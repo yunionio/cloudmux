@@ -120,4 +120,18 @@ func init() {
 		return nil
 	})
 
+	type BackendsListOptions struct {
+		LB_ID  string
+		LIS_ID string
+	}
+
+	shellutils.R(&BackendsListOptions{}, "lb-backend-list", "List lb backends", func(cli *qcloud.SRegion, args *BackendsListOptions) error {
+		backends, err := cli.GetBackends(args.LB_ID, args.LIS_ID)
+		if err != nil {
+			return err
+		}
+		printList(backends, 0, 0, 0, nil)
+		return nil
+	})
+
 }
