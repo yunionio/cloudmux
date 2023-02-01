@@ -179,10 +179,10 @@ func (self *SNode) GetIHostNics() ([]cloudprovider.ICloudHostNetInterface, error
 
 func (self *SNode) GetIVMs() ([]cloudprovider.ICloudVM, error) {
 	var vms []SInstance
-	part, nextToken, err := self.cluster.region.getInstances("", self.NodeId, MAX_RESULT, "")
+	part, nextToken, err := self.cluster.region.GetInstances("", self.NodeId, MAX_RESULT, "")
 	vms = append(vms, part...)
 	for len(nextToken) > 0 {
-		part, nextToken, err = self.cluster.region.getInstances("", self.NodeId, MAX_RESULT, nextToken)
+		part, nextToken, err = self.cluster.region.GetInstances("", self.NodeId, MAX_RESULT, nextToken)
 		if err != nil {
 			return nil, err
 		}
@@ -197,7 +197,7 @@ func (self *SNode) GetIVMs() ([]cloudprovider.ICloudVM, error) {
 }
 
 func (self *SNode) GetIVMById(id string) (cloudprovider.ICloudVM, error) {
-	vms, _, err := self.cluster.region.getInstances(id, self.NodeId, 1, "")
+	vms, _, err := self.cluster.region.GetInstances(id, self.NodeId, 1, "")
 	if err != nil {
 		return nil, err
 	}
@@ -359,7 +359,7 @@ func (self *SNode) CreateVM(desc *cloudprovider.SManagedVMCreateConfig) (cloudpr
 	}{}
 
 	_ = resp.Unmarshal(&tmpInst)
-	insets, _, err := self.cluster.region.getInstances(tmpInst.InstancesSet.InstanceId, "", MAX_RESULT, "")
+	insets, _, err := self.cluster.region.GetInstances(tmpInst.InstancesSet.InstanceId, "", MAX_RESULT, "")
 	if err != nil {
 		log.Errorf("GetInstance %s: %s", "", err)
 		return nil, errors.Wrap(err, "CreateVM")
