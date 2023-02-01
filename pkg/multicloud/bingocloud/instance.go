@@ -320,7 +320,7 @@ func (self *SInstance) GetProjectId() string {
 }
 
 func (self *SInstance) Refresh() error {
-	newInstances, _, err := self.node.cluster.region.getInstances(self.InstancesSet.InstanceId, self.node.NodeId, MAX_RESULT, "")
+	newInstances, _, err := self.node.cluster.region.GetInstances(self.InstancesSet.InstanceId, self.node.NodeId, MAX_RESULT, "")
 	if err != nil {
 		return err
 	}
@@ -424,7 +424,7 @@ func (self *SInstance) ResetToInstanceSnapshot(ctx context.Context, idStr string
 	return self.node.cluster.region.revertInstanceSnapshot(idStr)
 }
 
-func (self *SRegion) getInstances(id, nodeId string, maxResult int, nextToken string) ([]SInstance, string, error) {
+func (self *SRegion) GetInstances(id, nodeId string, maxResult int, nextToken string) ([]SInstance, string, error) {
 	params := map[string]string{}
 	if maxResult > 0 {
 		params["MaxRecords"] = fmt.Sprintf("%d", maxResult)
