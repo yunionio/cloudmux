@@ -39,7 +39,7 @@ type SStoragecache struct {
 }
 
 func (cache *SStoragecache) GetId() string {
-	return cache.region.client.cpcfg.Id
+	return fmt.Sprintf("%s-%s", cache.region.client.cpcfg.Id, cache.region.GetGlobalId())
 }
 
 func (cache *SStoragecache) GetName() string {
