@@ -55,7 +55,7 @@ func (cache *SStoragecache) Refresh() error {
 }
 
 func (cache *SStoragecache) GetGlobalId() string {
-	return cache.region.client.cpcfg.Id
+	return cache.GetId()
 }
 
 func (cache *SStoragecache) IsEmulated() bool {
