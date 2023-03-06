@@ -15,10 +15,10 @@
 package shell
 
 import (
-	"yunion.io/x/pkg/util/shellutils"
-	"yunion.io/x/pkg/util/timeutils"
-
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	huawei "yunion.io/x/cloudmux/pkg/multicloud/hcso"
+	"yunion.io/x/log"
+	"yunion.io/x/pkg/util/shellutils"
 )
 
 func init() {
@@ -39,24 +39,15 @@ func init() {
 		SINCE string `help:"since"`
 		UNTIL string `help:"until"`
 	}
-	shellutils.R(&MetricDataOptions{}, "metrics-data-list", "List metrics", func(cli *huawei.SRegion, args *MetricDataOptions) error {
-		metrics, err := cli.GetMetrics()
+	shellutils.R(&cloudprovider.MetricListOptions{}, "metrics-data-list", "List metrics", func(cli *huawei.SRegion, args *cloudprovider.MetricListOptions) error {
+		metrics, err := cli.GetClient().GetMetrics(args)
 		if err != nil {
 			return err
 		}
-		since, err := timeutils.ParseTimeStr(args.SINCE)
-		if err != nil {
-			return err
+		for i := range metrics {
+			log.Infof("metric: %s %s %s", metrics[i].Id, metrics[i].MetricType, metrics[i].Unit)
+			printList(metrics[i].Values, len(metrics[i].Values), 0, 0, []string{})
 		}
-		until, err := timeutils.ParseTimeStr(args.UNTIL)
-		if err != nil {
-			return err
-		}
-		data, err := cli.GetMetricsData(metrics[args.START:args.START+args.Count], since, until)
-		if err != nil {
-			return err
-		}
-		printList(data, 0, 0, 0, nil)
 		return nil
 	})
 }
