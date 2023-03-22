@@ -497,7 +497,8 @@ func (self *SHcsClient) dcsUpdate(regionId string, resource string, body map[str
 }
 
 func (self *SHcsClient) _url(product, version, regionId string, resource string) string {
-	url := fmt.Sprintf("%s.%s.%s/%s/%s/%s", product, regionId, strings.TrimPrefix(self.authUrl, regionId+"."), version, self.projectId, resource)
+	authUrl := strings.TrimPrefix(self.authUrl, regionId+".")
+	url := fmt.Sprintf("%s.%s.%s/%s/%s/%s", product, regionId, authUrl, version, self.projectId, resource)
 	for _, prefix := range []string{
 		"images", "cloudimages", "nat_gateways",
 		"lbaas", "products", "snat_rules",
@@ -505,12 +506,12 @@ func (self *SHcsClient) _url(product, version, regionId string, resource string)
 		"ports",
 	} {
 		if strings.HasPrefix(resource, prefix) {
-			url = fmt.Sprintf("%s.%s.%s/%s/%s", product, regionId, self.authUrl, version, resource)
+			url = fmt.Sprintf("%s.%s.%s/%s/%s", product, regionId, authUrl, version, resource)
 			break
 		}
 	}
 	if version == "v2.0" && strings.HasPrefix(resource, "subnets") {
-		url = fmt.Sprintf("%s.%s.%s/%s/%s", product, regionId, self.authUrl, version, resource)
+		url = fmt.Sprintf("%s.%s.%s/%s/%s", product, regionId, authUrl, version, resource)
 	}
 	return url
 }
