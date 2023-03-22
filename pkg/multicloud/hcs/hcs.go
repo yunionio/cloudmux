@@ -221,7 +221,9 @@ func (ce *hcsError) Error() string {
 }
 
 func (ce *hcsError) ParseErrorFromJsonResponse(statusCode int, body jsonutils.JSONObject) error {
-	body.Unmarshal(ce)
+	if !gotypes.IsNil(body) {
+		body.Unmarshal(ce)
+	}
 	if ce.Code == 0 {
 		ce.Code = statusCode
 	}
@@ -753,7 +755,8 @@ func (self *SHcsClient) GetCapabilities() []string {
 }
 
 func (self *SHcsClient) getOBSEndpoint(regionId string) string {
-	return fmt.Sprintf("obsv3.%s.%s", regionId, self.authUrl)
+	authUrl := strings.TrimPrefix(self.authUrl, regionId+".")
+	return fmt.Sprintf("obsv3.%s.%s", regionId, authUrl)
 }
 
 func (self *SHcsClient) getOBSClient(regionId string) (*obs.ObsClient, error) {
