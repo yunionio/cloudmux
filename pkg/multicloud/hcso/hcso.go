@@ -102,13 +102,14 @@ func (self *SHuaweiClient) request(method httputils.THttpMethod, url string, que
 	}
 	var resp jsonutils.JSONObject
 	var err error
+
 	for i := 0; i < 3; i++ {
 		_, resp, err = requestWithRetry(client, context.Background(), method, url, header, body, self.debug)
 		if method == httputils.GET && needRetry(err) {
 			time.Sleep(time.Second * 15)
 			continue
 		}
-		return resp, err
+		break
 	}
 	return resp, err
 }
