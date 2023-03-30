@@ -316,12 +316,18 @@ func (self *SModelartsPool) GetName() string {
 func (self *SModelartsPool) GetStatus() string {
 	res := strings.ToLower(self.Status.Phase)
 	switch {
-	case res == compute.MODELARTS_POOL_STATUS_RUNNING && len(self.Status.Resource.Creating) != 0:
+	case res == compute.MODELARTS_POOL_STATUS_RUNNING && len(self.Status.Resource.Abnormal) == 0 && len(self.Status.Resource.Creating) == 0:
+		res = compute.MODELARTS_POOL_STATUS_RUNNING
+	case res == compute.MODELARTS_POOL_STATUS_DELETING:
+		res = compute.MODELARTS_POOL_STATUS_DELETING
+	case (res == compute.MODELARTS_POOL_STATUS_RUNNING && len(self.Status.Resource.Creating) != 0) || res == compute.MODELARTS_POOL_STATUS_CREATING:
 		res = compute.MODELARTS_POOL_STATUS_CREATING
 	case self.Status.Phase == "CreationFailed":
 		res = compute.MODELARTS_POOL_STATUS_CREATE_FAILED
 	case self.Status.Phase == "SeclingFailed":
 		res = compute.MODELARTS_POOL_STATUS_CHANGE_CONFIG_FAILED
+	default:
+		res = compute.MODELARTS_POOL_STATUS_UNKNOWN
 	}
 	return res
 }
@@ -378,7 +384,7 @@ func (self *SModelartsPool) Refresh() error {
 		pool.Unmarshal(self)
 		return nil
 	}
-	if err != errors.ErrNotFound {
+	if !strings.Contains(err.Error(), "not found") {
 		return errors.Wrap(err, "modelartsPoolById")
 	}
 	pools := make([]SModelartsPool, 0)
@@ -393,10 +399,10 @@ func (self *SModelartsPool) Refresh() error {
 	for _, pool := range pools {
 		if pool.GetId() == self.GetId() {
 			self.Status.Phase = "CreationFailed"
-			break
+			return jsonutils.Update(self, pool)
 		}
 	}
-	return jsonutils.Update(self, pool)
+	return nil
 }
 
 func (self *SModelartsPool) SetTags(tags map[string]string, replace bool) error {
