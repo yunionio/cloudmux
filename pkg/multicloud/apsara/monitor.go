@@ -24,6 +24,7 @@ import (
 	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/utils"
 
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
 )
 
@@ -241,10 +242,49 @@ func (self *SApsaraClient) GetEcsMetrics(opts *cloudprovider.MetricListOptions) 
 			"diskusage_utilization": "",
 		}
 	case cloudprovider.VM_METRIC_TYPE_PROCESS_NUMBER:
-		metricTags = map[string]string{
-			"process.number": "",
-		}
+		metric := "process.number"
 		tagKey = cloudprovider.METRIC_TAG_PROCESS_NAME
+		ret := []cloudprovider.MetricValues{}
+		regions := self.GetRegions()
+		for r := range regions {
+			vms := make([]SInstance, 0)
+			for {
+				part, total, err := regions[r].GetInstances("", nil, len(vms), 50)
+				if err != nil {
+					return ret, errors.Wrapf(err, "GetInstances")
+				}
+				vms = append(vms, part...)
+				if len(vms) >= total || len(vms) == 0 {
+					break
+				}
+			}
+			for i := range vms {
+				if vms[i].GetStatus() != api.VM_RUNNING {
+					continue
+				}
+				dimensions := jsonutils.Marshal([]map[string]string{{"instanceId": vms[i].InstanceId}}).String()
+				result, err := self.listMetrics(vms[i].Department, "acs_ecs_dashboard", metric, dimensions, opts.StartTime, opts.EndTime)
+				if err != nil {
+					log.Errorf("ListMetric(%s) error: %v", metric, err)
+					continue
+				}
+				for j := range result {
+					dataTag := result[j].GetTags()
+					ret = append(ret, cloudprovider.MetricValues{
+						Id:         result[j].InstanceId,
+						MetricType: opts.MetricType,
+						Values: []cloudprovider.MetricValue{
+							{
+								Timestamp: time.UnixMilli(result[j].Timestamp),
+								Value:     result[j].GetValue(),
+								Tags:      dataTag,
+							},
+						},
+					})
+				}
+			}
+		}
+		return ret, nil
 	case cloudprovider.VM_METRIC_TYPE_NET_TCP_CONNECTION:
 		metricTags = map[string]string{
 			"net_tcpconnection": "",
@@ -255,11 +295,7 @@ func (self *SApsaraClient) GetEcsMetrics(opts *cloudprovider.MetricListOptions) 
 	}
 	ret := []cloudprovider.MetricValues{}
 	for metric, tag := range metricTags {
-		dimensions := ""
-		if opts.MetricType == cloudprovider.VM_METRIC_TYPE_PROCESS_NUMBER {
-			dimensions = jsonutils.Marshal(map[string]string{"instanceId": opts.ResourceId}).String()
-		}
-		result, err := self.ListMetrics("acs_ecs_dashboard", metric, dimensions, opts.StartTime, opts.EndTime)
+		result, err := self.ListMetrics("acs_ecs_dashboard", metric, "", opts.StartTime, opts.EndTime)
 		if err != nil {
 			log.Errorf("ListMetric(%s) error: %v", metric, err)
 			continue
@@ -349,14 +385,14 @@ func (self *SApsaraClient) GetOssMetrics(opts *cloudprovider.MetricListOptions) 
 				if err != nil {
 					log.Errorf("ListMetric(%s) error: %v", metricName, err)
 				}
-				for i := range result {
+				for j := range result {
 					ret = append(ret, cloudprovider.MetricValues{
-						Id:         result[i].BucketName,
+						Id:         result[j].BucketName,
 						MetricType: opts.MetricType,
 						Values: []cloudprovider.MetricValue{
 							{
-								Timestamp: time.UnixMilli(result[i].Timestamp),
-								Value:     result[i].GetValue(),
+								Timestamp: time.UnixMilli(result[j].Timestamp),
+								Value:     result[j].GetValue(),
 							},
 						},
 					})
