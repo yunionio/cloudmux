@@ -290,6 +290,7 @@ func (self *SApsaraClient) GetEcsMetrics(opts *cloudprovider.MetricListOptions) 
 }
 
 func (self *SApsaraClient) GetOssMetrics(opts *cloudprovider.MetricListOptions) ([]cloudprovider.MetricValues, error) {
+	ret := []cloudprovider.MetricValues{}
 	metricTags, tagKey := map[string]string{}, ""
 	switch opts.MetricType {
 	case cloudprovider.BUCKET_METRIC_TYPE_LATECY:
@@ -334,19 +335,40 @@ func (self *SApsaraClient) GetOssMetrics(opts *cloudprovider.MetricListOptions) 
 			"SuccessCount": "",
 		}
 	case cloudprovider.BUCKET_METRIC_TYPE_STORAGE_SIZE:
-		metricTags = map[string]string{
-			"MeteringStorageUtilization": "",
+		metricName := "MeteringStorageUtilization"
+		regions := self.GetRegions()
+		for i := range regions {
+			region := regions[i]
+			buckets, err := region.GetBuckets()
+			if err != nil {
+				return ret, errors.Wrapf(err, "GetBuckets")
+			}
+			for _, bucket := range buckets {
+				dimensions := jsonutils.Marshal([]map[string]string{{"BucketName": bucket.Name}}).String()
+				result, err := self.listMetrics(bucket.Department, "acs_oss_dashboard", metricName, dimensions, opts.StartTime, opts.EndTime)
+				if err != nil {
+					log.Errorf("ListMetric(%s) error: %v", metricName, err)
+				}
+				for i := range result {
+					ret = append(ret, cloudprovider.MetricValues{
+						Id:         result[i].BucketName,
+						MetricType: opts.MetricType,
+						Values: []cloudprovider.MetricValue{
+							{
+								Timestamp: time.UnixMilli(result[i].Timestamp),
+								Value:     result[i].GetValue(),
+							},
+						},
+					})
+				}
+			}
+			return ret, nil
 		}
 	default:
 		return nil, errors.Wrapf(cloudprovider.ErrNotImplemented, "%s", opts.MetricType)
 	}
-	ret := []cloudprovider.MetricValues{}
 	for metric, tag := range metricTags {
-		dimensions := ""
-		if opts.MetricType == cloudprovider.BUCKET_METRIC_TYPE_STORAGE_SIZE {
-			dimensions = jsonutils.Marshal(map[string]string{"BucketName": opts.ResourceId}).String()
-		}
-		result, err := self.ListMetrics("acs_oss_dashboard", metric, dimensions, opts.StartTime, opts.EndTime)
+		result, err := self.ListMetrics("acs_oss_dashboard", metric, "", opts.StartTime, opts.EndTime)
 		if err != nil {
 			log.Errorf("ListMetric(%s) error: %v", metric, err)
 			continue
