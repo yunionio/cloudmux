@@ -39,12 +39,12 @@ func init() {
 	type SMetricTypeShowOptions struct {
 	}
 
-	shellutils.R(&SMetricTypeShowOptions{}, "metric-type-show", "List metrics", func(cli *esxi.SESXiClient, args *SMetricTypeShowOptions) error {
+	shellutils.R(&SMetricTypeShowOptions{}, "metric-type-list", "List metrics", func(cli *esxi.SESXiClient, args *SMetricTypeShowOptions) error {
 		metrics, err := cli.GetMetricTypes()
 		if err != nil {
 			return err
 		}
-		printObject(metrics)
+		printutils.PrintInterfaceList(metrics, 0, 0, 0, nil)
 		return nil
 	})
 
