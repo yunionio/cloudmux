@@ -19,6 +19,7 @@ import (
 
 	"yunion.io/x/pkg/util/shellutils"
 
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/aliyun"
 )
 
@@ -48,6 +49,11 @@ func init() {
 			return err
 		}
 		printObject(secgrp)
+		rules, _, _, err := cloudprovider.GetSecurityGroupRules(secgrp)
+		if err != nil {
+			return err
+		}
+		printList(rules, 0, 0, 0, nil)
 		return nil
 	})
 
@@ -61,13 +67,14 @@ func init() {
 	})
 
 	type SecurityGroupCreateOptions struct {
-		NAME  string `help:"SecurityGroup name"`
-		VpcId string `help:"VPC ID"`
-		Desc  string `help:"SecurityGroup description"`
+		NAME            string `help:"SecurityGroup name"`
+		VpcId           string `help:"VPC ID"`
+		ResourceGroupId string
+		Desc            string `help:"SecurityGroup description"`
 	}
 
 	shellutils.R(&SecurityGroupCreateOptions{}, "security-group-create", "Create details of a security group", func(cli *aliyun.SRegion, args *SecurityGroupCreateOptions) error {
-		secgroupId, err := cli.CreateSecurityGroup(args.VpcId, args.NAME, args.Desc)
+		secgroupId, err := cli.CreateSecurityGroup(args.VpcId, args.NAME, args.Desc, args.ResourceGroupId)
 		if err != nil {
 			return err
 		}
