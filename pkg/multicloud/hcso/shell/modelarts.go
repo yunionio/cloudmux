@@ -25,9 +25,18 @@ import (
 func init() {
 	type ModelartsPoolListOption struct {
 		PoolId string `help:"Pool Id"`
+		Status string `help:"Status"`
 	}
 
 	shellutils.R(&ModelartsPoolListOption{}, "modelarts-pool-list", "List Modelarts Pool", func(cli *huawei.SRegion, args *ModelartsPoolListOption) error {
+		if len(args.Status) > 0 {
+			pools, err := cli.GetIModelartsPoolsWithStatus(args.Status)
+			if err != nil {
+				return err
+			}
+			printList(pools, len(pools), 0, 0, nil)
+			return nil
+		}
 		pools, err := cli.GetIModelartsPools()
 		if err != nil {
 			return err
@@ -46,7 +55,7 @@ func init() {
 	})
 
 	shellutils.R(&cloudprovider.ModelartsPoolCreateOption{}, "modelarts-pool-create", "Create Modelarts Pool", func(cli *huawei.SRegion, args *cloudprovider.ModelartsPoolCreateOption) error {
-		res, err := cli.CreateIModelartsPool(args)
+		res, err := cli.CreateIModelartsPool(args, nil)
 		if err != nil {
 			return err
 		}
