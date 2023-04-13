@@ -455,6 +455,10 @@ func (self *SModelartsPool) Delete() error {
 	return nil
 }
 
+func (self *SModelartsPool) GetStatusMessage() string {
+	return self.Status.Message
+}
+
 func (self *SModelartsPool) GetInstanceType() string {
 	return self.Spec.Resource[0].Flavor
 
