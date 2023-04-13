@@ -389,6 +389,10 @@ func (self *SRegion) CreateIModelartsPool(pool *cloudprovider.ModelartsPoolCreat
 	return nil, errors.Wrapf(cloudprovider.ErrNotImplemented, "CreateIModelartsPool")
 }
 
+func (self *SRegion) GetStatusMessage() string {
+	return ""
+}
+
 func (self *SRegion) GetIModelartsPoolSku() ([]cloudprovider.ICloudModelartsPoolSku, error) {
 	return nil, errors.Wrapf(cloudprovider.ErrNotImplemented, "GetIModelartsPoolSku")
 }

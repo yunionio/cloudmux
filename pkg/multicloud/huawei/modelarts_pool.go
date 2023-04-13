@@ -339,6 +339,10 @@ func (self *SModelartsPool) GetStatus() string {
 	return res
 }
 
+func (self *SModelartsPool) GetStatusMessage() string {
+	return self.Status.Message
+}
+
 func (self *SModelartsPool) GetSysTags() map[string]string {
 	return nil
 }
