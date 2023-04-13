@@ -938,6 +938,7 @@ type ICloudModelartsPool interface {
 	GetWorkType() string
 	GetNodeCount() int
 	ChangeConfig(opts *ModelartsPoolChangeConfigOptions) error
+	GetStatusMessage() string
 }
 
 type ICloudModelartsPoolSku interface {
