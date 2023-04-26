@@ -54,7 +54,8 @@ func (self SSnapshot) Refresh() error {
 		return err
 	}
 	if len(newSnapshot) == 1 {
-		return jsonutils.Update(self, &newSnapshot[0])
+		newSnapshot[0].region = self.region
+		return jsonutils.Update(&self, newSnapshot[0])
 	}
 	return cloudprovider.ErrNotFound
 }
@@ -93,9 +94,6 @@ func (self SSnapshot) GetDiskType() string {
 }
 
 func (self SSnapshot) Delete() error {
-	if self.BackupId != "" {
-		return self.region.deleteInstanceBackup(self.BackupId)
-	}
 	return self.region.deleteSnapshot(self.SnapshotId)
 }
 
@@ -105,7 +103,7 @@ func (self *SRegion) createSnapshot(volumeId, name string, desc string) (string,
 	params["SnapshotName"] = name
 	params["Description"] = desc
 
-	resp, err := self.client.invoke("CreateSnapshot", params)
+	resp, err := self.invoke("CreateSnapshot", params)
 	if err != nil {
 		return "", err
 	}
@@ -124,7 +122,7 @@ func (self *SRegion) getSnapshots(id, name string) ([]SSnapshot, error) {
 		params["Filter.1.Name"] = name
 	}
 
-	resp, err := self.client.invoke("DescribeSnapshots", params)
+	resp, err := self.invoke("DescribeSnapshots", params)
 	if err != nil {
 		return nil, err
 	}
@@ -138,6 +136,6 @@ func (self *SRegion) getSnapshots(id, name string) ([]SSnapshot, error) {
 func (self *SRegion) deleteSnapshot(id string) error {
 	params := map[string]string{}
 	params["SnapshotId"] = id
-	_, err := self.client.invoke("DeleteSnapshot", params)
+	_, err := self.invoke("DeleteSnapshot", params)
 	return err
 }

@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"yunion.io/x/jsonutils"
 	"yunion.io/x/pkg/errors"
 
 	api "yunion.io/x/cloudmux/pkg/apis/compute"
@@ -60,6 +61,8 @@ type SDisk struct {
 	StorageId        string          `json:"storageId"`
 	VolumeId         string          `json:"volumeId"`
 	VolumeName       string          `json:"volumeName"`
+
+	ImageId string `json:"imageId"`
 }
 
 func (self *SDisk) GetISnapshots() ([]cloudprovider.ICloudSnapshot, error) {
@@ -118,7 +121,13 @@ func (self *SDisk) GetIsAutoDelete() bool {
 }
 
 func (self *SDisk) GetTemplateId() string {
-	return ""
+	if self.ImageId == "" && len(self.AttachmentSet) > 0 {
+		instances, _, _ := self.storage.cluster.region.GetInstances(self.AttachmentSet[0].InstanceId, "", 1, "")
+		if instances != nil {
+			self.ImageId = instances[0].InstancesSet.ImageId
+		}
+	}
+	return self.ImageId
 }
 
 func (self *SDisk) GetDiskType() string {
@@ -176,7 +185,12 @@ func (self *SDisk) GetExtSnapshotPolicyIds() ([]string, error) {
 }
 
 func (self *SDisk) Resize(ctx context.Context, newSizeMB int64) error {
-	return cloudprovider.ErrNotImplemented
+	params := map[string]string{}
+	params["VolumeId"] = self.VolumeId
+	params["Size"] = strconv.FormatInt(newSizeMB/1024, 10)
+
+	_, err := self.storage.cluster.region.invoke("ResizeVolume", params)
+	return err
 }
 
 func (self *SDisk) Reset(ctx context.Context, snapshotId string) (string, error) {
@@ -185,6 +199,14 @@ func (self *SDisk) Reset(ctx context.Context, snapshotId string) (string, error)
 
 func (self *SDisk) Rebuild(ctx context.Context) error {
 	return cloudprovider.ErrNotImplemented
+}
+
+func (self *SDisk) Refresh() error {
+	newDisk, err := self.storage.cluster.region.GetDisk(self.GetGlobalId())
+	if err != nil {
+		return err
+	}
+	return jsonutils.Update(self, &newDisk)
 }
 
 func (self *SDisk) GetStatus() string {
@@ -202,6 +224,10 @@ func (self *SRegion) GetDisks(id string, maxResult int, nextToken string) ([]SDi
 	if len(id) > 0 {
 		params[fmt.Sprintf("Filter.%d.Name", idx)] = "volume-id"
 		params[fmt.Sprintf("Filter.%d.Value.1", idx)] = id
+		idx++
+	} else {
+		params[fmt.Sprintf("Filter.%d.Name", idx)] = "owner-id"
+		params[fmt.Sprintf("Filter.%d.Value.1", idx)] = self.client.user
 		idx++
 	}
 
@@ -277,7 +303,7 @@ func (self *SRegion) GetDisk(id string) (*SDisk, error) {
 func (self *SStorage) CreateIDisk(conf *cloudprovider.DiskCreateConfig) (cloudprovider.ICloudDisk, error) {
 	params := map[string]string{}
 	params["VolumeName"] = conf.Name
-	params["AvailabilityZone"] = self.cluster.ClusterId
+	params["AvailabilityZone"] = conf.ZoneId
 	params["Size"] = strconv.Itoa(conf.SizeGb)
 
 	resp, err := self.cluster.region.invoke("CreateVolume", params)
@@ -286,6 +312,7 @@ func (self *SStorage) CreateIDisk(conf *cloudprovider.DiskCreateConfig) (cloudpr
 	}
 	ret := &SDisk{}
 	_ = resp.Unmarshal(&ret)
+	ret.storage = self
 
 	return ret, nil
 }

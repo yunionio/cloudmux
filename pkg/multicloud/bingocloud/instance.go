@@ -161,11 +161,28 @@ func (self *SInstance) SetSecurityGroups(secgroupIds []string) error {
 }
 
 func (self *SInstance) AttachDisk(ctx context.Context, diskId string) error {
-	return nil
+	var deviceNames []string
+	for _, device := range self.InstancesSet.BlockDeviceMapping {
+		deviceNames = append(deviceNames, device.DeviceName)
+	}
+	deviceName, err := nextDeviceName(deviceNames)
+	if err != nil {
+		return errors.Wrap(err, "nextDeviceName")
+	}
+	params := map[string]string{}
+	params["VolumeId"] = diskId
+	params["InstanceId"] = self.InstancesSet.InstanceId
+	params["Device"] = deviceName
+	_, err = self.node.cluster.region.invoke("AttachVolume", params)
+	return err
 }
 
 func (self *SInstance) DetachDisk(ctx context.Context, diskId string) error {
-	return nil
+	params := map[string]string{}
+	params["VolumeId"] = diskId
+	params["InstanceId"] = self.InstancesSet.InstanceId
+	_, err := self.node.cluster.region.invoke("DetachVolume", params)
+	return err
 }
 
 func (self *SInstance) ChangeConfig(ctx context.Context, config *cloudprovider.SManagedVMChangeConfig) error {
@@ -178,6 +195,19 @@ func (self *SInstance) DeployVM(ctx context.Context, name string, username strin
 		attrs["InstanceAction"] = "ResetPassword"
 	}
 	return self.node.cluster.region.modifyInstanceAttribute(self.InstancesSet.InstanceId, attrs)
+}
+
+func (self *SInstance) LiveMigrateVM(hostid string) error {
+	return self.MigrateVM(hostid)
+}
+
+func (self *SInstance) MigrateVM(hostid string) error {
+	params := map[string]string{}
+	params["InstanceId"] = self.InstancesSet.InstanceId
+	params["ToNodeId"] = hostid
+
+	_, err := self.node.cluster.region.invoke("MigrateInstance", params)
+	return err
 }
 
 func (self *SInstance) DeleteVM(ctx context.Context) error {
@@ -286,6 +316,7 @@ func (self *SInstance) GetIDisks() ([]cloudprovider.ICloudDisk, error) {
 		if err != nil {
 			return nil, err
 		}
+		disk.ImageId = self.InstancesSet.ImageId
 		storage, ok := storageMaps[disk.StorageId]
 		if ok {
 			storage.cluster = self.node.cluster
@@ -313,9 +344,21 @@ func (self *SInstance) GetIEIP() (cloudprovider.ICloudEIP, error) {
 	if err != nil {
 		return nil, err
 	}
-	for i := range eips {
-		eips[i].region = self.node.cluster.region
-		return &eips[i], nil
+	nics, err := self.node.cluster.region.GetInstanceNics(self.InstancesSet.InstanceId)
+	if err != nil {
+		return nil, err
+	}
+	for i := range nics {
+		for j := range eips {
+			if eips[i].PublicIp != nics[i].PrivateIPAddress {
+				for k := range nics[i].PrivateIPAddressesSet {
+					if nics[i].PrivateIPAddressesSet[k].PrivateIPAddress != nics[i].PrivateIPAddressesSet[k].Association.PublicIp {
+						eips[j].region = self.node.cluster.region
+						return &eips[j], nil
+					}
+				}
+			}
+		}
 	}
 	return nil, nil
 }
@@ -333,6 +376,34 @@ func (self *SInstance) Refresh() error {
 		return jsonutils.Update(self, &newInstances[0])
 	}
 	return cloudprovider.ErrNotFound
+}
+
+func (self *SInstance) SaveImage(opts *cloudprovider.SaveImageOptions) (cloudprovider.ICloudImage, error) {
+	bundleId := ""
+	var images []struct {
+		ImageId string `json:"imageId"`
+	}
+
+	params := map[string]string{}
+	params["InstanceId"] = self.InstancesSet.InstanceId
+	params["AsImage"] = "true"
+	params["StorageId"] = "storage-cloud"
+	resp, err := self.node.cluster.region.invoke("BundleInstance", params)
+	if err != nil {
+		return nil, err
+	}
+	resp.Unmarshal(&bundleId, "bundleInstanceTask", "bundleId")
+
+	params = map[string]string{}
+	params["BundleId.1"] = bundleId
+
+	resp, err = self.node.cluster.region.invoke("DescribeBundleTasks", params)
+	if err != nil {
+		return nil, err
+	}
+	resp.Unmarshal(&images, "bundleInstanceTasksSet")
+
+	return self.node.cluster.region.GetImageById(images[0].ImageId)
 }
 
 func (self *SInstance) GetStatus() string {
@@ -360,6 +431,7 @@ func (self *SInstance) GetVNCInfo(input *cloudprovider.ServerVncInput) (*cloudpr
 
 	result.GetVncInfoResult.InstanceId = self.InstancesSet.InstanceId
 	result.GetVncInfoResult.Hypervisor = self.GetHypervisor()
+	result.GetVncInfoResult.Protocol = "vnc"
 
 	return result.GetVncInfoResult, nil
 }
@@ -435,7 +507,7 @@ func (self *SInstance) UpdateVM(ctx context.Context, name string) error {
 }
 
 func (self *SInstance) CreateInstanceSnapshot(ctx context.Context, name string, desc string) (cloudprovider.ICloudInstanceSnapshot, error) {
-	newId, err := self.node.cluster.region.createInstanceSnapshot(self.InstancesSet.InstanceId, name, desc)
+	newId, err := self.node.cluster.region.createInstanceBackup(self.InstancesSet.InstanceId, name, desc)
 	if err != nil {
 		return nil, err
 	}
@@ -443,34 +515,34 @@ func (self *SInstance) CreateInstanceSnapshot(ctx context.Context, name string, 
 }
 
 func (self *SInstance) GetInstanceSnapshot(id string) (cloudprovider.ICloudInstanceSnapshot, error) {
-	snapshots, err := self.node.cluster.region.getInstanceSnapshots(self.InstancesSet.InstanceId, id)
+	backups, err := self.node.cluster.region.getInstanceBackups(self.InstancesSet.InstanceId, id)
 	if err != nil {
 		return nil, err
 	}
-	for i := range snapshots {
-		if snapshots[i].GetGlobalId() == id {
-			snapshots[i].region = self.node.cluster.region
-			return &snapshots[i], nil
+	for i := range backups {
+		if backups[i].GetGlobalId() == id {
+			backups[i].region = self.node.cluster.region
+			return &backups[i], nil
 		}
 	}
 	return nil, cloudprovider.ErrNotFound
 }
 
 func (self *SInstance) GetInstanceSnapshots() ([]cloudprovider.ICloudInstanceSnapshot, error) {
-	snapshots, err := self.node.cluster.region.getInstanceSnapshots(self.InstancesSet.InstanceId, "")
+	backups, err := self.node.cluster.region.getInstanceBackups(self.InstancesSet.InstanceId, "")
 	if err != nil {
 		return nil, err
 	}
 	var ret []cloudprovider.ICloudInstanceSnapshot
-	for i := range snapshots {
-		snapshots[i].region = self.node.cluster.region
-		ret = append(ret, &snapshots[i])
+	for i := range backups {
+		backups[i].region = self.node.cluster.region
+		ret = append(ret, &backups[i])
 	}
 	return ret, nil
 }
 
 func (self *SInstance) ResetToInstanceSnapshot(ctx context.Context, idStr string) error {
-	return self.node.cluster.region.revertInstanceSnapshot(idStr)
+	return cloudprovider.ErrNotImplemented
 }
 
 func (self *SRegion) GetIVMById(id string) (cloudprovider.ICloudVM, error) {
@@ -496,7 +568,7 @@ func (self *SRegion) GetInstances(id, nodeId string, maxResult int, nextToken st
 	}
 
 	idx := 1
-	if len(nodeId) > 0 {
+	if len(nodeId) > 0 && len(id) == 0 {
 		params[fmt.Sprintf("Filter.%d.Name", idx)] = "node-id"
 		params[fmt.Sprintf("Filter.%d.Value.1", idx)] = nodeId
 		idx++
@@ -505,6 +577,10 @@ func (self *SRegion) GetInstances(id, nodeId string, maxResult int, nextToken st
 	if len(id) > 0 {
 		params[fmt.Sprintf("Filter.%d.Name", idx)] = "instance-id"
 		params[fmt.Sprintf("Filter.%d.Value.1", idx)] = id
+		idx++
+	} else {
+		params[fmt.Sprintf("Filter.%d.Name", idx)] = "owner-id"
+		params[fmt.Sprintf("Filter.%d.Value.1", idx)] = self.client.user
 		idx++
 	}
 
@@ -527,7 +603,7 @@ func (self *SRegion) modifyInstanceAttribute(instanceId string, attrs map[string
 	for key, value := range attrs {
 		params["Attribute"] = key
 		params["Value"] = value
-		_, err := self.client.invoke("ModifyInstanceAttribute", params)
+		_, err := self.invoke("ModifyInstanceAttribute", params)
 		if err != nil {
 			return err
 		}

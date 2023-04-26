@@ -38,8 +38,16 @@ type SInstanceNic struct {
 	PrivateDNSName        string `json:"privateDnsName"`
 	PrivateIPAddress      string `json:"privateIpAddress"`
 	PrivateIPAddressesSet []struct {
-		Association      string `json:"association"`
-		Primary          string `json:"primary"`
+		Association struct {
+			PublicIp      string `json:"publicIp"`
+			PublicDnsName string `json:"publicDnsName"`
+			SubnetId      string `json:"subnetId"`
+			VpcId         string `json:"vpcId"`
+			IpOwnerId     string `json:"ipOwnerId"`
+			AllocationId  string `json:"allocationId"`
+			AssociationId string `json:"associationId"`
+		} `json:"association"`
+		Primary          bool   `json:"primary"`
 		PrivateDNSName   string `json:"privateDnsName"`
 		PrivateIPAddress string `json:"privateIpAddress"`
 	} `json:"privateIpAddressesSet"`
