@@ -17,39 +17,41 @@ package shell
 import (
 	"fmt"
 
-	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/util/secrules"
 	"yunion.io/x/pkg/util/shellutils"
 
-	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/aws"
 )
 
 func init() {
 	type SecurityGroupListOptions struct {
-		VpcId  string `help:"VPC ID"`
-		Name   string `help:"Secgroup name"`
-		Limit  int    `help:"page size"`
-		Offset int    `help:"page offset"`
+		VpcId string `help:"VPC ID"`
+		Id    string
+		Name  string `help:"Secgroup name"`
 	}
 	shellutils.R(&SecurityGroupListOptions{}, "security-group-list", "List security group", func(cli *aws.SRegion, args *SecurityGroupListOptions) error {
-		secgrps, total, e := cli.GetSecurityGroups(args.VpcId, args.Name, "", args.Offset, args.Limit)
-		if e != nil {
-			return e
-		}
-		printList(secgrps, total, args.Offset, args.Limit, []string{})
-		return nil
-	})
-
-	type SecurityGroupShowOptions struct {
-		ID string `help:"ID or name of security group"`
-	}
-	shellutils.R(&SecurityGroupShowOptions{}, "security-group-show", "Show details of a security group", func(cli *aws.SRegion, args *SecurityGroupShowOptions) error {
-		secgrp, err := cli.GetSecurityGroupDetails(args.ID)
+		secgrps, err := cli.GetSecurityGroups(args.VpcId, args.Name, args.Id)
 		if err != nil {
 			return err
 		}
-		printObject(secgrp)
+		printList(secgrps, 0, 0, 0, []string{})
+		return nil
+	})
+
+	type SecurityGroupIdOptions struct {
+		ID string
+	}
+	shellutils.R(&SecurityGroupIdOptions{}, "security-group-show", "Show security group", func(cli *aws.SRegion, args *SecurityGroupIdOptions) error {
+		group, err := cli.GetSecurityGroup(args.ID)
+		if err != nil {
+			return err
+		}
+		printObject(group)
+		rules, err := group.GetRules()
+		if err != nil {
+			return err
+		}
+		printList(rules, 0, 0, 0, []string{})
 		return nil
 	})
 
@@ -57,10 +59,9 @@ func init() {
 		VPC  string `help:"vpcId"`
 		NAME string `help:"group name"`
 		DESC string `help:"group desc"`
-		Tag  string `help:"group tag"`
 	}
 	shellutils.R(&SecurityGroupCreateOptions{}, "security-group-create", "Create  security group", func(cli *aws.SRegion, args *SecurityGroupCreateOptions) error {
-		id, err := cli.CreateSecurityGroup(args.VPC, args.NAME, args.Tag, args.DESC)
+		id, err := cli.CreateSecurityGroup(args.VPC, args.NAME, args.DESC)
 		if err != nil {
 			return err
 		}
@@ -74,11 +75,8 @@ func init() {
 	}
 
 	shellutils.R(&SecurityGroupRuleDeleteOption{}, "security-group-rule-delete", "Delete  security group rule", func(cli *aws.SRegion, args *SecurityGroupRuleDeleteOption) error {
-		rule, err := secrules.ParseSecurityRule(args.RULE)
-		if err != nil {
-			return errors.Wrapf(err, "ParseSecurityRule(%s)", args.RULE)
-		}
-		return cli.DelSecurityGroupRule(args.SECGROUP_ID, cloudprovider.SecurityRule{SecurityRule: *rule})
+		rule := secrules.MustParseSecurityRule(args.RULE)
+		return cli.RemoveSecurityGroupRule(args.SECGROUP_ID, *rule)
 	})
 
 }

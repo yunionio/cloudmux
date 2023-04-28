@@ -52,8 +52,8 @@ func init() {
 		VpcId string `help:"vpc id"`
 		Name  string `help:"secgroup name"`
 	}
-	shellutils.R(&SecurityGroupCreateOptions{}, "secgroup-create", "Create secgroup", func(cli *ctyun.SRegion, args *SecurityGroupCreateOptions) error {
-		vpc, e := cli.CreateSecurityGroup(args.VpcId, args.Name)
+	shellutils.R(&cloudprovider.SecurityGroupCreateInput{}, "secgroup-create", "Create secgroup", func(cli *ctyun.SRegion, args *cloudprovider.SecurityGroupCreateInput) error {
+		vpc, e := cli.CreateSecurityGroup(args)
 		if e != nil {
 			return e
 		}
@@ -70,6 +70,6 @@ func init() {
 		if err != nil {
 			return errors.Wrap(err, "ParseSecurityRule")
 		}
-		return cli.AddSecurityGroupRules(args.GROUP, cloudprovider.SecurityRule{SecurityRule: *rule})
+		return cli.AddSecurityGroupRules(args.GROUP, *rule)
 	})
 }

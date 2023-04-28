@@ -52,13 +52,14 @@ func init() {
 	})
 
 	type SecurityGroupCreateOptions struct {
-		NAME  string `help:"SecurityGroup name"`
-		VpcId string `help:"VPC ID"`
-		Desc  string `help:"SecurityGroup description"`
+		NAME            string `help:"SecurityGroup name"`
+		VpcId           string `help:"VPC ID"`
+		Desc            string `help:"SecurityGroup description"`
+		ResourceGroupId string
 	}
 
 	shellutils.R(&SecurityGroupCreateOptions{}, "security-group-create", "Create details of a security group", func(cli *apsara.SRegion, args *SecurityGroupCreateOptions) error {
-		secgroupId, err := cli.CreateSecurityGroup(args.VpcId, args.NAME, args.Desc)
+		secgroupId, err := cli.CreateSecurityGroup(args.VpcId, args.NAME, args.Desc, args.ResourceGroupId)
 		if err != nil {
 			return err
 		}

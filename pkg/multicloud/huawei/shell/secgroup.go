@@ -49,13 +49,8 @@ func init() {
 		return nil
 	})
 
-	type SecurityGroupCreateOptions struct {
-		NAME string `help:"secgroup name"`
-		VPC  string `help:"ID of VPC"`
-		Desc string `help:"description"`
-	}
-	shellutils.R(&SecurityGroupCreateOptions{}, "security-group-create", "Create security group", func(cli *huawei.SRegion, args *SecurityGroupCreateOptions) error {
-		result, err := cli.CreateSecurityGroup(args.VPC, args.NAME, args.Desc)
+	shellutils.R(&cloudprovider.SecurityGroupCreateInput{}, "security-group-create", "Create security group", func(cli *huawei.SRegion, args *cloudprovider.SecurityGroupCreateInput) error {
+		result, err := cli.CreateSecurityGroup(args)
 		if err != nil {
 			return err
 		}
@@ -77,14 +72,11 @@ func init() {
 	}
 
 	shellutils.R(&SecurityGroupRuleCreateOptions{}, "security-group-rule-create", "Create security group rule", func(cli *huawei.SRegion, args *SecurityGroupRuleCreateOptions) error {
-		_rule, err := secrules.ParseSecurityRule(args.RULE)
+		rule, err := secrules.ParseSecurityRule(args.RULE)
 		if err != nil {
 			return errors.Wrapf(err, "invalid rule %s", args.RULE)
 		}
-		rule := cloudprovider.SecurityRule{
-			SecurityRule: *_rule,
-		}
-		return cli.CreateSecurityGroupRule(args.SECGROUP_ID, rule)
+		return cli.CreateSecurityGroupRule(args.SECGROUP_ID, *rule)
 	})
 
 }
