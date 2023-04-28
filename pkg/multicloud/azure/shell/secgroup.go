@@ -17,6 +17,7 @@ package shell
 import (
 	"yunion.io/x/pkg/util/shellutils"
 
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/azure"
 )
 
@@ -36,12 +37,17 @@ func init() {
 		ID string `help:"ID or name of security group"`
 	}
 	shellutils.R(&SecurityGroupOptions{}, "security-group-show", "Show details of a security group", func(cli *azure.SRegion, args *SecurityGroupOptions) error {
-		if secgrp, err := cli.GetSecurityGroupDetails(args.ID); err != nil {
+		secgrp, err := cli.GetSecurityGroupDetails(args.ID)
+		if err != nil {
 			return err
-		} else {
-			printObject(secgrp)
-			return nil
 		}
+		printObject(secgrp)
+		rules, _, _, err := cloudprovider.GetSecurityGroupRules(secgrp)
+		if err != nil {
+			return err
+		}
+		printList(rules, 0, 0, 0, nil)
+		return nil
 	})
 
 	shellutils.R(&SecurityGroupOptions{}, "security-group-rule-list", "List security group rules", func(cli *azure.SRegion, args *SecurityGroupOptions) error {
@@ -56,20 +62,12 @@ func init() {
 	})
 
 	type SecurityGroupCreateOptions struct {
-		NAME    string `help:"Security Group name"`
-		Classic bool   `help:"Create classic Security Group"`
+		NAME string `help:"Security Group name"`
 	}
 
 	shellutils.R(&SecurityGroupCreateOptions{}, "security-group-create", "Create security group", func(cli *azure.SRegion, args *SecurityGroupCreateOptions) error {
-		if args.Classic {
-			secgrp, err := cli.CreateClassicSecurityGroup(args.NAME)
-			if err != nil {
-				return err
-			}
-			printObject(secgrp)
-			return nil
-		}
-		secgrp, err := cli.CreateSecurityGroup(args.NAME)
+		opts := &cloudprovider.SecurityGroupCreateInput{Name: args.NAME}
+		secgrp, err := cli.CreateSecurityGroup(opts)
 		if err != nil {
 			return err
 		}

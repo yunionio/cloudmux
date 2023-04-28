@@ -57,7 +57,7 @@ func init() {
 	}
 
 	shellutils.R(&SecurityGroupCreateOptions{}, "security-group-create", "Create security group", func(cli *ucloud.SRegion, args *SecurityGroupCreateOptions) error {
-		secgrpId, err := cli.CreateDefaultSecurityGroup(args.NAME, args.Desc)
+		secgrpId, err := cli.CreateDefaultSecurityGroup(args.NAME, args.Desc, nil)
 		if err != nil {
 			return err
 		}

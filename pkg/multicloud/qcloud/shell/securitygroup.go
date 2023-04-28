@@ -42,15 +42,17 @@ func init() {
 		ID string `help:"SecurityGroup ID"`
 	}
 	shellutils.R(&SecurityGroupOptions{}, "security-group-show", "Show SecurityGroup", func(cli *qcloud.SRegion, args *SecurityGroupOptions) error {
-		secgroups, _, err := cli.GetSecurityGroups([]string{args.ID}, "", "", 0, 1)
+		secgroup, err := cli.GetSecurityGroup(args.ID)
 		if err != nil {
 			return err
 		}
-		if len(secgroups) == 1 {
-			printObject(secgroups[0])
-			return nil
+		printObject(secgroup)
+		rules, _, _, err := cloudprovider.GetSecurityGroupRules(secgroup)
+		if err != nil {
+			return err
 		}
-		return cloudprovider.ErrNotFound
+		printList(rules, 0, 0, 0, nil)
+		return nil
 	})
 
 	shellutils.R(&SecurityGroupOptions{}, "security-group-references", "Show references of a security group", func(cli *qcloud.SRegion, args *SecurityGroupOptions) error {
@@ -66,14 +68,8 @@ func init() {
 		return cli.DeleteSecurityGroup(args.ID)
 	})
 
-	type SecurityGroupCreateOptions struct {
-		NAME      string `help:"SecurityGroup Name"`
-		ProjectId string `help:"Project SecurityGroup belong to"`
-		Desc      string `help:"SecurityGroup Description"`
-	}
-
-	shellutils.R(&SecurityGroupCreateOptions{}, "security-group-create", "Create SecurityGroup", func(cli *qcloud.SRegion, args *SecurityGroupCreateOptions) error {
-		secgrp, err := cli.CreateSecurityGroup(args.NAME, args.ProjectId, args.Desc)
+	shellutils.R(&cloudprovider.SecurityGroupCreateInput{}, "security-group-create", "Create SecurityGroup", func(cli *qcloud.SRegion, args *cloudprovider.SecurityGroupCreateInput) error {
+		secgrp, err := cli.CreateSecurityGroup(args)
 		if err != nil {
 			return err
 		}

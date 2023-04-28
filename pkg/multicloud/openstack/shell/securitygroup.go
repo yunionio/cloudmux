@@ -17,6 +17,7 @@ package shell
 import (
 	"yunion.io/x/pkg/util/shellutils"
 
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/openstack"
 )
 
@@ -56,14 +57,8 @@ func init() {
 		return nil
 	})
 
-	type SecurityGroupCreateOptions struct {
-		ProjectId string
-		NAME      string `help:"Name of security group"`
-		Desc      string `help:"Description of security group"`
-	}
-
-	shellutils.R(&SecurityGroupCreateOptions{}, "security-group-create", "Create security group", func(cli *openstack.SRegion, args *SecurityGroupCreateOptions) error {
-		secgroup, err := cli.CreateSecurityGroup(args.ProjectId, args.NAME, args.Desc)
+	shellutils.R(&cloudprovider.SecurityGroupCreateInput{}, "security-group-create", "Create security group", func(cli *openstack.SRegion, args *cloudprovider.SecurityGroupCreateInput) error {
+		secgroup, err := cli.CreateSecurityGroup(args)
 		if err != nil {
 			return err
 		}
