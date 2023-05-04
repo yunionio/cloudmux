@@ -88,4 +88,13 @@ func init() {
 		return nil
 	})
 
+	type RoleAttachPolicyOptions struct {
+		ROLE   string
+		POLICY string
+	}
+
+	shellutils.R(&RoleAttachPolicyOptions{}, "cloud-role-attach-policy", "Attach policy for role", func(cli *aws.SRegion, args *RoleAttachPolicyOptions) error {
+		return cli.GetClient().AttachRolePolicy(args.ROLE, args.POLICY)
+	})
+
 }
