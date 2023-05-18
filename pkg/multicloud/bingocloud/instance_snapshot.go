@@ -8,132 +8,136 @@ import (
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
 )
 
-type SInstanceSnapshot struct {
-	region               *SRegion
-	InstanceSnapshotId   string
-	InstanceSnapshotName string
-	InstanceId           string
-	DiskOnly             bool
-	Size                 int64
-	Status               string
-	StatusReason         string
-	CreateTime           string
+type SInstanceBackup struct {
+	region             *SRegion
+	BackupId           string
+	InstanceId         string
+	BackupName         string
+	DisplayName        string
+	OwnerId            string
+	BackupSize         int
+	BackupStatus       string
+	Progress           string
+	StorageId          string
+	BlockDeviceMapping string
+	Description        string
 }
 
-func (self SInstanceSnapshot) GetId() string {
-	return self.InstanceSnapshotId
+func (self SInstanceBackup) GetId() string {
+	return self.BackupId
 }
 
-func (self SInstanceSnapshot) GetName() string {
-	return self.InstanceSnapshotName
+func (self SInstanceBackup) GetName() string {
+	return self.BackupName
 }
 
-func (self SInstanceSnapshot) GetGlobalId() string {
-	return self.InstanceSnapshotId
+func (self SInstanceBackup) GetGlobalId() string {
+	return self.BackupId
 }
 
-func (self SInstanceSnapshot) GetCreatedAt() time.Time {
-	ct, _ := time.Parse("2006-01-02T15:04:05.000Z", self.CreateTime)
-	return ct
+func (self SInstanceBackup) GetCreatedAt() time.Time {
+	return time.Now()
 }
 
-func (self SInstanceSnapshot) GetStatus() string {
-	return self.Status
+func (self SInstanceBackup) GetStatus() string {
+	status := self.BackupStatus
+	switch self.BackupStatus {
+	case "complete":
+		status = "completed"
+	}
+	return status
 }
 
-func (self SInstanceSnapshot) Refresh() error {
-	newSnapshot, err := self.region.getInstanceSnapshots(self.InstanceId, self.InstanceSnapshotId)
+func (self SInstanceBackup) IsEmulated() bool {
+	return false
+}
+
+func (self SInstanceBackup) GetSysTags() map[string]string {
+	return nil
+}
+
+func (self SInstanceBackup) GetTags() (map[string]string, error) {
+	return nil, nil
+}
+
+func (self SInstanceBackup) SetTags(tags map[string]string, replace bool) error {
+	return nil
+}
+
+func (self SInstanceBackup) GetProjectId() string {
+	return ""
+}
+
+func (self SInstanceBackup) GetDescription() string {
+	return self.Description
+}
+
+func (self SInstanceBackup) Delete() error {
+	return self.region.deleteInstanceBackup(self.BackupId)
+}
+
+func (self SInstanceBackup) Refresh() error {
+	newBackups, err := self.region.getInstanceBackups(self.InstanceId, self.BackupId)
 	if err != nil {
 		return err
 	}
-	if len(newSnapshot) == 1 {
-		return jsonutils.Update(self, &newSnapshot[0])
+	if len(newBackups) == 1 {
+		return jsonutils.Update(self, &newBackups[0])
 	}
 	return cloudprovider.ErrNotFound
 }
 
-func (self SInstanceSnapshot) IsEmulated() bool {
-	return false
-}
-
-func (self SInstanceSnapshot) GetSysTags() map[string]string {
-	return nil
-}
-
-func (self SInstanceSnapshot) GetTags() (map[string]string, error) {
-	return nil, nil
-}
-
-func (self SInstanceSnapshot) SetTags(tags map[string]string, replace bool) error {
-	return nil
-}
-
-func (self SInstanceSnapshot) GetProjectId() string {
-	return ""
-}
-
-func (self SInstanceSnapshot) GetDescription() string {
-	return ""
-}
-
-func (self SInstanceSnapshot) Delete() error {
-	return self.region.deleteInstanceSnapshot(self.InstanceSnapshotId)
-}
-
-func (self *SRegion) createInstanceSnapshot(instanceId, name string, desc string) (string, error) {
+func (self *SRegion) createInstanceBackup(instanceId, name string, desc string) (string, error) {
 	params := map[string]string{}
 	params["InstanceId"] = instanceId
-	params["InstanceSnapshotName"] = name
+	params["BackupName"] = name
 	params["Description"] = desc
-	params["DiskOnly"] = "false"
 
-	resp, err := self.client.invoke("CreateInstanceSnapshot", params)
+	resp, err := self.invoke("BackupInstance", params)
 	if err != nil {
 		return "", err
 	}
 	newId := ""
-	err = resp.Unmarshal(&newId, "instanceSnapshotId")
+	err = resp.Unmarshal(&newId, "backupInstanceResult", "backup", "backupId")
 
 	return newId, err
 }
 
-func (self *SRegion) getInstanceSnapshots(instanceId, snapshotId string) ([]SInstanceSnapshot, error) {
+func (self *SRegion) getInstanceBackups(instanceId, backupId string) ([]SInstanceBackup, error) {
 	params := map[string]string{}
 	if instanceId != "" {
-		params["InstanceId"] = instanceId
-	}
-	if snapshotId != "" {
-		params["InstanceSnapshotId.1"] = snapshotId
+		params["InstanceId.1"] = instanceId
 	}
 
-	resp, err := self.client.invoke("DescribeInstanceSnapshots", params)
+	resp, err := self.invoke("DescribeInstanceBackups", params)
 	if err != nil {
 		return nil, err
 	}
 
-	var ret []SInstanceSnapshot
-	_ = resp.Unmarshal(&ret, "instanceSnapshotSet")
+	var ret []SInstanceBackup
+	_ = resp.Unmarshal(&ret, "describeInstanceBackupsResult", "instanceBackups")
+
+	if backupId != "" && ret != nil {
+		for _, backup := range ret {
+			if backupId == backup.BackupId {
+				return []SInstanceBackup{backup}, nil
+			}
+		}
+	}
 
 	return ret, err
 }
 
-func (self *SRegion) deleteInstanceSnapshot(id string) error {
+func (self *SRegion) restoreInstanceBackup(backupId string) error {
 	params := map[string]string{}
-	params["InstanceSnapshotId.1"] = id
-	_, err := self.client.invoke("DeleteInstanceSnapshots", params)
-	return err
-}
-
-func (self *SRegion) revertInstanceSnapshot(id string) error {
-	params := map[string]string{}
-	params["InstanceSnapshotId.1"] = id
-	_, err := self.client.invoke("RevertInstanceSnapshot", params)
+	params["BackupId"] = backupId
+	_, err := self.invoke("RestoreFromInstanceBackup", params)
 	return err
 }
 
 func (self *SRegion) deleteInstanceBackup(id string) error {
 	params := map[string]string{}
 	params["BackupId"] = id
-	_, err := self.client.invoke("DeleteInstanceBackup", params)
+	_, err := self.invoke("DeleteInstanceBackup", params)
 	return err
 }
