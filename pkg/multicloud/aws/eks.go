@@ -108,8 +108,33 @@ func (self *SKubeCluster) GetKubeConfig(private bool, expireMinutes int) (*cloud
 	if len(self.CertificateAuthority.Data) == 0 {
 		self.Refresh()
 	}
+	eksId := fmt.Sprintf("%s:%s:cluster/%s", self.region.RegionId, self.region.client.ownerId, self.Name)
+	config := fmt.Sprintf(`apiVersion: v1
+clusters:
+- cluster:
+    server: %s 
+    certificate-authority-data: %s 
+  name: arn:aws:eks:%s
+contexts:
+- context:
+    cluster: arn:aws:eks:%s
+    user: arn:aws:eks:%s
+  name: arn:aws:eks:%s
+current-context: arn:aws:eks:%s
+kind: Config
+preferences: {}
+users:
+- name: arn:aws:eks:%s
+  user:
+    exec:
+      apiVersion: client.authentication.k8s.io/v1beta1
+      command: aws-iam-authenticator
+      args:
+        - "token"
+        - "-i"
+        - "%s"`, self.Endpoint, self.CertificateAuthority.Data, eksId, eksId, eksId, eksId, eksId, eksId, self.Name)
 	return &cloudprovider.SKubeconfig{
-		Config: self.CertificateAuthority.Data,
+		Config: config,
 	}, nil
 }
 
