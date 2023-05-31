@@ -90,11 +90,7 @@ func init() {
 		if !exist {
 			return fmt.Errorf("not exist bucket %s", args.BUCKET)
 		}
-		bucket, err := oss.Bucket(args.BUCKET)
-		if err != nil {
-			return err
-		}
-		task, err := cli.ExportImage(args.ID, bucket)
+		task, err := cli.ExportImage(args.ID, args.BUCKET)
 		if err != nil {
 			return err
 		}
