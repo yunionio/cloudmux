@@ -17,6 +17,7 @@ package shell
 import (
 	"yunion.io/x/pkg/util/shellutils"
 
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/aliyun"
 )
 
@@ -49,6 +50,15 @@ func init() {
 
 	shellutils.R(&KubeClusterIdOptions{}, "kube-cluster-delete", "Delete kube cluster", func(cli *aliyun.SRegion, args *KubeClusterIdOptions) error {
 		return cli.DeleteKubeCluster(args.ID, false)
+	})
+
+	shellutils.R(&cloudprovider.KubeClusterCreateOptions{}, "kube-cluster-create", "Create kube cluster", func(cli *aliyun.SRegion, args *cloudprovider.KubeClusterCreateOptions) error {
+		cluster, err := cli.CreateKubeCluster(args)
+		if err != nil {
+			return err
+		}
+		printObject(cluster)
+		return nil
 	})
 
 	type KubeClusterKubeconfigOptions struct {
