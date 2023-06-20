@@ -22,10 +22,11 @@ import (
 
 func init() {
 	type DiskListOptions struct {
-		STORAGE_ID string
+		NODE    string
+		STORAGE string
 	}
 	shellutils.R(&DiskListOptions{}, "disk-list", "list disks", func(cli *proxmox.SRegion, args *DiskListOptions) error {
-		disks, err := cli.GetDisks(args.STORAGE_ID)
+		disks, err := cli.GetDisks(args.NODE, args.STORAGE)
 		if err != nil {
 			return err
 		}
@@ -33,17 +34,15 @@ func init() {
 		return nil
 	})
 
-	type DiskIdOptions struct {
-		ID string
+	type DiskResizeOptions struct {
+		NODE    string
+		VM_ID   string
+		DRIVER  string
+		SIZE_GB int
 	}
 
-	shellutils.R(&DiskIdOptions{}, "disk-show", "show disk", func(cli *proxmox.SRegion, args *DiskIdOptions) error {
-		ret, err := cli.GetDisk(args.ID)
-		if err != nil {
-			return err
-		}
-		printObject(ret)
-		return nil
+	shellutils.R(&DiskResizeOptions{}, "disk-resize", "resize disk size", func(cli *proxmox.SRegion, args *DiskResizeOptions) error {
+		return cli.ResizeDisk(args.NODE, args.VM_ID, args.DRIVER, args.SIZE_GB)
 	})
 
 }
