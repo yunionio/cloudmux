@@ -38,7 +38,7 @@ func init() {
 	}
 
 	shellutils.R(&SnapshotOptions{}, "snapshot-show", "Show snapshot", func(cli *openstack.SRegion, args *SnapshotOptions) error {
-		snapshot, err := cli.GetISnapshotById(args.ID)
+		snapshot, err := cli.GetSnapshot(args.ID)
 		if err != nil {
 			return err
 		}
