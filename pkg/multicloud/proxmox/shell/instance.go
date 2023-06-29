@@ -70,18 +70,13 @@ func init() {
 	})
 
 	type InstanceAttachDiskOptions struct {
-		ID      string
-		DISK_ID string
+		NODE   string
+		VM_ID  int
+		DRIVER string
 	}
 
-	shellutils.R(&InstanceAttachDiskOptions{}, "instance-attach-disk", "Attach instance disk", func(cli *proxmox.SRegion, args *InstanceAttachDiskOptions) error {
-		id, _ := strconv.Atoi(args.ID)
-		return cli.AttachDisk(id, args.DISK_ID)
-	})
-
 	shellutils.R(&InstanceAttachDiskOptions{}, "instance-detach-disk", "Attach instance disk", func(cli *proxmox.SRegion, args *InstanceAttachDiskOptions) error {
-		id, _ := strconv.Atoi(args.ID)
-		return cli.DetachDisk(id, args.DISK_ID)
+		return cli.DetachDisk(args.NODE, args.VM_ID, args.DRIVER)
 	})
 
 	type InstanceChangeConfigOptions struct {
@@ -106,6 +101,20 @@ func init() {
 		ret, err := cli.GenVM(args.Name, args.Node, args.Cpu, args.MemMb)
 		printObject(ret)
 		return err
+	})
+
+	type InstanceVncOptions struct {
+		NODE  string
+		VM_ID int
+	}
+
+	shellutils.R(&InstanceVncOptions{}, "instance-vnc", "show instance vnc", func(cli *proxmox.SRegion, args *InstanceVncOptions) error {
+		ret, err := cli.GetVNCInfo(args.NODE, args.VM_ID)
+		if err != nil {
+			return err
+		}
+		printObject(ret)
+		return nil
 	})
 
 }

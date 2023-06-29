@@ -41,13 +41,4 @@ func init() {
 		return nil
 	})
 
-	shellutils.R(&ClusterListOptions{}, "cluster-storge-list", "list storges", func(cli *proxmox.SRegion, args *ClusterListOptions) error {
-		clusters, err := cli.GetClusterStoragesResources()
-		if err != nil {
-			return err
-		}
-		printList(clusters, 0, 0, 0, []string{})
-		return nil
-	})
-
 }
