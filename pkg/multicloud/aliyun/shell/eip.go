@@ -41,9 +41,10 @@ func init() {
 		Name            string
 		BW              int    `help:"Bandwidth limit in Mbps"`
 		ResourceGroupId string `help:"Resource group Id"`
+		BgpType         string `choices:"BGP|BGP_PRO"`
 	}
 	shellutils.R(&EipAllocateOptions{}, "eip-create", "Allocate an EIP", func(cli *aliyun.SRegion, args *EipAllocateOptions) error {
-		eip, err := cli.AllocateEIP(args.Name, args.BW, aliyun.InternetChargeByTraffic, args.ResourceGroupId)
+		eip, err := cli.AllocateEIP(args.Name, args.BW, aliyun.InternetChargeByTraffic, args.ResourceGroupId, args.BgpType)
 		if err != nil {
 			return err
 		}
