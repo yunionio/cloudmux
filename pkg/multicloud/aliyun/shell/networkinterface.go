@@ -23,15 +23,16 @@ import (
 func init() {
 	type NetworkInterfaceListOptions struct {
 		InstanceId string `help:"Id or instance"`
-		Offset     int
-		Limit      int
+		Status     string
+		PageSize   int
+		NextToken  string
 	}
 	shellutils.R(&NetworkInterfaceListOptions{}, "network-interface-list", "List networkinterfaces", func(cli *aliyun.SRegion, args *NetworkInterfaceListOptions) error {
-		interfaces, total, err := cli.GetNetworkInterfaces(args.InstanceId, args.Offset, args.Limit)
+		interfaces, _, err := cli.GetNetworkInterfaces(args.InstanceId, args.Status, args.NextToken, args.PageSize)
 		if err != nil {
 			return err
 		}
-		printList(interfaces, total, 0, 0, nil)
+		printList(interfaces, 0, 0, 0, nil)
 		return nil
 	})
 }
