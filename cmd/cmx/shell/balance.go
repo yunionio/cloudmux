@@ -20,13 +20,13 @@ func init() {
 	r := EmptyOptionProviderR("balance")
 
 	r.Run("show", "Show balance", func(cli cloudprovider.ICloudProvider) (any, error) {
-		amount, status, err := cli.GetBalance()
+		balance, err := cli.GetBalance()
 		if err != nil {
 			return nil, err
 		}
 		return map[string]interface{}{
-			"available_amount": amount,
-			"status":           status,
+			"available_amount": balance.Amount,
+			"status":           balance.Status,
 		}, nil
 	})
 }
