@@ -1,0 +1,38 @@
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  if_merged:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        fetch-depth: 8
+    - uses: actions/setup-go@v2
+      with:
+        go-version: '1.18'
+    - name: Login to Aliyun Container Registry (ACR)
+      uses: aliyun/acr-login@v1
+      with:
+        login-server: https://registry.cn-beijing.aliyuncs.com
+        region-id: cn-beijing
+        username: "${{ secrets.ACR_USERNAME }}"
+        password: "${{ secrets.ACR_PASSWORD }}"
+        
+    - name: Build And Push Docker Image
+      shell: bash
+      run: |
+          set -o xtrace
+          workdir="$HOME/go/src/yunion.io/x"
+          mkdir -p "$workdir"
+          mv "$HOME/work/cloudmux/cloudmux" "$workdir/"
+          export GOPATH="$HOME/go"
+          export GO111MODULE=on
+          export branch="${GITHUB_REF#refs/heads/}"
+          export timestamp=`TZ="Asia/Shanghai" date +"%Y%m%d%H%M%S"`
+          export VERSION="$branch-$timestamp-solo"
+          cd "$workdir/cloudmux"
+          VERSION=$VERSION GOOS=linux ARCH=amd64 REGISTRY=registry.cn-beijing.aliyuncs.com/quxuan make image cloudmux
