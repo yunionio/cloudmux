@@ -12,6 +12,12 @@ cmx is the command line tool based on CloudMux. cmx is a compact utility to acce
 $ make cmd/cmx
 ```
 
+### Build Image
+
+```bash
+TAG=v3.10.4 GOOS=linux ARCH=amd64 REGISTRY=registry.cn-beijing.aliyuncs.com/<name> make image cloudmux
+```
+
 ### Example
 
 1. List regions
