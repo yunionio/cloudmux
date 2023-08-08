@@ -29,5 +29,4 @@ jobs:
           export GOPATH="$HOME/go"
           export GO111MODULE=on
           cd "$workdir/cloudmux"
-          make mod
           make test
