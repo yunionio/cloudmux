@@ -35,4 +35,4 @@ jobs:
           export timestamp=`TZ="Asia/Shanghai" date +"%Y%m%d%H%M%S"`
           export VERSION="$branch-$timestamp-solo"
           cd "$workdir/cloudmux"
-          VERSION=$VERSION GOOS=linux ARCH=amd64 REGISTRY=registry.cn-beijing.aliyuncs.com/quxuan make image cloudmux
+          VERSION=$VERSION GOOS=linux ARCH=amd64 REGISTRY=registry.cn-beijing.aliyuncs.com/yunion-dev make image cloudmux
