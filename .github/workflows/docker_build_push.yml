@@ -1,3 +1,5 @@
+name: Cloudmux Docker Image
+
 on:
   pull_request:
     types:
