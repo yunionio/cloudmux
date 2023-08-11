@@ -17,36 +17,51 @@ package shell
 import (
 	"yunion.io/x/pkg/util/shellutils"
 
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/ctyun"
 )
 
 func init() {
-	type VNetworkListOptions struct {
-		Vpc string `help:"Vpc ID"`
+	type NetworkListOptions struct {
+		VPC string `help:"Vpc ID"`
 	}
-	shellutils.R(&VNetworkListOptions{}, "subnet-list", "List subnets", func(cli *ctyun.SRegion, args *VNetworkListOptions) error {
-		vswitches, e := cli.GetNetwroks(args.Vpc)
-		if e != nil {
-			return e
+	shellutils.R(&NetworkListOptions{}, "network-list", "List subnets", func(cli *ctyun.SRegion, args *NetworkListOptions) error {
+		networks, err := cli.GetNetwroks(args.VPC)
+		if err != nil {
+			return err
 		}
-		printList(vswitches, 0, 0, 0, nil)
+		printList(networks, 0, 0, 0, nil)
 		return nil
 	})
 
 	type NetworkCreateOptions struct {
-		VpcId      string `help:"vpc id"`
-		ZoneId     string `help:"zone id"`
-		Name       string `help:"subnet name"`
-		Cidr       string `help:"cidr"`
-		GatewayIp  string `help:"gateway ip"`
-		DhcpEnable string `help:"gateway ip" choice:"true|false"`
+		VPC string
+		cloudprovider.SNetworkCreateOptions
 	}
-	shellutils.R(&NetworkCreateOptions{}, "subnet-create", "Create subnet", func(cli *ctyun.SRegion, args *NetworkCreateOptions) error {
-		vpc, e := cli.CreateNetwork(args.VpcId, args.ZoneId, args.Name, args.Cidr, args.DhcpEnable)
+	shellutils.R(&NetworkCreateOptions{}, "network-create", "Create subnet", func(cli *ctyun.SRegion, args *NetworkCreateOptions) error {
+		vpc, e := cli.CreateNetwork(args.VPC, &args.SNetworkCreateOptions)
 		if e != nil {
 			return e
 		}
 		printObject(vpc)
 		return nil
 	})
+
+	type NetworkIdOptions struct {
+		ID string
+	}
+
+	shellutils.R(&NetworkIdOptions{}, "network-show", "Show network", func(cli *ctyun.SRegion, args *NetworkIdOptions) error {
+		network, err := cli.GetNetwork(args.ID)
+		if err != nil {
+			return err
+		}
+		printObject(network)
+		return nil
+	})
+
+	shellutils.R(&NetworkIdOptions{}, "network-delete", "Delete network", func(cli *ctyun.SRegion, args *NetworkIdOptions) error {
+		return cli.DeleteNetwork(args.ID)
+	})
+
 }

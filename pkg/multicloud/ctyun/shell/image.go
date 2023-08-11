@@ -21,10 +21,10 @@ import (
 )
 
 func init() {
-	type VImageListOptions struct {
+	type SImageListOptions struct {
 		ImageType string `help:"image type" choices:"gold|private|shared"`
 	}
-	shellutils.R(&VImageListOptions{}, "image-list", "List images", func(cli *ctyun.SRegion, args *VImageListOptions) error {
+	shellutils.R(&SImageListOptions{}, "image-list", "List images", func(cli *ctyun.SRegion, args *SImageListOptions) error {
 		images, e := cli.GetImages(args.ImageType)
 		if e != nil {
 			return e
@@ -32,4 +32,18 @@ func init() {
 		printList(images, 0, 0, 0, nil)
 		return nil
 	})
+
+	type ImageIdOptions struct {
+		ID string
+	}
+
+	shellutils.R(&ImageIdOptions{}, "image-show", "Show image", func(cli *ctyun.SRegion, args *ImageIdOptions) error {
+		image, e := cli.GetImage(args.ID)
+		if e != nil {
+			return e
+		}
+		printObject(image)
+		return nil
+	})
+
 }
