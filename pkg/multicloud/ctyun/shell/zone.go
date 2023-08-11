@@ -21,33 +21,14 @@ import (
 )
 
 func init() {
-	type VJobShowOptions struct {
-		JOBID string `help:"Job ID"`
+	type ZoneListOptions struct {
 	}
-	shellutils.R(&VJobShowOptions{}, "job-show", "Show job", func(cli *ctyun.SRegion, args *VJobShowOptions) error {
-		job, e := cli.GetJob(args.JOBID)
-		if e != nil {
-			return e
+	shellutils.R(&ZoneListOptions{}, "zone-list", "List regions", func(cli *ctyun.SRegion, args *ZoneListOptions) error {
+		zones, err := cli.GetZones()
+		if err != nil {
+			return err
 		}
-		printObject(job)
-		return nil
-	})
-
-	shellutils.R(&VJobShowOptions{}, "vbs-job-show", "Show vbs job", func(cli *ctyun.SRegion, args *VJobShowOptions) error {
-		job, e := cli.GetVbsJob(args.JOBID)
-		if e != nil {
-			return e
-		}
-		printObject(job)
-		return nil
-	})
-
-	shellutils.R(&VJobShowOptions{}, "volume-job-show", "Show volume job", func(cli *ctyun.SRegion, args *VJobShowOptions) error {
-		job, e := cli.GetVolumeJob(args.JOBID)
-		if e != nil {
-			return e
-		}
-		printObject(job)
+		printList(zones, 0, 0, 0, nil)
 		return nil
 	})
 }
