@@ -15,6 +15,8 @@
 package shell
 
 import (
+	"fmt"
+
 	"yunion.io/x/pkg/util/shellutils"
 
 	"yunion.io/x/cloudmux/pkg/multicloud/ctyun"
@@ -22,37 +24,41 @@ import (
 
 func init() {
 	type InstanceListOptions struct {
-		Id string `help:"ID of instance to show"`
+		ZoneId string
+		Ids    []string `help:"ID of instance to show"`
 	}
 	shellutils.R(&InstanceListOptions{}, "instance-list", "List intances", func(cli *ctyun.SRegion, args *InstanceListOptions) error {
-		instances, e := cli.GetInstances(args.Id)
-		if e != nil {
-			return e
+		instances, err := cli.GetInstances(args.ZoneId, args.Ids)
+		if err != nil {
+			return err
 		}
 		printList(instances, 0, 0, 0, []string{})
 		return nil
 	})
 
-	type InstanceCreateOptions struct {
-		ZoneId     string `help:"zone ID of instance"`
-		NAME       string `help:"name of instance"`
-		ADMINPASS  string `help:"admin password of instance"`
-		ImageId    string `help:"image Id of instance"`
-		OsType     string `help:"Os type of image"`
-		VolumeType string `help:"volume type of instance"`
-		VolumeSize int    `help:"volume size(GB) of instance"`
-		Flavor     string `help:"Flavor of instance"`
-		VpcId      string `help:"Vpc of instance"`
-		SubnetId   string `help:"subnet Id of instance"`
-		SecGroupId string `help:"security group Id of instance"`
+	type SInstanceIdOptions struct {
+		ID string
 	}
 
-	shellutils.R(&InstanceCreateOptions{}, "instance-create", "Create intance", func(cli *ctyun.SRegion, args *InstanceCreateOptions) error {
-		_, e := cli.CreateInstance(args.ZoneId, args.NAME, args.ImageId, args.OsType, args.Flavor, args.VpcId, args.SubnetId, args.SecGroupId, args.ADMINPASS, args.VolumeType, args.VolumeSize, nil)
-		if e != nil {
-			return e
-		}
+	shellutils.R(&SInstanceIdOptions{}, "instance-start", "Start intance", func(cli *ctyun.SRegion, args *SInstanceIdOptions) error {
+		return cli.StartVM(args.ID)
+	})
 
+	shellutils.R(&SInstanceIdOptions{}, "instance-stop", "Stop intance", func(cli *ctyun.SRegion, args *SInstanceIdOptions) error {
+		return cli.StopVM(args.ID)
+	})
+
+	shellutils.R(&SInstanceIdOptions{}, "instance-delete", "Delete intance", func(cli *ctyun.SRegion, args *SInstanceIdOptions) error {
+		return cli.DeleteVM(args.ID)
+	})
+
+	shellutils.R(&SInstanceIdOptions{}, "instance-vnc", "Show intance vnc", func(cli *ctyun.SRegion, args *SInstanceIdOptions) error {
+		url, err := cli.GetInstanceVnc(args.ID)
+		if err != nil {
+			return err
+		}
+		fmt.Println(url)
 		return nil
 	})
+
 }

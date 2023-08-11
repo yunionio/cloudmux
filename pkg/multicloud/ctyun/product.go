@@ -12,23 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package shell
+package ctyun
 
-import (
-	"yunion.io/x/pkg/util/shellutils"
-
-	"yunion.io/x/cloudmux/pkg/multicloud/ctyun"
-)
-
-func init() {
-	type RegionListOptions struct {
-	}
-	shellutils.R(&RegionListOptions{}, "region-list", "List regions", func(cli *ctyun.SRegion, args *RegionListOptions) error {
-		regions, err := cli.GetClient().GetRegions()
-		if err != nil {
-			return err
+type SProduct struct {
+	Ebs struct {
+		StorageType []struct {
+			Type string
+			Name string
 		}
-		printList(regions, 0, 0, 0, nil)
-		return nil
-	})
+	}
+	Other struct {
+		Region string
+	}
+}
+
+func (self *SRegion) GetProduct() (*SProduct, error) {
+	resp, err := self.list(SERVICE_ECS, "/v4/region/get-products", nil)
+	if err != nil {
+		return nil, err
+	}
+	ret := &SProduct{}
+	return ret, resp.Unmarshal(ret, "returnObj")
 }
