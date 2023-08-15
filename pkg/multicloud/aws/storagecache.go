@@ -192,11 +192,6 @@ func (self *SStoragecache) uploadImage(ctx context.Context, image *cloudprovider
 		return "", errors.Wrap(err, "SStoragecache.Wait")
 	}
 
-	// add name tag
-	self.region.addTags(task.ImageId, "Name", image.ImageId)
-	if callback != nil {
-		callback(100)
-	}
 	return task.ImageId, nil
 }
 

@@ -231,8 +231,8 @@ func (self *SHost) _createVM(name, imgId string, sysDisk cloudprovider.SDiskInfo
 	}
 
 	disks := make([]SDisk, len(dataDisks)+1)
-	disks[0].Size = img.SizeGB
-	if sysDisk.SizeGB > 0 && sysDisk.SizeGB > img.SizeGB {
+	disks[0].Size = img.GetMinOsDiskSizeGb()
+	if sysDisk.SizeGB > 0 && sysDisk.SizeGB > img.GetMinOsDiskSizeGb() {
 		disks[0].Size = sysDisk.SizeGB
 	}
 	disks[0].Category = sysDisk.StorageType

@@ -590,9 +590,9 @@ func (self *SInstance) AttachDisk(ctx context.Context, diskId string) error {
 	}
 
 	// mix in image block device names
-	for i := range img.BlockDevicesNames {
-		if !utils.IsInStringArray(img.BlockDevicesNames[i], self.DeviceNames) {
-			self.DeviceNames = append(self.DeviceNames, img.BlockDevicesNames[i])
+	for i := range img.BlockDeviceMapping {
+		if !utils.IsInStringArray(img.BlockDeviceMapping[i].DeviceName, self.DeviceNames) {
+			self.DeviceNames = append(self.DeviceNames, img.BlockDeviceMapping[i].DeviceName)
 		}
 	}
 
@@ -850,7 +850,12 @@ func (self *SRegion) CreateInstance(name string, image *SImage, instanceType str
 				VolumeType:          &disk.Category,
 			}
 
-			deviceName, err = NextDeviceName(image.BlockDevicesNames)
+			deviceNames := []string{}
+			for _, dev := range image.BlockDeviceMapping {
+				deviceNames = append(deviceNames, dev.DeviceName)
+			}
+
+			deviceName, err = NextDeviceName(deviceNames)
 			if err != nil {
 				return "", errors.Wrap(err, "NextDeviceName")
 			}

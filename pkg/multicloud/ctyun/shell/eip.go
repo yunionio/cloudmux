@@ -47,4 +47,13 @@ func init() {
 		printObject(eip)
 		return nil
 	})
+
+	type EipIdOptions struct {
+		ID string
+	}
+
+	shellutils.R(&EipIdOptions{}, "eip-delete", "Delete eip", func(cli *ctyun.SRegion, args *EipIdOptions) error {
+		return cli.DeleteEip(args.ID)
+	})
+
 }
