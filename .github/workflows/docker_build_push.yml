@@ -1,13 +1,18 @@
 name: Cloudmux Docker Image
 
 on:
-  pull_request:
-    types:
-      - closed
+  push:
+    branches:
+      - 'releases/**'
+      - 'main'
+      - 'master'
+    paths:
+      - 'cmd/**.go'
+      - 'pkg/**.go'
+      - 'vendor/**.go'
 
 jobs:
   build_cloudmux:
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
