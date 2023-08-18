@@ -17,6 +17,7 @@ package shell
 import (
 	"yunion.io/x/pkg/util/shellutils"
 
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/huawei"
 )
 
@@ -34,15 +35,8 @@ func init() {
 		return nil
 	})
 
-	type EipAllocateOptions struct {
-		NAME       string `help:"eip name"`
-		BW         int    `help:"Bandwidth limit in Mbps"`
-		BGP        string `help:"bgp type" choices:"5_telcom|5_union|5_bgp|5_sbgp"`
-		ChargeType string `help:"eip charge type" default:"traffic" choices:"traffic|bandwidth"`
-		ProjectId  string
-	}
-	shellutils.R(&EipAllocateOptions{}, "eip-create", "Allocate an EIP", func(cli *huawei.SRegion, args *EipAllocateOptions) error {
-		eip, err := cli.AllocateEIP(args.NAME, args.BW, huawei.TInternetChargeType(args.ChargeType), args.BGP, args.ProjectId)
+	shellutils.R(&cloudprovider.SEip{}, "eip-create", "Allocate an EIP", func(cli *huawei.SRegion, args *cloudprovider.SEip) error {
+		eip, err := cli.AllocateEIP(args)
 		if err != nil {
 			return err
 		}
