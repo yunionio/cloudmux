@@ -17,6 +17,7 @@ package shell
 import (
 	"yunion.io/x/pkg/util/shellutils"
 
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/aliyun"
 )
 
@@ -37,14 +38,8 @@ func init() {
 		return nil
 	})
 
-	type EipAllocateOptions struct {
-		Name            string
-		BW              int    `help:"Bandwidth limit in Mbps"`
-		ResourceGroupId string `help:"Resource group Id"`
-		BgpType         string `choices:"BGP|BGP_PRO"`
-	}
-	shellutils.R(&EipAllocateOptions{}, "eip-create", "Allocate an EIP", func(cli *aliyun.SRegion, args *EipAllocateOptions) error {
-		eip, err := cli.AllocateEIP(args.Name, args.BW, aliyun.InternetChargeByTraffic, args.ResourceGroupId, args.BgpType)
+	shellutils.R(&cloudprovider.SEip{}, "eip-create", "Allocate an EIP", func(cli *aliyun.SRegion, args *cloudprovider.SEip) error {
+		eip, err := cli.AllocateEIP(args)
 		if err != nil {
 			return err
 		}

@@ -17,6 +17,7 @@ package shell
 import (
 	"yunion.io/x/pkg/util/shellutils"
 
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/qcloud"
 )
 
@@ -36,13 +37,8 @@ func init() {
 		return nil
 	})
 
-	type EipAllocateOptions struct {
-		BANDWIDTH  int    `help:"EIP bandwoidth"`
-		NAME       string `help:"EIP Name"`
-		ChargeType string `help:"EIP ChargeType" choices:"traffic|bandwidth"`
-	}
-	shellutils.R(&EipAllocateOptions{}, "eip-create", "Allocate an EIP", func(cli *qcloud.SRegion, args *EipAllocateOptions) error {
-		eip, err := cli.AllocateEIP(args.NAME, args.BANDWIDTH, args.ChargeType)
+	shellutils.R(&cloudprovider.SEip{}, "eip-create", "Allocate an EIP", func(cli *qcloud.SRegion, args *cloudprovider.SEip) error {
+		eip, err := cli.AllocateEIP(args)
 		if err != nil {
 			return err
 		}
