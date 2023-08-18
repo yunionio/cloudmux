@@ -51,7 +51,7 @@ func init() {
 	})
 
 	shellutils.R(&LbIdOptions{}, "elb-tag-list", "Show loadbalancer tags", func(cli *aws.SRegion, args *LbIdOptions) error {
-		ret, err := cli.FetchElbTags(args.ID)
+		ret, err := cli.DescribeElbTags(args.ID)
 		if err != nil {
 			return err
 		}
