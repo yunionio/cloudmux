@@ -22,18 +22,27 @@ import (
 
 func init() {
 	type NetworkListOptions struct {
-		DATACENTER string `help:"List datastores in datacenter"`
+		// DATACENTER string `help:"List datastores in datacenter"`
 	}
 	shellutils.R(&NetworkListOptions{}, "network-list", "List networks in datacenter", func(cli *esxi.SESXiClient, args *NetworkListOptions) error {
-		dc, err := cli.FindDatacenterByMoId(args.DATACENTER)
-		if err != nil {
-			return err
-		}
-		nets, err := dc.GetNetworks()
+		nets, err := cli.GetNetworks()
 		if err != nil {
 			return err
 		}
 		printList(nets, nil)
+		return nil
+	})
+
+	shellutils.R(&NetworkListOptions{}, "wire-list", "List wires in datacenter", func(cli *esxi.SESXiClient, args *NetworkListOptions) error {
+		vpcs, err := cli.GetIVpcs()
+		if err != nil {
+			return err
+		}
+		wires, err := vpcs[0].GetIWires()
+		if err != nil {
+			return err
+		}
+		printList(wires, nil)
 		return nil
 	})
 }

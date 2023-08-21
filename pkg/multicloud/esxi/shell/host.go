@@ -69,7 +69,7 @@ func init() {
 		if err != nil {
 			return err
 		}
-		nics, err := host.GetIHostNicsInternal(args.Debug)
+		nics, err := host.GetIHostNics()
 		if err != nil {
 			return err
 		}
