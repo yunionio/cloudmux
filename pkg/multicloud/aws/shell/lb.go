@@ -17,6 +17,7 @@ package shell
 import (
 	"yunion.io/x/pkg/util/shellutils"
 
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/aws"
 )
 
@@ -25,7 +26,7 @@ func init() {
 		Id     string
 		Marker string
 	}
-	shellutils.R(&LbListOptions{}, "elb-list", "List loadbalancer", func(cli *aws.SRegion, args *LbListOptions) error {
+	shellutils.R(&LbListOptions{}, "lb-list", "List loadbalancer", func(cli *aws.SRegion, args *LbListOptions) error {
 		ret, _, e := cli.GetLoadbalancers(args.Id, args.Marker)
 		if e != nil {
 			return e
@@ -37,7 +38,7 @@ func init() {
 	type LbIdOptions struct {
 		ID string
 	}
-	shellutils.R(&LbIdOptions{}, "elb-attr-show", "Show loadbalancer attribute", func(cli *aws.SRegion, args *LbIdOptions) error {
+	shellutils.R(&LbIdOptions{}, "lb-show", "Show loadbalancer attribute", func(cli *aws.SRegion, args *LbIdOptions) error {
 		ret, err := cli.GetElbAttributes(args.ID)
 		if err != nil {
 			return err
@@ -46,11 +47,20 @@ func init() {
 		return nil
 	})
 
-	shellutils.R(&LbIdOptions{}, "elb-delete", "Delete loadbalancer", func(cli *aws.SRegion, args *LbIdOptions) error {
+	shellutils.R(&cloudprovider.SLoadbalancerCreateOptions{}, "lb-create", "Create loadbalancer", func(cli *aws.SRegion, args *cloudprovider.SLoadbalancerCreateOptions) error {
+		ret, err := cli.CreateLoadbalancer(args)
+		if err != nil {
+			return err
+		}
+		printObject(ret)
+		return nil
+	})
+
+	shellutils.R(&LbIdOptions{}, "lb-delete", "Delete loadbalancer", func(cli *aws.SRegion, args *LbIdOptions) error {
 		return cli.DeleteElb(args.ID)
 	})
 
-	shellutils.R(&LbIdOptions{}, "elb-tag-list", "Show loadbalancer tags", func(cli *aws.SRegion, args *LbIdOptions) error {
+	shellutils.R(&LbIdOptions{}, "lb-tag-list", "Show loadbalancer tags", func(cli *aws.SRegion, args *LbIdOptions) error {
 		ret, err := cli.DescribeElbTags(args.ID)
 		if err != nil {
 			return err
