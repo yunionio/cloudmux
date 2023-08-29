@@ -133,12 +133,11 @@ func init() {
 		Identify      string `help:"Identify"`
 	}
 	shellutils.R(&PvtzRecordCreateOptions{}, "privatezonerecord-create", "create privatezonerecord", func(cli *aliyun.SRegion, args *PvtzRecordCreateOptions) error {
-		opts := cloudprovider.DnsRecordSet{}
+		opts := &cloudprovider.DnsRecord{}
 		opts.DnsName = args.NAME
 		opts.DnsType = cloudprovider.TDnsType(args.TYPE)
 		opts.DnsValue = args.VALUE
 		opts.Ttl = args.TTL
-		opts.ExternalId = args.Identify
 		_, err := cli.GetClient().AddZoneRecord(args.PRIVATEZONEID, opts)
 		if err != nil {
 			return err
@@ -153,15 +152,15 @@ func init() {
 		TTL           int64  `help:"ttl"`
 		TYPE          string `help:"dns type"`
 		Identify      string `help:"Identify"`
+		ID            string
 	}
 	shellutils.R(&PvtzRecordupdateOptions{}, "privatezonerecord-update", "update privatezonerecord", func(cli *aliyun.SRegion, args *PvtzRecordupdateOptions) error {
-		opts := cloudprovider.DnsRecordSet{}
+		opts := &cloudprovider.DnsRecord{}
 		opts.DnsName = args.NAME
 		opts.DnsType = cloudprovider.TDnsType(args.TYPE)
 		opts.DnsValue = args.VALUE
 		opts.Ttl = args.TTL
-		opts.ExternalId = args.Identify
-		err := cli.GetClient().UpdateZoneRecord(opts)
+		err := cli.GetClient().UpdateZoneRecord(args.ID, opts)
 		if err != nil {
 			return err
 		}
