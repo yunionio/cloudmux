@@ -23,7 +23,7 @@ import (
 
 func init() {
 	type Route53LocationListOptions struct{}
-	shellutils.R(&Route53LocationListOptions{}, "route53location-list", "List route53location", func(cli *aws.SRegion, args *Route53LocationListOptions) error {
+	shellutils.R(&Route53LocationListOptions{}, "dns-location-list", "List route53location", func(cli *aws.SRegion, args *Route53LocationListOptions) error {
 		locations, err := cli.GetClient().ListGeoLocations()
 		if err != nil {
 			return err
@@ -33,8 +33,8 @@ func init() {
 	})
 
 	type HostedZoneListOptions struct{}
-	shellutils.R(&HostedZoneListOptions{}, "hostedzone-list", "List hostedzone", func(cli *aws.SRegion, args *HostedZoneListOptions) error {
-		hostzones, err := cli.GetClient().GetHostedZones()
+	shellutils.R(&HostedZoneListOptions{}, "dns-zone-list", "List hostedzone", func(cli *aws.SRegion, args *HostedZoneListOptions) error {
+		hostzones, err := cli.GetClient().GetDnsZones()
 		if err != nil {
 			return err
 		}
@@ -48,7 +48,7 @@ func init() {
 		Vpc    string `help:"vpc id"`
 		Region string `help:"region id"`
 	}
-	shellutils.R(&HostedZoneCreateOptions{}, "hostedzone-create", "Create hostedzone", func(cli *aws.SRegion, args *HostedZoneCreateOptions) error {
+	shellutils.R(&HostedZoneCreateOptions{}, "dns-zone-create", "Create hostedzone", func(cli *aws.SRegion, args *HostedZoneCreateOptions) error {
 		opts := cloudprovider.SDnsZoneCreateOptions{}
 		opts.Name = args.NAME
 		opts.ZoneType = cloudprovider.TDnsZoneType(args.Type)
@@ -58,7 +58,7 @@ func init() {
 			vpc.RegionId = args.Region
 			opts.Vpcs = []cloudprovider.SPrivateZoneVpc{vpc}
 		}
-		hostzones, err := cli.GetClient().CreateHostedZone(&opts)
+		hostzones, err := cli.GetClient().CreateDnsZone(&opts)
 		if err != nil {
 			return err
 		}
@@ -68,25 +68,12 @@ func init() {
 	type HostedZoneGetOptions struct {
 		HOSTEDZONEID string
 	}
-	shellutils.R(&HostedZoneGetOptions{}, "hostedzone-show", "get hostedzone by id", func(cli *aws.SRegion, args *HostedZoneGetOptions) error {
-
-		hostedzone, err := cli.GetClient().GetHostedZoneById(args.HOSTEDZONEID)
+	shellutils.R(&HostedZoneGetOptions{}, "dns-zone-show", "get hostedzone by id", func(cli *aws.SRegion, args *HostedZoneGetOptions) error {
+		hostedzone, err := cli.GetClient().GetDnsZone(args.HOSTEDZONEID)
 		if err != nil {
 			return err
 		}
 		printObject(hostedzone)
-		return nil
-	})
-
-	type HostedZoneVpcListOptions struct {
-		HOSTEDZONEID string
-	}
-	shellutils.R(&HostedZoneVpcListOptions{}, "hostedzonevpc-list", "List hostedzonevpc", func(cli *aws.SRegion, args *HostedZoneVpcListOptions) error {
-		vpcs, err := cli.GetClient().GetHostedZoneVpcs(args.HOSTEDZONEID)
-		if err != nil {
-			return err
-		}
-		printList(vpcs, len(vpcs), 0, 20, []string{})
 		return nil
 	})
 
@@ -95,8 +82,7 @@ func init() {
 		VPC          string
 		REGION       string
 	}
-	shellutils.R(&HostedZoneAddVpcOptions{}, "hostedzone-add-vpc", "associate vpc with hostedzone", func(cli *aws.SRegion, args *HostedZoneAddVpcOptions) error {
-
+	shellutils.R(&HostedZoneAddVpcOptions{}, "dns-zone-add-vpc", "associate vpc with hostedzone", func(cli *aws.SRegion, args *HostedZoneAddVpcOptions) error {
 		err := cli.GetClient().AssociateVPCWithHostedZone(args.VPC, args.REGION, args.HOSTEDZONEID)
 		if err != nil {
 			return err
@@ -109,8 +95,7 @@ func init() {
 		VPC          string
 		REGION       string
 	}
-	shellutils.R(&HostedZoneRemoveVpcOptions{}, "hostedzone-rmvpc", "disassociate vpc with hostedzone", func(cli *aws.SRegion, args *HostedZoneRemoveVpcOptions) error {
-
+	shellutils.R(&HostedZoneRemoveVpcOptions{}, "dns-zone-remove-vpc", "disassociate vpc with hostedzone", func(cli *aws.SRegion, args *HostedZoneRemoveVpcOptions) error {
 		err := cli.GetClient().DisassociateVPCFromHostedZone(args.VPC, args.REGION, args.HOSTEDZONEID)
 		if err != nil {
 			return err
@@ -121,8 +106,8 @@ func init() {
 	type HostedZoneDeleteOptions struct {
 		HOSTEDZONEID string
 	}
-	shellutils.R(&HostedZoneDeleteOptions{}, "hostedzone-delete", "delete hostedzone", func(cli *aws.SRegion, args *HostedZoneDeleteOptions) error {
-		err := cli.GetClient().DeleteHostedZone(args.HOSTEDZONEID)
+	shellutils.R(&HostedZoneDeleteOptions{}, "dns-zone-delete", "delete hostedzone", func(cli *aws.SRegion, args *HostedZoneDeleteOptions) error {
+		err := cli.GetClient().DeleteDnsZone(args.HOSTEDZONEID)
 		if err != nil {
 			return err
 		}
@@ -132,8 +117,8 @@ func init() {
 	type DnsRecordSetListOptions struct {
 		HOSTEDZONEID string
 	}
-	shellutils.R(&DnsRecordSetListOptions{}, "dnsrecordset-list", "List dnsrecordset", func(cli *aws.SRegion, args *DnsRecordSetListOptions) error {
-		dnsrecordsets, err := cli.GetClient().GetSdnsRecordSets(args.HOSTEDZONEID)
+	shellutils.R(&DnsRecordSetListOptions{}, "dns-record-list", "List dnsrecordset", func(cli *aws.SRegion, args *DnsRecordSetListOptions) error {
+		dnsrecordsets, err := cli.GetClient().ListResourceRecordSet(args.HOSTEDZONEID)
 		if err != nil {
 			return err
 		}
@@ -148,20 +133,17 @@ func init() {
 		TTL          int64  `help:"ttl"`
 		TYPE         string `help:"dns type"`
 		PolicyType   string `help:"PolicyType"`
+		Id           string
 		Identify     string `help:"Identify"`
 	}
-	shellutils.R(&DnsRecordSetCreateOptions{}, "dnsrecordset-create", "create dnsrecordset", func(cli *aws.SRegion, args *DnsRecordSetCreateOptions) error {
-		opts := cloudprovider.DnsRecordSet{}
+	shellutils.R(&DnsRecordSetCreateOptions{}, "dns-record-create", "create dnsrecordset", func(cli *aws.SRegion, args *DnsRecordSetCreateOptions) error {
+		opts := cloudprovider.DnsRecord{}
 		opts.DnsName = args.NAME
 		opts.DnsType = cloudprovider.TDnsType(args.TYPE)
 		opts.DnsValue = args.VALUE
 		opts.Ttl = args.TTL
-		opts.ExternalId = args.Identify
-		err := cli.GetClient().AddDnsRecordSet(args.HOSTEDZONEID, &opts)
-		if err != nil {
-			return err
-		}
-		return nil
+		_, err := cli.GetClient().ChangeResourceRecordSets("CREATE", args.HOSTEDZONEID, args.NAME, args.Id, opts)
+		return err
 	})
 
 	type DnsRecordSetupdateOptions struct {
@@ -172,39 +154,24 @@ func init() {
 		TYPE         string `help:"dns type"`
 		Identify     string `help:"Identify"`
 	}
-	shellutils.R(&DnsRecordSetupdateOptions{}, "dnsrecordset-update", "update dnsrecordset", func(cli *aws.SRegion, args *DnsRecordSetupdateOptions) error {
-		opts := cloudprovider.DnsRecordSet{}
+	shellutils.R(&DnsRecordSetupdateOptions{}, "dns-record-update", "update dnsrecordset", func(cli *aws.SRegion, args *DnsRecordSetupdateOptions) error {
+		opts := cloudprovider.DnsRecord{}
 		opts.DnsName = args.NAME
 		opts.DnsType = cloudprovider.TDnsType(args.TYPE)
 		opts.DnsValue = args.VALUE
 		opts.Ttl = args.TTL
-		opts.ExternalId = args.Identify
-		err := cli.GetClient().UpdateDnsRecordSet(args.HOSTEDZONEID, &opts)
-		if err != nil {
-			return err
-		}
-		return nil
+		_, err := cli.GetClient().ChangeResourceRecordSets("UPSERT", args.HOSTEDZONEID, args.NAME, args.Identify, opts)
+		return err
 	})
 
-	type DnsRecordSetDeleteOptions struct {
+	type DnsRecordDeleteOptions struct {
 		HOSTEDZONEID string `help:"HostedzoneId"`
-		NAME         string `help:"Domain name"`
-		VALUE        string `help:"dns record value"`
-		TTL          int64  `help:"ttl"`
-		TYPE         string `help:"dns type"`
-		Identify     string `help:"Identify"`
+		ID           string `help:"Identify"`
+		cloudprovider.DnsRecord
 	}
-	shellutils.R(&DnsRecordSetDeleteOptions{}, "dnsrecordset-delete", "delete dnsrecordset", func(cli *aws.SRegion, args *DnsRecordSetDeleteOptions) error {
-		opts := cloudprovider.DnsRecordSet{}
-		opts.DnsName = args.NAME
-		opts.DnsType = cloudprovider.TDnsType(args.TYPE)
-		opts.DnsValue = args.VALUE
-		opts.Ttl = args.TTL
-		opts.ExternalId = args.Identify
-		err := cli.GetClient().RemoveDnsRecordSet(args.HOSTEDZONEID, &opts)
-		if err != nil {
-			return err
-		}
-		return nil
+	shellutils.R(&DnsRecordDeleteOptions{}, "dns-record-delete", "delete dnsrecordset", func(cli *aws.SRegion, args *DnsRecordDeleteOptions) error {
+		_, err := cli.GetClient().ChangeResourceRecordSets("DELETE", args.HOSTEDZONEID, args.DnsName, args.ID, args.DnsRecord)
+		return err
 	})
+
 }

@@ -40,7 +40,7 @@ func init() {
 		PageNumber int `help:"page size" default:"1"`
 		PageSize   int `help:"page PageSize" default:"20"`
 	}
-	shellutils.R(&DnsProductListOptions{}, "dnsproduct-list", "List dnsproduct", func(cli *aliyun.SRegion, args *DnsProductListOptions) error {
+	shellutils.R(&DnsProductListOptions{}, "dns-product-list", "List dnsproduct", func(cli *aliyun.SRegion, args *DnsProductListOptions) error {
 		//products, e := cli.GetClient().DescribeDnsProductInstances(args.PageNumber, args.PageSize)
 		products, e := cli.GetClient().GetAllDnsProductInstances()
 		if e != nil {
@@ -104,7 +104,7 @@ func init() {
 		PageNumber int `help:"page size" default:"1"`
 		PageSize   int `help:"page PageSize" default:"20"`
 	}
-	shellutils.R(&SDomainRecordListOptions{}, "domainrecord-list", "List domainrecord", func(cli *aliyun.SRegion, args *SDomainRecordListOptions) error {
+	shellutils.R(&SDomainRecordListOptions{}, "domain-record-list", "List domainrecord", func(cli *aliyun.SRegion, args *SDomainRecordListOptions) error {
 		srecords, e := cli.GetClient().DescribeDomainRecords(args.DOMAINNAME, args.PageNumber, args.PageSize)
 		if e != nil {
 			return e
@@ -122,8 +122,8 @@ func init() {
 		PolicyType  string `help:"PolicyType"`
 		PolicyValue string
 	}
-	shellutils.R(&DomainRecordCreateOptions{}, "domainrecord-create", "create domainrecord", func(cli *aliyun.SRegion, args *DomainRecordCreateOptions) error {
-		opts := cloudprovider.DnsRecordSet{}
+	shellutils.R(&DomainRecordCreateOptions{}, "domain-record-create", "create domainrecord", func(cli *aliyun.SRegion, args *DomainRecordCreateOptions) error {
+		opts := &cloudprovider.DnsRecord{}
 		opts.DnsName = args.NAME
 		opts.DnsType = cloudprovider.TDnsType(args.TYPE)
 		opts.DnsValue = args.VALUE
@@ -144,16 +144,16 @@ func init() {
 		TTL            int64  `help:"ttl"`
 		TYPE           string `help:"dns type"`
 		PolicyType     string `help:"PolicyType"`
+		ID             string
 	}
-	shellutils.R(&DomainRecordupdateOptions{}, "domainrecord-update", "update domainrecord", func(cli *aliyun.SRegion, args *DomainRecordupdateOptions) error {
-		opts := cloudprovider.DnsRecordSet{}
+	shellutils.R(&DomainRecordupdateOptions{}, "domain-record-update", "update domainrecord", func(cli *aliyun.SRegion, args *DomainRecordupdateOptions) error {
+		opts := &cloudprovider.DnsRecord{}
 		opts.DnsName = args.NAME
 		opts.DnsType = cloudprovider.TDnsType(args.TYPE)
 		opts.DnsValue = args.VALUE
 		opts.Ttl = args.TTL
-		opts.ExternalId = args.DOMAINRECORDID
 		opts.PolicyType = cloudprovider.TDnsPolicyType(args.PolicyType)
-		err := cli.GetClient().UpdateDomainRecord(opts)
+		err := cli.GetClient().UpdateDomainRecord(args.ID, opts)
 		if err != nil {
 			return err
 		}
@@ -163,7 +163,7 @@ func init() {
 	type DomainRecordDeleteOptions struct {
 		DOMAINRECORDID string `help:"DOMAINRECORDID"`
 	}
-	shellutils.R(&DomainRecordDeleteOptions{}, "domainrecord-delete", "delete domainrecord", func(cli *aliyun.SRegion, args *DomainRecordDeleteOptions) error {
+	shellutils.R(&DomainRecordDeleteOptions{}, "domain-record-delete", "delete domainrecord", func(cli *aliyun.SRegion, args *DomainRecordDeleteOptions) error {
 		err := cli.GetClient().DeleteDomainRecord(args.DOMAINRECORDID)
 		if err != nil {
 			return err
@@ -175,8 +175,7 @@ func init() {
 		DOMAINRECORDID string `help:"PRIVATEZONEID"`
 		STATUS         string `choices:"Enable|Disable"`
 	}
-	shellutils.R(&DomainRecordSetStatusOptions{}, "domainrecord-setstatus", "set domainrecord status", func(cli *aliyun.SRegion, args *DomainRecordSetStatusOptions) error {
-
+	shellutils.R(&DomainRecordSetStatusOptions{}, "domain-record-setstatus", "set domainrecord status", func(cli *aliyun.SRegion, args *DomainRecordSetStatusOptions) error {
 		err := cli.GetClient().SetDomainRecordStatus(args.DOMAINRECORDID, args.STATUS)
 		if err != nil {
 			return err
