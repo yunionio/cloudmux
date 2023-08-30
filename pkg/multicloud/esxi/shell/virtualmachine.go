@@ -185,6 +185,14 @@ func init() {
 		return nil
 	})
 
+	shellutils.R(&VirtualMachineShowOptions{}, "vm-delete", "Delete vm", func(cli *esxi.SESXiClient, args *VirtualMachineShowOptions) error {
+		vm, err := getVM(cli, args)
+		if err != nil {
+			return err
+		}
+		return vm.DeleteVM(context.Background())
+	})
+
 	type VirtualMachineUpdateOptions struct {
 		VirtualMachineShowOptions
 		NAME string
