@@ -17,6 +17,7 @@ package shell
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/util/shellutils"
@@ -181,6 +182,48 @@ func init() {
 			return err
 		}
 		printObject(vm)
+		return nil
+	})
+
+	type VirtualMachineUpdateOptions struct {
+		VirtualMachineShowOptions
+		NAME string
+	}
+
+	shellutils.R(&VirtualMachineUpdateOptions{}, "vm-update", "Update vm name", func(cli *esxi.SESXiClient, args *VirtualMachineUpdateOptions) error {
+		vm, err := getVM(cli, &args.VirtualMachineShowOptions)
+		if err != nil {
+			return err
+		}
+		err = vm.UpdateVM(context.Background(), args.NAME)
+		if err != nil {
+			return err
+		}
+		printObject(vm)
+		return nil
+	})
+
+	type VirtualMachineUpdateTagsOptions struct {
+		VirtualMachineShowOptions
+		Tags []string
+	}
+
+	shellutils.R(&VirtualMachineUpdateTagsOptions{}, "vm-set-tags", "Update vm tags", func(cli *esxi.SESXiClient, args *VirtualMachineUpdateTagsOptions) error {
+		vm, err := getVM(cli, &args.VirtualMachineShowOptions)
+		if err != nil {
+			return err
+		}
+		meta := map[string]string{}
+		for _, tag := range args.Tags {
+			info := strings.Split(tag, "=")
+			if len(info) == 2 {
+				meta[info[0]] = info[1]
+			}
+		}
+		err = vm.SetTags(meta, true)
+		if err != nil {
+			return err
+		}
 		return nil
 	})
 
