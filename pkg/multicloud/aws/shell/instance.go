@@ -166,23 +166,12 @@ func init() {
 	})
 
 	type InstanceChangeConfigOptions struct {
-		ID             string `help:"instance ID"`
-		InstanceTypeId string `help:"instance type"`
-		Disk           []int  `help:"Data disk sizes int GB"`
+		ID string `help:"instance ID"`
+		aws.SInstanceAttr
 	}
 
 	shellutils.R(&InstanceChangeConfigOptions{}, "instance-change-config", "Deploy keypair/password to a stopped virtual server", func(cli *aws.SRegion, args *InstanceChangeConfigOptions) error {
-		instance, e := cli.GetInstance(args.ID)
-		if e != nil {
-			return e
-		}
-
-		// todo : add create disks
-		err := cli.ChangeVMConfig2(instance.ZoneId, args.ID, args.InstanceTypeId, nil)
-		if err != nil {
-			return err
-		}
-		return nil
+		return cli.ModifyInstanceAttribute(args.ID, &args.SInstanceAttr)
 	})
 
 	type InstanceSaveImageOptions struct {
