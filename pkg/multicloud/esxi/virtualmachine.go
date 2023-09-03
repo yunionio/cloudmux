@@ -884,13 +884,35 @@ func (svm *SVirtualMachine) getVdev(key int32) SVirtualDevice {
 	return svm.devs[key]
 }
 
+func (svm *SVirtualMachine) getNetTags() string {
+	info := make([]string, 0)
+	moVM := svm.getVirtualMachine()
+	for _, net := range moVM.Guest.Net {
+		mac := netutils.FormatMacAddr(net.MacAddress)
+		ips := make([]string, 0)
+		for _, ip := range net.IpAddress {
+			if regutils.MatchIP4Addr(ip) && !strings.HasPrefix(ip, "169.254.") {
+				ips = append(ips, ip)
+			}
+		}
+		if len(mac) > 0 && len(net.Network) > 0 && len(ips) > 0 {
+			info = append(info, mac, net.Network)
+			info = append(info, ips...)
+		}
+	}
+	return strings.Join(info, "/")
+}
+
 func (svm *SVirtualMachine) fetchGuestIps() map[string]string {
 	guestIps := make(map[string]string)
 	moVM := svm.getVirtualMachine()
 	for _, net := range moVM.Guest.Net {
+		if len(net.Network) == 0 {
+			continue
+		}
 		mac := netutils.FormatMacAddr(net.MacAddress)
 		for _, ip := range net.IpAddress {
-			if regutils.MatchIP4Addr(ip) {
+			if regutils.MatchIP4Addr(ip) && !strings.HasPrefix(ip, "169.254.") {
 				if !vmIPV4Filter.Contains(ip) {
 					continue
 				}
