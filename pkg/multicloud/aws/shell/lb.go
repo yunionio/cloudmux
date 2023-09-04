@@ -15,6 +15,8 @@
 package shell
 
 import (
+	"fmt"
+
 	"yunion.io/x/pkg/util/shellutils"
 
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
@@ -70,17 +72,37 @@ func init() {
 	})
 
 	type LbBackendGroupListOptions struct {
-		ElbId  string
-		Id     string
-		Marker string
+		ElbId string
+		Id    string
 	}
 
-	shellutils.R(&LbBackendGroupListOptions{}, "elb-backend-group-list", "List loadbalancer backend groups", func(cli *aws.SRegion, args *LbBackendGroupListOptions) error {
-		ret, _, err := cli.GetElbBackendgroups(args.ElbId, args.Id, args.Marker)
+	shellutils.R(&LbBackendGroupListOptions{}, "lb-backend-group-list", "List loadbalancer backend groups", func(cli *aws.SRegion, args *LbBackendGroupListOptions) error {
+		ret, err := cli.GetElbBackendgroups(args.ElbId, args.Id)
 		if err != nil {
 			return err
 		}
 		printList(ret, 0, 0, 0, []string{})
+		return nil
+	})
+
+	shellutils.R(&cloudprovider.SLoadbalancerCertificate{}, "lb-cert-create", "Create loadbalancer cert", func(cli *aws.SRegion, args *cloudprovider.SLoadbalancerCertificate) error {
+		arn, err := cli.CreateLoadbalancerCertifacate(args)
+		if err != nil {
+			return err
+		}
+		fmt.Println(arn)
+		return nil
+	})
+
+	type LbCertListOption struct {
+	}
+
+	shellutils.R(&LbCertListOption{}, "lb-cert-list", "Create loadbalancer cert", func(cli *aws.SRegion, args *LbCertListOption) error {
+		certs, err := cli.ListServerCertificates()
+		if err != nil {
+			return err
+		}
+		printList(certs, 0, 0, 0, nil)
 		return nil
 	})
 

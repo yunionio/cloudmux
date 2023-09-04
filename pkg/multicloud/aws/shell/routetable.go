@@ -22,11 +22,14 @@ import (
 
 func init() {
 	type RouteTableListOptions struct {
-		VpcId    string `help:"vpc id"`
-		MainOnly bool
+		VpcId        string `help:"vpc id"`
+		SubnetId     string
+		RouteTableId string
+		VpcPeerId    string
+		MainOnly     bool
 	}
-	shellutils.R(&RouteTableListOptions{}, "routetable-list", "List route tables", func(cli *aws.SRegion, args *RouteTableListOptions) error {
-		routetables, err := cli.GetRouteTables(args.VpcId, args.MainOnly)
+	shellutils.R(&RouteTableListOptions{}, "route-table-list", "List route tables", func(cli *aws.SRegion, args *RouteTableListOptions) error {
+		routetables, err := cli.GetRouteTables(args.VpcId, args.SubnetId, args.VpcPeerId, args.RouteTableId, args.MainOnly)
 		if err != nil {
 			printObject(err)
 			return nil
