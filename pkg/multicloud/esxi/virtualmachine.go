@@ -851,7 +851,11 @@ func (svm *SVirtualMachine) fetchHardwareInfo() error {
 		cdromType := reflect.TypeOf((*types.VirtualCdrom)(nil)).Elem()
 
 		if reflectutils.StructContains(devType, etherType) {
-			svm.vnics = append(svm.vnics, NewVirtualNIC(svm, dev, len(svm.vnics)))
+			vnic := NewVirtualNIC(svm, dev, len(svm.vnics))
+			if len(vnic.GetIP()) > 0 {
+				// only nics with ip is valid
+				svm.vnics = append(svm.vnics, vnic)
+			}
 		} else if reflectutils.StructContains(devType, diskType) {
 			svm.vdisks = append(svm.vdisks, NewVirtualDisk(svm, dev, len(svm.vdisks)))
 		} else if reflectutils.StructContains(devType, vgaType) {
