@@ -53,4 +53,58 @@ func init() {
 	shellutils.R(&ImageDeleteOptions{}, "image-delete", "Delete image", func(cli *aws.SRegion, args *ImageDeleteOptions) error {
 		return cli.DeleteImage(args.ID)
 	})
+
+	type ImageExportTaskOptions struct {
+		ID string
+	}
+
+	shellutils.R(&ImageExportTaskOptions{}, "image-export-task-show", "show image export task", func(cli *aws.SRegion, args *ImageExportTaskOptions) error {
+		task, err := cli.GetImportImageTask(args.ID)
+		if err != nil {
+			return err
+		}
+		printObject(task)
+		return nil
+	})
+
+	type ImageImportOptions struct {
+		NAME       string
+		OsArch     string
+		OsType     string
+		OsDist     string
+		DiskFormat string
+		BUCKET     string
+		KEY        string
+	}
+
+	shellutils.R(&ImageImportOptions{}, "image-import", "Import image", func(cli *aws.SRegion, args *ImageImportOptions) error {
+		task, err := cli.ImportImage(args.NAME, args.OsArch, args.OsType, args.OsDist, args.DiskFormat, args.BUCKET, args.KEY)
+		if err != nil {
+			return err
+		}
+		printObject(task)
+		return nil
+	})
+
+	type ImportExportOptions struct {
+		InstanceId string
+		ImageId    string
+	}
+
+	shellutils.R(&ImportExportOptions{}, "image-export", "Export image", func(cli *aws.SRegion, args *ImportExportOptions) error {
+		task, err := cli.ExportImage(args.InstanceId, args.ImageId)
+		if err != nil {
+			return err
+		}
+		printObject(task)
+		return nil
+	})
+
+	type ImageIamInitOptions struct {
+	}
+
+	shellutils.R(&ImageIamInitOptions{}, "image-iam-init", "Init image iam", func(cli *aws.SRegion, args *ImageIamInitOptions) error {
+		return cli.InitVmimport()
+	})
+
 }

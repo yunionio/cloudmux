@@ -34,15 +34,34 @@ func init() {
 		return nil
 	})
 
-	type VpcPeeringConnectionListOptions struct {
-		VPCID string
-	}
-	shellutils.R(&VpcPeeringConnectionListOptions{}, "vpc-peering-connection-list", "List vpcPeeringConnections", func(cli *aws.SRegion, args *VpcPeeringConnectionListOptions) error {
-		vpcPCs, err := cli.DescribeVpcPeeringConnections(args.VPCID)
+	shellutils.R(&cloudprovider.VpcCreateOptions{}, "vpc-create", "Create vpc", func(cli *aws.SRegion, args *cloudprovider.VpcCreateOptions) error {
+		vpc, err := cli.CreateVpc(args)
 		if err != nil {
 			return err
 		}
-		printList(vpcPCs, len(vpcPCs), len(vpcPCs), len(vpcPCs), []string{})
+		printObject(vpc)
+		return nil
+	})
+
+	type VpcIdOptions struct {
+		ID string
+	}
+
+	shellutils.R(&VpcIdOptions{}, "vpc-delete", "Delete vpc", func(cli *aws.SRegion, args *VpcIdOptions) error {
+		return cli.DeleteVpc(args.ID)
+	})
+
+	type VpcPeeringConnectionListOptions struct {
+		Id        string
+		VpcId     string
+		PeerVpcId string
+	}
+	shellutils.R(&VpcPeeringConnectionListOptions{}, "vpc-peering-connection-list", "List vpcPeeringConnections", func(cli *aws.SRegion, args *VpcPeeringConnectionListOptions) error {
+		peers, err := cli.DescribeVpcPeeringConnections(args.Id, args.VpcId, args.PeerVpcId)
+		if err != nil {
+			return err
+		}
+		printList(peers, 0, 0, 0, []string{})
 		return nil
 	})
 

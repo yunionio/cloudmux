@@ -15,6 +15,8 @@
 package shell
 
 import (
+	"fmt"
+
 	"yunion.io/x/pkg/util/shellutils"
 
 	"yunion.io/x/cloudmux/pkg/multicloud/aws"
@@ -22,15 +24,15 @@ import (
 
 func init() {
 	type KeyPairListOptions struct {
-		Limit  int `help:"page size"`
-		Offset int `help:"page offset"`
+		Name   string
+		Finger string
 	}
 	shellutils.R(&KeyPairListOptions{}, "keypair-list", "List keypairs", func(cli *aws.SRegion, args *KeyPairListOptions) error {
-		keypairs, total, e := cli.GetKeypairs("", "", args.Offset, args.Limit)
-		if e != nil {
-			return e
+		keypairs, err := cli.GetKeypairs(args.Finger, args.Name)
+		if err != nil {
+			return err
 		}
-		printList(keypairs, total, args.Offset, args.Limit, []string{})
+		printList(keypairs, 0, 0, 0, []string{})
 		return nil
 	})
 
@@ -46,4 +48,17 @@ func init() {
 		printObject(keypair)
 		return nil
 	})
+
+	type KeyPairSyncOptions struct {
+		PUBKEY string `help:"Public key string"`
+	}
+	shellutils.R(&KeyPairSyncOptions{}, "keypair-sync", "Sync a keypair", func(cli *aws.SRegion, args *KeyPairSyncOptions) error {
+		key, err := cli.SyncKeypair(args.PUBKEY)
+		if err != nil {
+			return err
+		}
+		fmt.Println(key)
+		return nil
+	})
+
 }

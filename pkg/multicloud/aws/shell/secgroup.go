@@ -41,6 +41,11 @@ func init() {
 	type SecurityGroupIdOptions struct {
 		ID string
 	}
+
+	shellutils.R(&SecurityGroupIdOptions{}, "security-group-delete", "Show security group", func(cli *aws.SRegion, args *SecurityGroupIdOptions) error {
+		return cli.DeleteSecurityGroup(args.ID)
+	})
+
 	shellutils.R(&SecurityGroupIdOptions{}, "security-group-show", "Show security group", func(cli *aws.SRegion, args *SecurityGroupIdOptions) error {
 		group, err := cli.GetSecurityGroup(args.ID)
 		if err != nil {
