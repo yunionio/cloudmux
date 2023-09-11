@@ -24,7 +24,7 @@ func init() {
 	type DiskListOptions struct {
 		Instance   string `help:"Instance ID"`
 		Zone       string `help:"Zone ID"`
-		VolumeType string `help:"Disk category" choices:"gp2|gp3|io1|io2|st1|sc1|standard" default:"gp2"`
+		VolumeType string `help:"Disk category" choices:"gp2|gp3|io1|io2|st1|sc1|standard"`
 		DiskIds    []string
 	}
 	shellutils.R(&DiskListOptions{}, "disk-list", "List disks", func(cli *aws.SRegion, args *DiskListOptions) error {
