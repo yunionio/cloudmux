@@ -17,6 +17,7 @@ package shell
 import (
 	"yunion.io/x/pkg/util/shellutils"
 
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/huawei"
 )
 
@@ -95,4 +96,11 @@ func init() {
 		return cli.ChangeDBInstanceConfig(args.INSTANCE, args.InstanceType, args.DiskSizeGB)
 	})
 
+	type SDBInstanceUpdateOptions struct {
+		ID string
+		cloudprovider.SDBInstanceUpdateOptions
+	}
+	shellutils.R(&SDBInstanceUpdateOptions{}, "dbinstance-update", "Change dbinstance config", func(cli *huawei.SRegion, args *SDBInstanceUpdateOptions) error {
+		return cli.Update(args.ID, args.SDBInstanceUpdateOptions)
+	})
 }
