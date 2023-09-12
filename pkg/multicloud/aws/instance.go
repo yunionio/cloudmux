@@ -441,9 +441,12 @@ func (self *SInstance) DeleteVM(ctx context.Context) error {
 	return ec2Client.WaitUntilInstanceTerminated(params)
 }
 
-func (self *SInstance) UpdateVM(ctx context.Context, name string) error {
-	self.SetTags(map[string]string{"Name": name}, false)
-	return nil
+func (self *SInstance) UpdateVM(ctx context.Context, input cloudprovider.SInstanceUpdateOptions) error {
+	return self.host.zone.region.UpdateVM(self.InstanceId, input)
+}
+
+func (self *SRegion) UpdateVM(instanceId string, input cloudprovider.SInstanceUpdateOptions) error {
+	return self.setTags("instance", instanceId, map[string]string{"Name": input.NAME, "Description": input.Description}, false)
 }
 
 func (self *SInstance) RebuildRoot(ctx context.Context, desc *cloudprovider.SManagedVMRebuildRootConfig) (string, error) {
@@ -963,6 +966,7 @@ func (self *SRegion) DeleteVM(instanceId string) error {
 	return self.ec2Request("TerminateInstances", params, &ret)
 }
 
+<<<<<<< HEAD
 func (self *SRegion) DeployVM(instanceId string, name string, password string, keypairName string, deleteKeypair bool, description string) error {
 	params := &ec2.CreateTagsInput{}
 	params.SetResources([]*string{&instanceId})
@@ -1012,6 +1016,8 @@ func (self *SRegion) UpdateVM(instanceId string, hostname string) error {
 	return cloudprovider.ErrNotSupported
 }
 
+=======
+>>>>>>> feat(all): support ecs,rds description
 func (self *SRegion) ReplaceSystemDisk(ctx context.Context, instanceId string, image *SImage, sysDiskSizeGB int, keypair string, userdata string) (string, error) {
 	instance, err := self.GetInstance(instanceId)
 	if err != nil {
@@ -1262,4 +1268,23 @@ func (self *SInstance) SaveImage(opts *cloudprovider.SaveImageOptions) (cloudpro
 		return nil, errors.Wrapf(err, "SaveImage")
 	}
 	return image, nil
+}
+
+func (ins *SInstance) GetDescription() string {
+	for _, tag := range ins.TagSet {
+		if strings.ToLower(tag.Key) == "description" {
+			return tag.Value
+		}
+	}
+	for _, tag := range ins.TagList {
+		if strings.ToLower(tag.Key) == "description" {
+			return tag.Value
+		}
+	}
+	for _, tag := range ins.Tags {
+		if strings.ToLower(tag.Key) == "description" {
+			return tag.Value
+		}
+	}
+	return ""
 }

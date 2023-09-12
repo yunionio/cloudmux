@@ -217,13 +217,8 @@ func init() {
 		return nil
 	})
 
-	type InstanceUpdateNameOptions struct {
-		ID   string `help:"Instance ID"`
-		Name string
-	}
-	shellutils.R(&InstanceUpdateNameOptions{}, "instance-set-name", "set intance name", func(cli *huawei.SRegion, args *InstanceUpdateNameOptions) error {
-
-		err := cli.UpdateVM(args.ID, args.Name)
+	shellutils.R(&cloudprovider.SInstanceUpdateOptions{}, "instance-update", "update instance", func(cli *huawei.SRegion, args *cloudprovider.SInstanceUpdateOptions) error {
+		err := cli.UpdateVM(args.ID, *args)
 		if err != nil {
 			return err
 		}

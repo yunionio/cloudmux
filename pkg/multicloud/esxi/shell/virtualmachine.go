@@ -22,6 +22,7 @@ import (
 	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/util/shellutils"
 
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/esxi"
 )
 
@@ -196,6 +197,7 @@ func init() {
 	type VirtualMachineUpdateOptions struct {
 		VirtualMachineShowOptions
 		NAME string
+		Desc string
 	}
 
 	shellutils.R(&VirtualMachineUpdateOptions{}, "vm-update", "Update vm name", func(cli *esxi.SESXiClient, args *VirtualMachineUpdateOptions) error {
@@ -203,7 +205,7 @@ func init() {
 		if err != nil {
 			return err
 		}
-		err = vm.UpdateVM(context.Background(), args.NAME)
+		err = vm.UpdateVM(context.Background(), cloudprovider.SInstanceUpdateOptions{NAME: args.NAME, Description: args.Desc})
 		if err != nil {
 			return err
 		}

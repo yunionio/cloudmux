@@ -347,3 +347,9 @@ type ServerVncOutput struct {
 
 	Hypervisor string `json:"hypervisor"`
 }
+
+type SInstanceUpdateOptions struct {
+	ID          string
+	NAME        string
+	Description string
+}

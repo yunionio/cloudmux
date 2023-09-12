@@ -315,8 +315,12 @@ func (self *SVirtualMachine) rebuildDisk(ctx context.Context, disk *SVirtualDisk
 	}, false)
 }
 
-func (svm *SVirtualMachine) UpdateVM(ctx context.Context, name string) error {
-	return svm.DoRename(ctx, name)
+func (svm *SVirtualMachine) UpdateVM(ctx context.Context, input cloudprovider.SInstanceUpdateOptions) error {
+	err := svm.SetConfig(ctx, input)
+	if err != nil {
+		return errors.Wrap(err, "set description")
+	}
+	return nil
 }
 
 // TODO: detach disk to a separate directory, so as to keep disk independent of VM
@@ -828,6 +832,16 @@ func (self *SVirtualMachine) GetDescription() string {
 	moVM := self.getVirtualMachine()
 	return moVM.Config.Annotation
 }
+func (svm *SVirtualMachine) SetConfig(ctx context.Context, input cloudprovider.SInstanceUpdateOptions) error {
+	setDescTask, err := svm.getVmObj().Reconfigure(ctx, types.VirtualMachineConfigSpec{
+		Name:       input.NAME,
+		Annotation: input.Description,
+	})
+	if err != nil {
+		return errors.Wrap(err, "set task")
+	}
+	return setDescTask.Wait(ctx)
+}
 
 func (self *SVirtualMachine) GetExpiredAt() time.Time {
 	return time.Time{}
@@ -869,7 +883,8 @@ func (self *SVirtualMachine) fetchHardwareInfo() error {
 		cdromType := reflect.TypeOf((*types.VirtualCdrom)(nil)).Elem()
 
 		if reflectutils.StructContains(devType, etherType) {
-			self.vnics = append(self.vnics, NewVirtualNIC(self, dev, len(self.vnics)))
+			vnic := NewVirtualNIC(self, dev, len(self.vnics))
+			self.vnics = append(self.vnics, vnic)
 		} else if reflectutils.StructContains(devType, diskType) {
 			self.vdisks = append(self.vdisks, NewVirtualDisk(self, dev, len(self.vdisks)))
 		} else if reflectutils.StructContains(devType, vgaType) {

@@ -445,11 +445,11 @@ func (instance *SInstance) Refresh() error {
 	return jsonutils.Update(instance, _instance)
 }
 
-func (instance *SInstance) UpdateVM(ctx context.Context, name string) error {
-	if instance.Name != name {
+func (instance *SInstance) UpdateVM(ctx context.Context, input cloudprovider.SInstanceUpdateOptions) error {
+	if instance.Name != input.NAME {
 		params := map[string]map[string]string{
 			"server": {
-				"name": name,
+				"name": input.NAME,
 			},
 		}
 		resource := "/servers/" + instance.Id

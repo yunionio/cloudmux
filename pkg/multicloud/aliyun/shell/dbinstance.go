@@ -109,4 +109,12 @@ func init() {
 		return cli.RecoveryDBInstanceFromBackup(args.ID, args.TARGET, args.BACKUP, databases)
 	})
 
+	type DBInstanceSetNameOptions struct {
+		ID   string
+		NAME string
+	}
+
+	shellutils.R(&DBInstanceSetNameOptions{}, "dbinstance-set-name", "Set dbintance name ", func(cli *aliyun.SRegion, args *DBInstanceSetNameOptions) error {
+		return cli.ModifyDBInstanceName(args.ID, args.NAME)
+	})
 }
