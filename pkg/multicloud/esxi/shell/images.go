@@ -35,7 +35,7 @@ func init() {
 			if err != nil {
 				return err
 			}
-			fmt.Printf("storagecache: %s", caches[i].GetName())
+			fmt.Printf("storagecache: %s\n", caches[i].GetName())
 			printList(images, nil)
 		}
 		return nil
