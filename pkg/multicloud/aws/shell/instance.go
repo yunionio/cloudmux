@@ -97,6 +97,19 @@ func init() {
 		return nil
 	})
 
+	type InstanceUpdateNameOptions struct {
+		ID string `help:"Instance ID"`
+		cloudprovider.SInstanceUpdateOptions
+	}
+
+	shellutils.R(&InstanceUpdateNameOptions{}, "instance-update", "Set new name", func(cli *aws.SRegion, args *InstanceUpdateNameOptions) error {
+		err := cli.UpdateVM(args.ID, args.SInstanceUpdateOptions)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+
 	type InstanceStopOptions struct {
 		ID    string `help:"instance ID"`
 		Force bool   `help:"Force stop instance"`

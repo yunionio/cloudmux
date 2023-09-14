@@ -19,6 +19,7 @@ import (
 
 	"yunion.io/x/pkg/util/shellutils"
 
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/apsara"
 )
 
@@ -214,11 +215,11 @@ func init() {
 	})
 
 	type InstanceUpdateNameOptions struct {
-		ID   string `help:"Instance ID"`
-		NAME string `help:"new name"`
+		ID string `help:"Instance ID"`
+		cloudprovider.SInstanceUpdateOptions
 	}
 	shellutils.R(&InstanceUpdateNameOptions{}, "instance-update-name", "Update instance name", func(cli *apsara.SRegion, args *InstanceUpdateNameOptions) error {
-		return cli.UpdateVM(args.ID, args.NAME)
+		return cli.UpdateVM(args.ID, args.SInstanceUpdateOptions)
 	})
 
 }
