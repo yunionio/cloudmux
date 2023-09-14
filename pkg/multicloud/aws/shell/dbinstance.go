@@ -15,8 +15,10 @@
 package shell
 
 import (
+	"yunion.io/x/log"
 	"yunion.io/x/pkg/util/shellutils"
 
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/aws"
 )
 
@@ -54,6 +56,18 @@ func init() {
 		}
 		printObject(instance)
 		return nil
+	})
+
+	type SDBInstanceUpdateOptions struct {
+		ID string
+		cloudprovider.SDBInstanceUpdateOptions
+	}
+	shellutils.R(&SDBInstanceUpdateOptions{}, "dbinstance-update", "Show rds intance tags", func(cli *aws.SRegion, args *SDBInstanceUpdateOptions) error {
+		err := cli.Update(args.ID, args.SDBInstanceUpdateOptions)
+		if err != nil {
+			log.Errorln(err)
+		}
+		return err
 	})
 
 }
