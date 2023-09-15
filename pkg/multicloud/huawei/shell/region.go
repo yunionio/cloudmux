@@ -26,7 +26,10 @@ func init() {
 	type RegionListOptions struct {
 	}
 	shellutils.R(&RegionListOptions{}, "region-list", "List regions", func(cli *huawei.SRegion, args *RegionListOptions) error {
-		regions := cli.GetClient().GetRegions()
+		regions, err := cli.GetClient().GetRegions()
+		if err != nil {
+			return err
+		}
 		printList(regions, 0, 0, 0, nil)
 		return nil
 	})

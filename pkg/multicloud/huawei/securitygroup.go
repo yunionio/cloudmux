@@ -26,9 +26,12 @@ https://support.huaweicloud.com/usermanual-vpc/zh-cn_topic_0073379079.html
 */
 
 import (
+	"fmt"
 	"net"
+	"net/url"
 
 	"yunion.io/x/jsonutils"
+	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/util/secrules"
 	"yunion.io/x/pkg/utils"
 
@@ -150,9 +153,18 @@ func (self *SSecurityGroup) GetRules() ([]cloudprovider.SecurityRule, error) {
 	return rules, nil
 }
 
+func (self *SRegion) GetSecurityRule(id string) (*SecurityGroupRuleDetail, error) {
+	resource := fmt.Sprintf("vpc/security-group-rules/%s", id)
+	resp, err := self.list(SERVICE_VPC, resource, nil)
+	if err != nil {
+		return nil, err
+	}
+	ret := &SecurityGroupRuleDetail{}
+	return ret, resp.Unmarshal(ret, "security_group_rule")
+}
+
 func (self *SSecurityGroup) GetSecurityRule(ruleId string) (cloudprovider.SecurityRule, error) {
-	remoteRule := SecurityGroupRuleDetail{}
-	err := DoGet(self.region.ecsClient.SecurityGroupRules.Get, ruleId, nil, &remoteRule)
+	remoteRule, err := self.region.GetSecurityRule(ruleId)
 	if err != nil {
 		return cloudprovider.SecurityRule{}, err
 	}
@@ -208,40 +220,49 @@ func (self *SSecurityGroup) GetSecurityRule(ruleId string) (cloudprovider.Securi
 	return rule, err
 }
 
-func (self *SRegion) GetSecurityGroupDetails(secGroupId string) (*SSecurityGroup, error) {
-	securitygroup := SSecurityGroup{}
-	err := DoGet(self.ecsClient.SecurityGroups.Get, secGroupId, nil, &securitygroup)
+func (self *SRegion) GetSecurityGroupDetails(id string) (*SSecurityGroup, error) {
+	ret := &SSecurityGroup{region: self}
+	resp, err := self.list(SERVICE_VPC, "security-groups/"+id, nil)
 	if err != nil {
 		return nil, err
 	}
-
-	securitygroup.region = self
-	return &securitygroup, err
+	return ret, resp.Unmarshal(ret, "security_group")
 }
 
 // https://support.huaweicloud.com/api-vpc/zh-cn_topic_0020090617.html
 func (self *SRegion) GetSecurityGroups(vpcId string, name string) ([]SSecurityGroup, error) {
-	querys := map[string]string{}
+	query := url.Values{}
 	if len(vpcId) > 0 && !utils.IsInStringArray(vpcId, []string{"default", api.NORMAL_VPC_ID}) { // vpc_id = default or normal 时报错 '{"code":"VPC.0601","message":"Query security groups error vpcId is invalid."}'
-		querys["vpc_id"] = vpcId
+		query.Set("vpc_id", vpcId)
 	}
 
-	securitygroups := make([]SSecurityGroup, 0)
-	err := doListAllWithMarker(self.ecsClient.SecurityGroups.List, querys, &securitygroups)
-	if err != nil {
-		return nil, err
+	ret := []SSecurityGroup{}
+	for {
+		resp, err := self.list(SERVICE_VPC, "security-groups", query)
+		if err != nil {
+			return nil, err
+		}
+		part := struct {
+			SecurityGroups []SSecurityGroup
+		}{}
+		err = resp.Unmarshal(&part)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Unmarshal")
+		}
+		ret = append(ret, part.SecurityGroups...)
+		if len(part.SecurityGroups) == 0 {
+			break
+		}
+		query.Set("marker", part.SecurityGroups[len(part.SecurityGroups)-1].ID)
 	}
+	return ret, nil
 
 	// security 中的vpc字段只是一个标识，实际可以跨vpc使用
-	for i := range securitygroups {
-		securitygroup := &securitygroups[i]
-		securitygroup.region = self
-	}
-
 	result := []SSecurityGroup{}
-	for _, secgroup := range securitygroups {
-		if len(name) == 0 || secgroup.Name == name {
-			result = append(result, secgroup)
+	for i := range ret {
+		ret[i].region = self
+		if len(name) == 0 || ret[i].Name == name {
+			result = append(result, ret[i])
 		}
 	}
 

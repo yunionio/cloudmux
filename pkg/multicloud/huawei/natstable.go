@@ -15,8 +15,9 @@
 package huawei
 
 import (
+	"net/url"
+
 	"yunion.io/x/jsonutils"
-	"yunion.io/x/pkg/errors"
 
 	"yunion.io/x/cloudmux/pkg/multicloud"
 )
@@ -81,35 +82,33 @@ func (gateway *SNatGateway) getNatSTable() ([]SNatSEntry, error) {
 }
 
 func (region *SRegion) GetNatSTable(natGatewayID string) ([]SNatSEntry, error) {
-	queuies := map[string]string{
-		"nat_gateway_id": natGatewayID,
-	}
-	sNatSTableEntris := make([]SNatSEntry, 0, 2)
-	err := doListAllWithMarker(region.ecsClient.SNatRules.List, queuies, &sNatSTableEntris)
+	query := url.Values{}
+	query.Set("nat_gateway_id", natGatewayID)
+	ret := []SNatSEntry{}
+	resp, err := region.list(SERVICE_NAT, "snat_rules", query)
 	if err != nil {
-		return nil, errors.Wrapf(err, `get snat rule of gateway %q`, natGatewayID)
+		return nil, err
 	}
-	for i := range sNatSTableEntris {
-		nat := &sNatSTableEntris[i]
-		if len(nat.SourceCIDR) != 0 {
+	err = resp.Unmarshal(&ret, "snat_rules")
+	if err != nil {
+		return nil, err
+	}
+	for i := range ret {
+		if len(ret[i].SourceCIDR) != 0 {
 			continue
 		}
-		subnet := SNetwork{}
-		err := DoGet(region.ecsClient.Subnets.Get, nat.NetworkID, map[string]string{}, &subnet)
+		subnet, err := region.getNetwork(ret[i].NetworkID)
 		if err != nil {
-			return nil, errors.Wrapf(err, `get cidr of subnet %q`, nat.NetworkID)
+			return nil, err
 		}
-		nat.SourceCIDR = subnet.CIDR
+		ret[i].SourceCIDR = subnet.CIDR
 	}
-	return sNatSTableEntris, nil
+	return ret, nil
 }
 
 func (region *SRegion) DeleteNatSEntry(entryID string) error {
-	_, err := region.ecsClient.SNatRules.Delete(entryID, nil)
-	if err != nil {
-		return errors.Wrapf(err, `delete snat rule %q failed`, entryID)
-	}
-	return nil
+	_, err := region.delete(SERVICE_NAT, "snat_rules/"+entryID)
+	return err
 }
 
 func (nat *SNatSEntry) Refresh() error {

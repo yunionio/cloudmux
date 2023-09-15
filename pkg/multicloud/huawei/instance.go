@@ -36,7 +36,6 @@ import (
 	api "yunion.io/x/cloudmux/pkg/apis/compute"
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud"
-	"yunion.io/x/cloudmux/pkg/multicloud/huawei/client/modules"
 )
 
 const (
@@ -1389,23 +1388,25 @@ func (self *SRegion) RenewInstance(instanceId string, bc billing.SBillingCycle) 
 
 // https://support.huaweicloud.com/api-ecs/zh-cn_topic_0065817702.html
 func (self *SRegion) GetInstanceSecrityGroupIds(instanceId string) ([]string, error) {
-	if len(instanceId) == 0 {
-		return nil, fmt.Errorf("GetInstanceSecrityGroups instanceId is empty")
-	}
-
-	securitygroups := make([]SSecurityGroup, 0)
-	ctx := &modules.SManagerContext{InstanceManager: self.ecsClient.NovaServers, InstanceId: instanceId}
-	err := DoListInContext(self.ecsClient.NovaSecurityGroups.ListInContext, ctx, nil, &securitygroups)
+	resource := fmt.Sprintf("servers/%s/os-security-groups", instanceId)
+	resp, err := self.list(SERVICE_ECS, resource, nil)
 	if err != nil {
 		return nil, err
 	}
-
-	securitygroupIds := []string{}
-	for _, secgroup := range securitygroups {
-		securitygroupIds = append(securitygroupIds, secgroup.GetId())
+	ret := struct {
+		SecurityGroups []struct {
+			Id string
+		}
+	}{}
+	err = resp.Unmarshal(&ret)
+	if err != nil {
+		return nil, err
 	}
-
-	return securitygroupIds, nil
+	ids := []string{}
+	for _, group := range ret.SecurityGroups {
+		ids = append(ids, group.Id)
+	}
+	return ids, nil
 }
 
 // https://support.huaweicloud.com/api-oce/zh-cn_topic_0082522030.html
@@ -1504,7 +1505,7 @@ func updateWindowsUserData(userData string, osVersion string, username, password
 }
 
 func (self *SRegion) SaveImage(instanceId string, opts *cloudprovider.SaveImageOptions) (*SImage, error) {
-	params := map[string]string{
+	params := map[string]interface{}{
 		"name":        opts.Name,
 		"instance_id": instanceId,
 	}
@@ -1519,7 +1520,7 @@ func (self *SRegion) SaveImage(instanceId string, opts *cloudprovider.SaveImageO
 			return opts.Notes
 		}()
 	}
-	resp, err := self.ecsClient.Images.CreateInContextWithSpec(nil, "action", jsonutils.Marshal(params), "")
+	resp, err := self.post(SERVICE_IMS, "cloudimages/action", params)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Images.Create")
 	}
@@ -1527,11 +1528,11 @@ func (self *SRegion) SaveImage(instanceId string, opts *cloudprovider.SaveImageO
 	if err != nil {
 		return nil, errors.Wrapf(err, "resp.GetString(job_id)")
 	}
-	err = self.waitTaskStatus(self.ecsClient.Images.ServiceType(), jobId, TASK_SUCCESS, 15*time.Second, 10*time.Minute)
+	err = self.waitTaskStatus(SERVICE_IMS, jobId, TASK_SUCCESS, 15*time.Second, 10*time.Minute)
 	if err != nil {
 		return nil, errors.Wrapf(err, "waitTaskStatus")
 	}
-	imageId, err := self.GetTaskEntityID(self.ecsClient.Images.ServiceType(), jobId, "image_id")
+	imageId, err := self.GetTaskEntityID(SERVICE_IMS, jobId, "image_id")
 	if err != nil {
 		return nil, errors.Wrapf(err, "GetTaskEntityID")
 	}

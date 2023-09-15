@@ -27,14 +27,19 @@ type SDomain struct {
 }
 
 func (self *SHuaweiClient) GetDomains() ([]SDomain, error) {
-	huawei, _ := self.newGeneralAPIClient()
-	domains := make([]SDomain, 0)
-	err := doListAll(huawei.Domains.List, nil, &domains)
-	return domains, err
+	ret := []SDomain{}
+	resp, err := self.list(SERVICE_IAM, "", "auth/domains", nil)
+	if err != nil {
+		return nil, err
+	}
+	return ret, resp.Unmarshal(&ret, "domains")
 }
 
 func (self *SHuaweiClient) getEnabledDomains() ([]SDomain, error) {
 	domains, err := self.GetDomains()
+	if err != nil {
+		return nil, err
+	}
 
 	enabledDomains := make([]SDomain, 0)
 	for i := range domains {

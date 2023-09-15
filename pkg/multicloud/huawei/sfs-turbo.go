@@ -16,6 +16,7 @@ package huawei
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 
@@ -173,23 +174,42 @@ func (self *SRegion) GetICloudFileSystemById(id string) (cloudprovider.ICloudFil
 }
 
 func (self *SRegion) GetSfsTurbos() ([]SfsTurbo, error) {
-	queues := make(map[string]string)
-	sfs := make([]SfsTurbo, 0, 2)
-	err := doListAllWithOffset(self.ecsClient.SfsTurbos.List, queues, &sfs)
-	if err != nil {
-		return nil, errors.Wrapf(err, "doListAllWithOffset")
+	query := url.Values{}
+	ret := []SfsTurbo{}
+	for {
+		resp, err := self.list(SERVICE_SFS, "sfs-turbo/shares/detail", query)
+		if err != nil {
+			return nil, err
+		}
+		part := struct {
+			Count  int
+			Shares []SfsTurbo
+		}{}
+		err = resp.Unmarshal(&part)
+		if err != nil {
+			return nil, err
+		}
+		ret = append(ret, part.Shares...)
+		if len(ret) >= part.Count || len(part.Shares) == 0 {
+			break
+		}
+		query.Set("offset", fmt.Sprintf("%d", len(ret)))
 	}
-	return sfs, nil
+	return ret, nil
 }
 
 func (self *SRegion) GetSfsTurbo(id string) (*SfsTurbo, error) {
+	resp, err := self.list(SERVICE_SFS, "sfs-turbo/shares/"+id, nil)
+	if err != nil {
+		return nil, err
+	}
 	sf := &SfsTurbo{region: self}
-	err := DoGet(self.ecsClient.SfsTurbos.Get, id, nil, &sf)
-	return sf, errors.Wrapf(err, "self.ecsClient.SfsTurbos.Get")
+	return sf, resp.Unmarshal(sf)
 }
 
 func (self *SRegion) DeleteSfsTurbo(id string) error {
-	return DoDelete(self.ecsClient.SfsTurbos.Delete, id, nil, nil)
+	_, err := self.delete(SERVICE_SFS, "sfs-turbo/shares/"+id)
+	return err
 }
 
 func (self *SRegion) GetSysDefaultSecgroupId() (string, error) {
@@ -234,9 +254,9 @@ func (self *SRegion) CreateSfsTurbo(opts *cloudprovider.FileSystemCraeteOptions)
 			"metadata":          metadata,
 		},
 	}
-	resp, err := self.ecsClient.SfsTurbos.Create(jsonutils.Marshal(params))
+	resp, err := self.post(SERVICE_SFS, "sfs-turbo/shares", params)
 	if err != nil {
-		return nil, errors.Wrapf(err, "Create")
+		return nil, err
 	}
 	id, err := resp.GetString("id")
 	if err != nil {

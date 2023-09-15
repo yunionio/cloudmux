@@ -190,18 +190,15 @@ func (self *SHuaweiClient) GetGroupUsers(groupId string) ([]SClouduser, error) {
 }
 
 func (self *SHuaweiClient) GetGroupRoles(groupId string) ([]SRole, error) {
-	client, err := self.newGeneralAPIClient()
+	resource := fmt.Sprintf("domains/%s/groups/%s/roles", self.ownerId, groupId)
+	resp, err := self.list(SERVICE_IAM, "", resource, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "newGeneralAPIClient")
-	}
-	resp, err := client.Domains.ListRoles(self.ownerId, groupId)
-	if err != nil {
-		return nil, errors.Wrap(err, "ListRoles")
+		return nil, err
 	}
 	roles := []SRole{}
-	err = jsonutils.Update(&roles, resp.Data)
+	err = resp.Unmarshal(&roles, "roles")
 	if err != nil {
-		return nil, errors.Wrap(err, "jsonutils.Update")
+		return nil, err
 	}
 	return roles, nil
 }
@@ -321,21 +318,19 @@ func (self *SHuaweiClient) GetRole(name string) (*SRole, error) {
 }
 
 func (self *SHuaweiClient) DetachGroupRole(groupId, roleId string) error {
-	client, err := self.newGeneralAPIClient()
-	if err != nil {
-		return errors.Wrap(err, "newGeneralAPIClient")
-	}
 	role, err := self.GetRole(roleId)
 	if err != nil {
 		return errors.Wrapf(err, "GetRole(%s)", roleId)
 	}
 	if role.Type == "AX" || role.Type == "AA" {
-		err = client.Domains.AddRole(self.ownerId, groupId, role.Id)
+		resource := fmt.Sprintf("domains/%s/groups/%s/roles/%s", self.ownerId, groupId, role.Id)
+		_, err := self.put(SERVICE_IAM, "", resource, nil)
 		if err != nil {
 			return errors.Wrapf(err, "AddRole")
 		}
 		if strings.Contains(strings.ToLower(role.Policy.String()), "obs") {
-			err = client.Projects.AddProjectRole(self.GetMosProjectId(), groupId, role.Id)
+			resource := fmt.Sprintf("projects/%s/groups/%s/roles/%s", self.GetMosProjectId(), groupId, role.Id)
+			_, err := self.put(SERVICE_IAM, "", resource, nil)
 			if err != nil {
 				return errors.Wrapf(err, "AddProjectRole")
 			}
@@ -347,7 +342,8 @@ func (self *SHuaweiClient) DetachGroupRole(groupId, roleId string) error {
 			return errors.Wrapf(err, "GetProjects")
 		}
 		for _, project := range projects {
-			err = client.Projects.AddProjectRole(project.ID, groupId, role.Id)
+			resource := fmt.Sprintf("projects/%s/groups/%s/roles/%s", project.ID, groupId, role.Id)
+			_, err := self.put(SERVICE_IAM, "", resource, nil)
 			if err != nil {
 				return errors.Wrapf(err, "AddProjectRole")
 			}
@@ -357,21 +353,19 @@ func (self *SHuaweiClient) DetachGroupRole(groupId, roleId string) error {
 }
 
 func (self *SHuaweiClient) AttachGroupRole(groupId, roleId string) error {
-	client, err := self.newGeneralAPIClient()
-	if err != nil {
-		return errors.Wrap(err, "newGeneralAPIClient")
-	}
 	role, err := self.GetRole(roleId)
 	if err != nil {
 		return errors.Wrapf(err, "GetRole(%s)", roleId)
 	}
 	if role.Type == "AX" || role.Type == "AA" {
-		err = client.Domains.AddRole(self.ownerId, groupId, role.Id)
+		resource := fmt.Sprintf("domains/%s/groups/%s/roles/%s", self.ownerId, groupId, role.Id)
+		_, err := self.put(SERVICE_IAM, "", resource, nil)
 		if err != nil {
 			return errors.Wrapf(err, "AddRole")
 		}
 		if strings.Contains(strings.ToLower(role.Policy.String()), "obs") {
-			err = client.Projects.AddProjectRole(self.GetMosProjectId(), groupId, role.Id)
+			resource := fmt.Sprintf("projects/%s/groups/%s/roles/%s", self.GetMosProjectId(), groupId, role.Id)
+			_, err := self.put(SERVICE_IAM, "", resource, nil)
 			if err != nil {
 				return errors.Wrapf(err, "AddProjectRole")
 			}
@@ -383,7 +377,8 @@ func (self *SHuaweiClient) AttachGroupRole(groupId, roleId string) error {
 			return errors.Wrapf(err, "GetProjects")
 		}
 		for _, project := range projects {
-			err = client.Projects.AddProjectRole(project.ID, groupId, role.Id)
+			resource := fmt.Sprintf("projects/%s/groups/%s/roles/%s", project.ID, groupId, role.Id)
+			_, err := self.put(SERVICE_IAM, "", resource, nil)
 			if err != nil {
 				return errors.Wrapf(err, "AddProjectRole")
 			}
@@ -393,21 +388,19 @@ func (self *SHuaweiClient) AttachGroupRole(groupId, roleId string) error {
 }
 
 func (self *SHuaweiClient) AttachGroupCustomRole(groupId, roleId string) error {
-	client, err := self.newGeneralAPIClient()
-	if err != nil {
-		return errors.Wrap(err, "newGeneralAPIClient")
-	}
 	role, err := self.GetCustomRole(roleId)
 	if err != nil {
 		return errors.Wrapf(err, "GetRole(%s)", roleId)
 	}
 	if role.Type == "AX" || role.Type == "AA" {
-		err = client.Domains.AddRole(self.ownerId, groupId, role.Id)
+		resource := fmt.Sprintf("domains/%s/groups/%s/roles/%s", self.ownerId, groupId, role.Id)
+		_, err := self.put(SERVICE_IAM, "", resource, nil)
 		if err != nil {
 			return errors.Wrapf(err, "AddRole")
 		}
 		if strings.Contains(strings.ToLower(role.Policy.String()), "obs") {
-			err = client.Projects.AddProjectRole(self.GetMosProjectId(), groupId, role.Id)
+			resource := fmt.Sprintf("projects/%s/groups/%s/roles/%s", self.GetMosProjectId(), groupId, role.Id)
+			_, err := self.put(SERVICE_IAM, "", resource, nil)
 			if err != nil {
 				return errors.Wrapf(err, "AddProjectRole")
 			}
@@ -419,7 +412,8 @@ func (self *SHuaweiClient) AttachGroupCustomRole(groupId, roleId string) error {
 			return errors.Wrapf(err, "GetProjects")
 		}
 		for _, project := range projects {
-			err = client.Projects.AddProjectRole(project.ID, groupId, role.Id)
+			resource := fmt.Sprintf("projects/%s/groups/%s/roles/%s", project.ID, groupId, role.Id)
+			_, err := self.put(SERVICE_IAM, "", resource, nil)
 			if err != nil {
 				return errors.Wrapf(err, "AddProjectRole")
 			}
@@ -429,21 +423,19 @@ func (self *SHuaweiClient) AttachGroupCustomRole(groupId, roleId string) error {
 }
 
 func (self *SHuaweiClient) DetachGroupCustomRole(groupId, roleId string) error {
-	client, err := self.newGeneralAPIClient()
-	if err != nil {
-		return errors.Wrap(err, "newGeneralAPIClient")
-	}
 	role, err := self.GetCustomRole(roleId)
 	if err != nil {
 		return errors.Wrapf(err, "GetCustomRole(%s)", roleId)
 	}
 	if role.Type == "AX" || role.Type == "AA" {
-		err = client.Domains.DeleteRole(self.ownerId, groupId, role.Id)
+		resource := fmt.Sprintf("domains/%s/groups/%s/roles/%s", self.ownerId, groupId, role.Id)
+		_, err := self.delete(SERVICE_IAM, "", resource)
 		if err != nil {
 			return errors.Wrapf(err, "DeleteRole")
 		}
 		if strings.Contains(strings.ToLower(role.Policy.String()), "obs") {
-			err = client.Projects.DeleteProjectRole(self.GetMosProjectId(), groupId, role.Id)
+			resource := fmt.Sprintf("projects/%s/groups/%s/roles/%s", self.GetMosProjectId(), groupId, role.Id)
+			_, err := self.delete(SERVICE_IAM, "", resource)
 			if err != nil {
 				return errors.Wrapf(err, "DeleteProjectRole")
 			}
@@ -455,7 +447,8 @@ func (self *SHuaweiClient) DetachGroupCustomRole(groupId, roleId string) error {
 			return errors.Wrapf(err, "GetProjects")
 		}
 		for _, project := range projects {
-			err = client.Projects.DeleteProjectRole(project.ID, groupId, role.Id)
+			resource := fmt.Sprintf("projects/%s/groups/%s/roles/%s", project.ID, groupId, role.Id)
+			_, err := self.delete(SERVICE_IAM, "", resource)
 			if err != nil {
 				return errors.Wrapf(err, "DeleteProjectRole")
 			}

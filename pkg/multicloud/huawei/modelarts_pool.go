@@ -113,7 +113,7 @@ type SModelartsNetworkStatus struct {
 
 func (self *SRegion) GetIModelartsPools() ([]cloudprovider.ICloudModelartsPool, error) {
 	pools := make([]SModelartsPool, 0)
-	resObj, err := self.client.modelartsPoolList("pools", nil)
+	resObj, err := self.client.modelartsPoolList("pools")
 	if err != nil {
 		return nil, errors.Wrap(err, "region.GetPools")
 	}
@@ -134,7 +134,7 @@ func (self *SRegion) CreateIModelartsPool(args *cloudprovider.ModelartsPoolCreat
 	if len(args.Cidr) == 0 {
 		args.Cidr = "192.168.20.0/24"
 	}
-	netObj, err := self.client.modelartsPoolNetworkList("network", nil)
+	netObj, err := self.client.modelartsPoolNetworkList("network")
 	if err != nil {
 		return nil, errors.Wrap(err, "SHuaweiClient.GetPools")
 	}
@@ -221,7 +221,7 @@ func (region *SRegion) waitCreate(pool *SModelartsPool) (cloudprovider.ICloudMod
 }
 
 func (self *SRegion) DeletePool(poolName string) (jsonutils.JSONObject, error) {
-	return self.client.modelartsPoolDelete("pools", poolName, nil)
+	return self.client.modelartsPoolDelete(poolName)
 }
 
 func (self *SRegion) GetIModelartsPoolById(poolId string) (cloudprovider.ICloudModelartsPool, error) {
@@ -243,7 +243,7 @@ func (self *SRegion) GetIModelartsPoolById(poolId string) (cloudprovider.ICloudM
 }
 
 func (self *SRegion) MonitorPool(poolId string) (*SModelartsMetrics, error) {
-	resObj, err := self.client.modelartsPoolMonitor(poolId, nil)
+	resObj, err := self.client.modelartsPoolMonitor(poolId)
 	if err != nil {
 		return nil, errors.Wrapf(err, "send request error")
 	}
@@ -287,7 +287,7 @@ type ModelartsStatistics struct {
 }
 
 func (self *SHuaweiClient) GetPoolNetworks(poolName string) (jsonutils.JSONObject, error) {
-	return self.modelartsPoolNetworkList(poolName, nil)
+	return self.modelartsPoolNetworkList(poolName)
 }
 
 func (self *SHuaweiClient) CreatePoolNetworks(cidr string) (jsonutils.JSONObject, error) {
@@ -413,7 +413,7 @@ func (self *SModelartsPool) RefreshForCreate() error {
 	}
 
 	pools := make([]SModelartsPool, 0)
-	resObj, err := self.region.client.modelartsPoolListWithStatus("pools", "failed", nil)
+	resObj, err := self.region.client.modelartsPoolListWithStatus("pools", "failed")
 	if err != nil {
 		return errors.Wrap(err, "modelartsPoolListWithStatus")
 	}

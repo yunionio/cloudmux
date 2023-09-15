@@ -15,7 +15,7 @@
 package huawei
 
 import (
-	"strings"
+	"net/url"
 
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/pkg/errors"
@@ -24,6 +24,10 @@ import (
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud"
 )
+
+type PageInfo struct {
+	NextMarker string
+}
 
 // https://support.huaweicloud.com/api-vpc/zh-cn_topic_0020090625.html
 type SVpc struct {
@@ -119,15 +123,11 @@ func (self *SVpc) GetStatus() string {
 }
 
 func (self *SVpc) Refresh() error {
-	new, err := self.region.getVpc(self.GetId())
+	vpc, err := self.region.GetVpc(self.GetId())
 	if err != nil {
 		return err
 	}
-	return jsonutils.Update(self, new)
-}
-
-func (self *SVpc) IsEmulated() bool {
-	return false
+	return jsonutils.Update(self, vpc)
 }
 
 func (self *SVpc) GetRegion() cloudprovider.ICloudRegion {
@@ -257,6 +257,7 @@ func (self *SVpc) CreateICloudVpcPeeringConnection(opts *cloudprovider.VpcPeerin
 	svpcPC.vpc = self
 	return svpcPC, nil
 }
+
 func (self *SVpc) AcceptICloudVpcPeeringConnection(id string) error {
 	vpcPC, err := self.getVpcPeeringConnectionById(id)
 	if err != nil {
@@ -318,14 +319,17 @@ func (self *SVpc) getVpcPeeringConnectionById(id string) (*SVpcPeering, error) {
 	return svpcPC, nil
 }
 
-func (self *SRegion) getVpc(vpcId string) (*SVpc, error) {
-	vpc := SVpc{}
-	err := DoGet(self.ecsClient.Vpcs.Get, vpcId, nil, &vpc)
-	if err != nil && strings.Contains(err.Error(), "RouterNotFound") {
-		return nil, cloudprovider.ErrNotFound
+func (self *SRegion) GetVpc(vpcId string) (*SVpc, error) {
+	vpc := &SVpc{region: self}
+	resp, err := self.list(SERVICE_VPC, "vpc/vpcs/"+vpcId, nil)
+	if err != nil {
+		return nil, err
 	}
-	vpc.region = self
-	return &vpc, err
+	err = resp.Unmarshal(vpc, "vpc")
+	if err != nil {
+		return nil, errors.Wrapf(err, "Unmarshal")
+	}
+	return vpc, nil
 }
 
 func (self *SRegion) DeleteVpc(vpcId string) error {
@@ -341,21 +345,33 @@ func (self *SRegion) DeleteVpc(vpcId string) error {
 			}
 		}
 	}
-	return DoDelete(self.ecsClient.Vpcs.Delete, vpcId, nil, nil)
+	_, err := self.delete(SERVICE_VPC, "vpcs/"+vpcId)
+	return err
 }
 
-// https://support.huaweicloud.com/api-vpc/zh-cn_topic_0020090625.html
 func (self *SRegion) GetVpcs() ([]SVpc, error) {
-	querys := make(map[string]string)
-
-	vpcs := make([]SVpc, 0)
-	err := doListAllWithMarker(self.ecsClient.Vpcs.List, querys, &vpcs)
-	if err != nil {
-		return nil, err
+	query := url.Values{}
+	ret := []SVpc{}
+	for {
+		resp, err := self.list(SERVICE_VPC, "vpc/vpcs", query)
+		if err != nil {
+			return nil, err
+		}
+		part := struct {
+			Vpcs     []SVpc
+			PageInfo struct {
+				NextMarker string
+			}
+		}{}
+		err = resp.Unmarshal(&part)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Unmarshal")
+		}
+		ret = append(ret, part.Vpcs...)
+		if len(part.PageInfo.NextMarker) == 0 || len(part.Vpcs) == 0 {
+			break
+		}
+		query.Set("marker", part.PageInfo.NextMarker)
 	}
-
-	for i := range vpcs {
-		vpcs[i].region = self
-	}
-	return vpcs, err
+	return ret, nil
 }

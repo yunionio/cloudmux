@@ -16,11 +16,11 @@ package huawei
 
 import (
 	"fmt"
+	"net/url"
 	"strconv"
 	"time"
 
 	"yunion.io/x/jsonutils"
-	"yunion.io/x/pkg/errors"
 
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
 )
@@ -97,7 +97,7 @@ func (event *SEvent) GetCreatedAt() time.Time {
 }
 
 func (self *SRegion) GetICloudEvents(start time.Time, end time.Time, withReadEvent bool) ([]cloudprovider.ICloudEvent, error) {
-	if !self.client.isMainProject {
+	if !self.client.isMainProject() {
 		return nil, cloudprovider.ErrNotSupported
 	}
 	events, err := self.GetEvents(start, end)
@@ -112,20 +112,38 @@ func (self *SRegion) GetICloudEvents(start time.Time, end time.Time, withReadEve
 }
 
 func (self *SRegion) GetEvents(start time.Time, end time.Time) ([]SEvent, error) {
-	events := []SEvent{}
-	params := map[string]string{}
+	params := url.Values{}
 	if start.IsZero() {
 		start = time.Now().AddDate(0, 0, -7)
 	}
 	if end.IsZero() {
 		end = time.Now()
 	}
-	params["from"] = fmt.Sprintf("%d000", start.Unix())
-	params["to"] = fmt.Sprintf("%d000", end.Unix())
+	params.Set("limit", "200")
+	params.Set("from", fmt.Sprintf("%d000", start.Unix()))
+	params.Set("to", fmt.Sprintf("%d000", end.Unix()))
 
-	err := doListAllWithMarker(self.ecsClient.Traces.List, params, &events)
-	if err != nil {
-		return nil, errors.Wrap(err, "doListAllWithMarker")
+	ret := []SEvent{}
+	for {
+		resp, err := self.list(SERVICE_CTS, "traces", params)
+		if err != nil {
+			return nil, err
+		}
+		part := struct {
+			Traces   []SEvent
+			MetaData struct {
+				Marker string
+			}
+		}{}
+		err = resp.Unmarshal(&part)
+		if err != nil {
+			return nil, err
+		}
+		ret = append(ret, part.Traces...)
+		if len(part.Traces) == 0 || len(part.MetaData.Marker) == 0 {
+			break
+		}
+		params.Set("next", part.MetaData.Marker)
 	}
-	return events, nil
+	return ret, nil
 }

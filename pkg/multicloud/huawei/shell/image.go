@@ -29,9 +29,10 @@ func init() {
 		// Marker string   `help:"marker"`
 		// Limit  int      `help:"page Limit"`
 		Env string `help:"virtualization env, e.g. FusionCompute, Ironic" choices:"FusionCompute|Ironic"`
+		Id  string
 	}
 	shellutils.R(&ImageListOptions{}, "image-list", "List images", func(cli *huawei.SRegion, args *ImageListOptions) error {
-		images, e := cli.GetImages(args.Status, huawei.TImageOwnerType(args.Owner), args.Name, args.Env)
+		images, e := cli.GetImages(args.Id, args.Status, huawei.TImageOwnerType(args.Owner), args.Name, args.Env)
 		if e != nil {
 			return e
 		}

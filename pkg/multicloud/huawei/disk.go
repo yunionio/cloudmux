@@ -16,6 +16,8 @@ package huawei
 
 import (
 	"context"
+	"fmt"
+	"net/url"
 	"strings"
 	"time"
 
@@ -28,20 +30,6 @@ import (
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud"
 )
-
-/*
-华为云云硬盘
-======创建==========
-1.磁盘只能挂载到同一可用区的云服务器内，创建后不支持更换可用区
-2.计费模式 包年包月/按需计费
-3.*支持自动备份
-
-
-共享盘 和 普通盘：https://support.huaweicloud.com/productdesc-evs/zh-cn_topic_0032860759.html
-根据是否支持挂载至多台云服务器可以将云硬盘分为非共享云硬盘和共享云硬盘。
-一个非共享云硬盘只能挂载至一台云服务器，而一个共享云硬盘可以同时挂载至多台云服务器。
-单个共享云硬盘最多可同时挂载给16个云服务器。目前，共享云硬盘只适用于数据盘，不支持系统盘。
-*/
 
 type Attachment struct {
 	ServerID     string `json:"server_id"`
@@ -340,28 +328,19 @@ func (self *SDisk) Delete(ctx context.Context) error {
 }
 
 func (self *SDisk) CreateISnapshot(ctx context.Context, name string, desc string) (cloudprovider.ICloudSnapshot, error) {
-	if snapshotId, err := self.storage.zone.region.CreateSnapshot(self.GetId(), name, desc); err != nil {
-		log.Errorf("createSnapshot fail %s", err)
+	snapshot, err := self.storage.zone.region.CreateSnapshot(self.GetId(), name, desc)
+	if err != nil {
 		return nil, err
-	} else if snapshot, err := self.getSnapshot(snapshotId); err != nil {
-		return nil, err
-	} else {
-		snapshot.region = self.storage.zone.region
-		if err := cloudprovider.WaitStatus(snapshot, api.SNAPSHOT_READY, 15*time.Second, 3600*time.Second); err != nil {
-			return nil, err
-		}
-		return snapshot, nil
 	}
+	return snapshot, nil
 }
 
-func (self *SDisk) getSnapshot(snapshotId string) (*SSnapshot, error) {
-	snapshot, err := self.storage.zone.region.GetSnapshotById(snapshotId)
-	return &snapshot, err
-}
-
-func (self *SDisk) GetISnapshot(snapshotId string) (cloudprovider.ICloudSnapshot, error) {
-	snapshot, err := self.getSnapshot(snapshotId)
-	return snapshot, err
+func (self *SDisk) GetISnapshot(id string) (cloudprovider.ICloudSnapshot, error) {
+	snapshot, err := self.storage.zone.region.GetSnapshot(id)
+	if err != nil {
+		return nil, err
+	}
+	return snapshot, nil
 }
 
 func (self *SDisk) GetISnapshots() ([]cloudprovider.ICloudSnapshot, error) {
@@ -460,68 +439,98 @@ func (self *SDisk) Rebuild(ctx context.Context) error {
 	return cloudprovider.ErrNotSupported
 }
 
-func (self *SRegion) GetDisk(diskId string) (*SDisk, error) {
-	if len(diskId) == 0 {
-		return nil, cloudprovider.ErrNotFound
+func (self *SRegion) GetDisk(id string) (*SDisk, error) {
+	resp, err := self.list(SERVICE_EVS, "cloudvolumes/"+id, nil)
+	if err != nil {
+		return nil, err
 	}
-	var disk SDisk
-	err := DoGet(self.ecsClient.Disks.Get, diskId, nil, &disk)
-	return &disk, err
+	ret := &SDisk{}
+	return ret, resp.Unmarshal(ret, "volume")
 }
 
 // https://support.huaweicloud.com/api-evs/zh-cn_topic_0058762430.html
 func (self *SRegion) GetDisks(zoneId string) ([]SDisk, error) {
-	queries := map[string]string{}
+	params := url.Values{}
 	if len(zoneId) > 0 {
-		queries["availability_zone"] = zoneId
+		params.Set("availability_zone", zoneId)
 	}
-
-	disks := make([]SDisk, 0)
-	err := doListAllWithOffset(self.ecsClient.Disks.List, queries, &disks)
-	return disks, err
+	ret := []SDisk{}
+	for {
+		resp, err := self.list(SERVICE_EVS, "cloudvolumes/detail", params)
+		if err != nil {
+			return nil, err
+		}
+		part := struct {
+			Volumes []SDisk
+			Count   int
+		}{}
+		err = resp.Unmarshal(&part)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Unmarshal")
+		}
+		ret = append(ret, part.Volumes...)
+		if len(ret) >= part.Count || len(part.Volumes) == 0 {
+			break
+		}
+		params.Set("marker", part.Volumes[len(part.Volumes)-1].ID)
+	}
+	return ret, nil
 }
 
 // https://support.huaweicloud.com/api-evs/zh-cn_topic_0058762427.html
 func (self *SRegion) CreateDisk(zoneId string, category string, name string, sizeGb int, snapshotId string, desc string, projectId string) (string, error) {
-	params := jsonutils.NewDict()
-	volumeObj := jsonutils.NewDict()
-	volumeObj.Add(jsonutils.NewString(name), "name")
-	volumeObj.Add(jsonutils.NewString(zoneId), "availability_zone")
-	volumeObj.Add(jsonutils.NewString(desc), "description")
-	volumeObj.Add(jsonutils.NewString(category), "volume_type")
-	volumeObj.Add(jsonutils.NewInt(int64(sizeGb)), "size")
+	params := map[string]interface{}{}
+	obj := map[string]interface{}{
+		"name":              name,
+		"availability_zone": zoneId,
+		"description":       desc,
+		"volume_type":       category,
+		"size":              sizeGb,
+	}
 	if len(snapshotId) > 0 {
-		volumeObj.Add(jsonutils.NewString(snapshotId), "snapshot_id")
+		obj["snapshot_id"] = snapshotId
 	}
 	if len(projectId) > 0 {
-		volumeObj.Add(jsonutils.NewString(projectId), "enterprise_project_id")
+		obj["enterprise_project_id"] = projectId
 	}
-
-	params.Add(volumeObj, "volume")
+	params["volume"] = obj
 	// 目前只支持创建按需资源，返回job id。 如果创建包年包月资源则返回order id
-	_id, err := self.ecsClient.Disks.AsyncCreate(params)
+	resp, err := self.post(SERVICE_EVS, "cloudvolumes", params)
 	if err != nil {
-		log.Debugf("AsyncCreate with params: %s", params)
-		return "", errors.Wrap(err, "AsyncCreate")
+		return "", errors.Wrapf(err, "create volume")
+	}
+	ret := struct {
+		JobId     string
+		OrderId   string
+		VolumeIds []string
+	}{}
+	err = resp.Unmarshal(&ret)
+	if err != nil {
+		return "", errors.Wrapf(err, "Unmarshal")
+	}
+	id := ret.JobId
+	if len(ret.OrderId) > 0 {
+		id = ret.OrderId
 	}
 
 	// 按需计费
-	volumeId, err := self.GetTaskEntityID(self.ecsClient.Disks.ServiceType(), _id, "volume_id")
+	volumeId, err := self.GetTaskEntityID(SERVICE_EVS, id, "volume_id")
 	if err != nil {
 		return "", errors.Wrap(err, "GetAllSubTaskEntityIDs")
 	}
 
 	if len(volumeId) == 0 {
-		return "", errors.Errorf("CreateInstance job %s result is emtpy", _id)
-	} else {
-		return volumeId, nil
+		return "", errors.Errorf("CreateInstance job %s result is emtpy", id)
 	}
+	return volumeId, nil
 }
 
 // https://support.huaweicloud.com/api-evs/zh-cn_topic_0058762428.html
 // 默认删除云硬盘关联的所有快照
 func (self *SRegion) DeleteDisk(diskId string) error {
-	return DoDeleteWithSpec(self.ecsClient.Disks.DeleteInContextWithSpec, nil, diskId, "", nil, nil)
+	resource := fmt.Sprintf("cloudvolumes/%s", diskId)
+	_, err := self.delete(SERVICE_EVS, resource)
+	return err
 }
 
 /*
@@ -531,11 +540,12 @@ func (self *SRegion) DeleteDisk(diskId string) error {
 云硬盘所挂载的云服务器状态必须为ACTIVE、PAUSED、SUSPENDED、SHUTOFF才支持扩容
 */
 func (self *SRegion) resizeDisk(diskId string, sizeGB int64) error {
-	params := jsonutils.NewDict()
-	osExtendObj := jsonutils.NewDict()
-	osExtendObj.Add(jsonutils.NewInt(sizeGB), "new_size") // GB
-	params.Add(osExtendObj, "os-extend")
-	_, err := self.ecsClient.Disks.PerformAction2("action", diskId, params, "")
+	params := map[string]interface{}{
+		"os-extend": map[string]interface{}{
+			"new_size": sizeGB,
+		},
+	}
+	_, err := self.post(SERVICE_EVS, fmt.Sprintf("cloudvolumes/%s/action", diskId), params)
 	return err
 }
 
@@ -545,12 +555,17 @@ https://support.huaweicloud.com/api-evs/zh-cn_topic_0051408629.html
 只有云硬盘状态处于“available”或“error_rollbacking”状态才允许快照回滚到源云硬盘。
 */
 func (self *SRegion) resetDisk(diskId, snapshotId string) (string, error) {
-	params := jsonutils.NewDict()
-	rollbackObj := jsonutils.NewDict()
-	rollbackObj.Add(jsonutils.NewString(diskId), "volume_id")
-	params.Add(rollbackObj, "rollback")
-	_, err := self.ecsClient.OsSnapshots.PerformAction2("rollback", snapshotId, params, "")
-	return diskId, err
+	params := map[string]interface{}{
+		"rollback": map[string]interface{}{
+			"volume_id": diskId,
+		},
+	}
+	resource := fmt.Sprintf("cloudsnapshots/%s/rollback", snapshotId)
+	resp, err := self.post(SERVICE_EVS, resource, params)
+	if err != nil {
+		return "", err
+	}
+	return resp.GetString("rollback", "volume_id")
 }
 
 func (self *SDisk) GetProjectId() string {

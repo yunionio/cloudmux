@@ -15,8 +15,10 @@
 package huawei
 
 import (
+	"net/url"
 	"strings"
 
+	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/utils"
 
 	api "yunion.io/x/cloudmux/pkg/apis/compute"
@@ -142,20 +144,39 @@ func (region *SRegion) GetINetworkInterfaces() ([]cloudprovider.ICloudNetworkInt
 	return ret, nil
 }
 
-func (self *SRegion) GetPort(portId string) (Port, error) {
-	port := Port{}
-	err := DoGet(self.ecsClient.Port.Get, portId, nil, &port)
-	return port, err
+func (self *SRegion) GetPort(portId string) (*Port, error) {
+	resp, err := self.list(SERVICE_VPC, "ports/"+portId, nil)
+	if err != nil {
+		return nil, err
+	}
+	port := &Port{}
+	return port, resp.Unmarshal(port, "port")
 }
 
 // https://support.huaweicloud.com/api-vpc/zh-cn_topic_0133195888.html
 func (self *SRegion) GetPorts(instanceId string) ([]Port, error) {
-	ports := make([]Port, 0)
-	querys := map[string]string{}
+	query := url.Values{}
 	if len(instanceId) > 0 {
-		querys["device_id"] = instanceId
+		query.Set("device_id", instanceId)
 	}
-
-	err := doListAllWithMarker(self.ecsClient.Port.List, querys, &ports)
-	return ports, err
+	ports := make([]Port, 0)
+	for {
+		resp, err := self.list(SERVICE_VPC, "ports", query)
+		if err != nil {
+			return nil, err
+		}
+		part := struct {
+			Ports []Port
+		}{}
+		err = resp.Unmarshal(&part)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Unmarshal")
+		}
+		ports = append(ports, part.Ports...)
+		if len(part.Ports) == 0 {
+			break
+		}
+		query.Set("marker", part.Ports[len(part.Ports)-1].ID)
+	}
+	return ports, nil
 }

@@ -22,9 +22,10 @@ import (
 
 func init() {
 	type ElasticcacheListOptions struct {
+		Id string
 	}
 	shellutils.R(&ElasticcacheListOptions{}, "dcs-list", "List elasticcaches", func(cli *huawei.SRegion, args *ElasticcacheListOptions) error {
-		instances, e := cli.GetElasticCaches()
+		instances, e := cli.GetElasticCaches(args.Id)
 		if e != nil {
 			return e
 		}

@@ -61,9 +61,8 @@ type SModelartsResourceflavorsStatus struct {
 }
 
 func (self *SRegion) GetIModelartsPoolSku() ([]cloudprovider.ICloudModelartsPoolSku, error) {
-	params := make(map[string]interface{})
 	resourceflavors := make([]SModelartsPoolSku, 0)
-	obj, err := self.client.modelartsResourceflavors("resourceflavors", params)
+	obj, err := self.client.modelartsResourceflavors("resourceflavors")
 	if err != nil {
 		return nil, errors.Wrap(err, "region.modelartsResourceflavors")
 	}

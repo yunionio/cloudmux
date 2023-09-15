@@ -15,15 +15,18 @@
 package huawei
 
 import (
+	"fmt"
+	"net/url"
+
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/log"
+	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/util/netutils"
 	"yunion.io/x/pkg/util/rbacscope"
 
 	api "yunion.io/x/cloudmux/pkg/apis/compute"
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud"
-	"yunion.io/x/cloudmux/pkg/multicloud/huawei/client/modules"
 )
 
 /*
@@ -147,26 +150,50 @@ func (self *SNetwork) GetAllocTimeoutSeconds() int {
 }
 
 func (self *SRegion) getNetwork(networkId string) (*SNetwork, error) {
-	network := SNetwork{}
-	err := DoGet(self.ecsClient.Subnets.Get, networkId, nil, &network)
-	return &network, err
+	resp, err := self.list(SERVICE_VPC, "subnets/"+networkId, nil)
+	if err != nil {
+		return nil, err
+	}
+	ret := &SNetwork{}
+	err = resp.Unmarshal(ret, "subnet")
+	if err != nil {
+		return nil, err
+	}
+	return ret, nil
 }
 
 // https://support.huaweicloud.com/api-vpc/zh-cn_topic_0020090592.html
 func (self *SRegion) GetNetwroks(vpcId string) ([]SNetwork, error) {
-	querys := map[string]string{}
+	query := url.Values{}
 	if len(vpcId) > 0 {
-		querys["vpc_id"] = vpcId
+		query.Set("vpc_id", vpcId)
 	}
-
-	networks := make([]SNetwork, 0)
-	err := doListAllWithMarker(self.ecsClient.Subnets.List, querys, &networks)
-	return networks, err
+	ret := []SNetwork{}
+	for {
+		resp, err := self.list(SERVICE_VPC, "subnets", query)
+		if err != nil {
+			return nil, err
+		}
+		part := struct {
+			Subnets []SNetwork
+		}{}
+		err = resp.Unmarshal(&part)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Unmarshal")
+		}
+		ret = append(ret, part.Subnets...)
+		if len(part.Subnets) == 0 {
+			break
+		}
+		query.Set("marker", part.Subnets[len(part.Subnets)-1].ID)
+	}
+	return ret, nil
 }
 
 func (self *SRegion) deleteNetwork(vpcId string, networkId string) error {
-	ctx := &modules.SManagerContext{InstanceId: vpcId, InstanceManager: self.ecsClient.Vpcs}
-	return DoDeleteWithSpec(self.ecsClient.Subnets.DeleteInContextWithSpec, ctx, networkId, "", nil, nil)
+	resource := fmt.Sprintf("vpcs/%s/subnets/%s", vpcId, networkId)
+	_, err := self.delete(SERVICE_VPC, resource)
+	return err
 }
 
 func (self *SNetwork) GetProjectId() string {

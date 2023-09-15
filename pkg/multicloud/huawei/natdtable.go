@@ -15,6 +15,8 @@
 package huawei
 
 import (
+	"net/url"
+
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/pkg/errors"
 
@@ -79,7 +81,6 @@ func (nat *SNatDEntry) Delete() error {
 	return nat.gateway.region.DeleteNatDEntry(nat.GetId())
 }
 
-// getNatSTable return all snat rules of gateway
 func (gateway *SNatGateway) getNatDTable() ([]SNatDEntry, error) {
 	ret, err := gateway.region.GetNatDTable(gateway.GetId())
 	if err != nil {
@@ -92,34 +93,32 @@ func (gateway *SNatGateway) getNatDTable() ([]SNatDEntry, error) {
 }
 
 func (region *SRegion) GetNatDTable(natGatewayID string) ([]SNatDEntry, error) {
-	queuies := map[string]string{
-		"nat_gateway_id": natGatewayID,
-	}
-	dNatSTableEntries := make([]SNatDEntry, 0, 2)
-	// can't make true that restapi support marker para in Huawei Cloud
-	err := doListAllWithMarker(region.ecsClient.DNatRules.List, queuies, &dNatSTableEntries)
+	query := url.Values{}
+	query.Set("nat_gateway_id", natGatewayID)
+	ret := []SNatDEntry{}
+	resp, err := region.list(SERVICE_NAT, "dnat_rules", query)
 	if err != nil {
-		return nil, errors.Wrapf(err, `get dnat rule of gateway %q`, natGatewayID)
+		return nil, err
 	}
-	for i := range dNatSTableEntries {
-		nat := &dNatSTableEntries[i]
-		if len(nat.InternalIP) == 0 {
-			port, err := region.GetPort(nat.PortID)
+	err = resp.Unmarshal(&ret, "dnat_rules")
+	if err != nil {
+		return nil, err
+	}
+	for i := range ret {
+		if len(ret[i].InternalIP) == 0 {
+			port, err := region.GetPort(ret[i].PortID)
 			if err != nil {
-				return nil, errors.Wrapf(err, `get port info for transfer to ip of port_id %q error`, nat.PortID)
+				return nil, errors.Wrapf(err, `get port info for transfer to ip of port_id %q error`, ret[i].PortID)
 			}
-			nat.InternalIP = port.FixedIps[0].IpAddress
+			ret[i].InternalIP = port.FixedIps[0].IpAddress
 		}
 	}
-	return dNatSTableEntries, nil
+	return ret, nil
 }
 
 func (region *SRegion) DeleteNatDEntry(entryID string) error {
-	_, err := region.ecsClient.DNatRules.Delete(entryID, nil)
-	if err != nil {
-		return errors.Wrapf(err, `delete dnat rule %q failed`, entryID)
-	}
-	return nil
+	_, err := region.delete(SERVICE_NAT, "dnat_rules/"+entryID)
+	return err
 }
 
 func (nat *SNatDEntry) Refresh() error {

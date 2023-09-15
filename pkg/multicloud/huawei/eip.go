@@ -160,7 +160,7 @@ func (self *SEipAddress) GetPort() *Port {
 	if err != nil {
 		return nil
 	} else {
-		self.port = &port
+		self.port = port
 	}
 
 	return self.port
@@ -240,20 +240,20 @@ func (self *SEipAddress) Delete() error {
 }
 
 func (self *SEipAddress) Associate(conf *cloudprovider.AssociateConfig) error {
-	portId, err := self.region.GetInstancePortId(conf.InstanceId)
+	port, err := self.region.GetInstancePort(conf.InstanceId)
 	if err != nil {
 		return err
 	}
 
 	if len(self.PortId) > 0 {
-		if self.PortId == portId {
+		if self.PortId == port.ID {
 			return nil
 		}
 
 		return fmt.Errorf("eip %s aready associate with port %s", self.GetId(), self.PortId)
 	}
 
-	err = self.region.AssociateEipWithPortId(self.ID, portId)
+	err = self.region.AssociateEipWithPortId(self.ID, port.ID)
 	if err != nil {
 		return err
 	}
@@ -274,19 +274,19 @@ func (self *SEipAddress) ChangeBandwidth(bw int) error {
 	return self.region.UpdateEipBandwidth(self.BandwidthID, bw)
 }
 
-func (self *SRegion) GetInstancePortId(instanceId string) (string, error) {
+func (self *SRegion) GetInstancePort(instanceId string) (*Port, error) {
 	// 目前只绑定一个网卡
 	// todo: 还需要按照ports状态进行过滤
 	ports, err := self.GetPorts(instanceId)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	if len(ports) == 0 {
-		return "", fmt.Errorf("AssociateEip instance %s port is empty", instanceId)
+		return nil, fmt.Errorf("AssociateEip instance %s port is empty", instanceId)
 	}
 
-	return ports[0].ID, nil
+	return &ports[0], nil
 }
 
 // https://support.huaweicloud.com/api-vpc/zh-cn_topic_0020090596.html
@@ -365,11 +365,11 @@ func (self *SRegion) DeallocateEIP(eipId string) error {
 }
 
 func (self *SRegion) AssociateEip(eipId string, instanceId string) error {
-	portId, err := self.GetInstancePortId(instanceId)
+	port, err := self.GetInstancePort(instanceId)
 	if err != nil {
 		return err
 	}
-	return self.AssociateEipWithPortId(eipId, portId)
+	return self.AssociateEipWithPortId(eipId, port.ID)
 }
 
 func (self *SRegion) AssociateEipWithPortId(eipId string, portId string) error {

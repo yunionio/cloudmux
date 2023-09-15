@@ -15,6 +15,7 @@
 package huawei
 
 import (
+	"net/url"
 	"strconv"
 )
 
@@ -32,19 +33,25 @@ type OSExtraSpecs struct {
 }
 
 // https://support.huaweicloud.com/api-ecs/zh-cn_topic_0020212656.html
-func (self *SRegion) fetchInstanceTypes(zoneId string) ([]SInstanceType, error) {
-	querys := map[string]string{}
+func (self *SRegion) GetInstanceTypes(zoneId string) ([]SInstanceType, error) {
+	query := url.Values{}
 	if len(zoneId) > 0 {
-		querys["availability_zone"] = zoneId
+		query.Set("availability_zone", zoneId)
 	}
-
-	instanceTypes := make([]SInstanceType, 0)
-	err := doListAll(self.ecsClient.Flavors.List, querys, &instanceTypes)
-	return instanceTypes, err
+	ret := []SInstanceType{}
+	resp, err := self.list(SERVICE_ECS, "cloudservers/flavors", query)
+	if err != nil {
+		return nil, err
+	}
+	err = resp.Unmarshal(&ret, "flavors")
+	if err != nil {
+		return nil, err
+	}
+	return ret, nil
 }
 
 func (self *SRegion) GetMatchInstanceTypes(cpu int, memMB int, zoneId string) ([]SInstanceType, error) {
-	instanceTypes, err := self.fetchInstanceTypes(zoneId)
+	instanceTypes, err := self.GetInstanceTypes(zoneId)
 	if err != nil {
 		return nil, err
 	}

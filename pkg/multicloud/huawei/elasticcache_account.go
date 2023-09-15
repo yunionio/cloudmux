@@ -17,9 +17,6 @@ package huawei
 import (
 	"fmt"
 
-	"yunion.io/x/jsonutils"
-	"yunion.io/x/pkg/errors"
-
 	api "yunion.io/x/cloudmux/pkg/apis/compute"
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud"
@@ -66,29 +63,21 @@ func (self *SElasticcacheAccount) GetAccountPrivilege() string {
 // new_password: "26db46e2!"
 // no_password_access: false
 func (self *SElasticcacheAccount) ResetPassword(input cloudprovider.SCloudElasticCacheAccountResetPasswordInput) error {
-	if input.OldPassword == nil {
-		return fmt.Errorf("elasticcacheAccount.ResetPassword.input OldPassword should not be empty")
-	}
-
 	type ResetPasswordResult struct {
 		Result  string `json:"result"`
 		Message string `json:"message"`
 	}
 
-	result := ResetPasswordResult{}
-	params := jsonutils.NewDict()
-	params.Set("old_password", jsonutils.NewString(*input.OldPassword))
-	params.Set("new_password", jsonutils.NewString(input.NewPassword))
-	err := DoUpdateWithSpec2(self.cacheDB.region.ecsClient.Elasticcache.UpdateInContextWithSpec, self.cacheDB.GetId(), "password", params, &result)
-	if err != nil {
-		return errors.Wrap(err, "elasticcacheAccount.ResetPassword")
+	resource := fmt.Sprintf("instances/%s/password/reset", self.cacheDB.InstanceID)
+	params := map[string]interface{}{
+		"new_password":       input.NewPassword,
+		"no_password_access": false,
 	}
-
-	if result.Result != "success" {
-		return errors.Wrap(fmt.Errorf(result.Message), "elasticcacheAccount.ResetPassword")
+	if input.NoPasswordAccess != nil && *input.NoPasswordAccess {
+		params["no_password_access"] = true
 	}
-
-	return nil
+	_, err := self.cacheDB.region.post(SERVICE_DCS, resource, params)
+	return err
 }
 
 func (self *SElasticcacheAccount) UpdateAccount(input cloudprovider.SCloudElasticCacheAccountUpdateInput) error {

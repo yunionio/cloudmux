@@ -21,12 +21,10 @@ import (
 	"strings"
 	"time"
 
-	"yunion.io/x/jsonutils"
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/util/qemuimgfmt"
 
-	api "yunion.io/x/cloudmux/pkg/apis/compute"
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud"
 )
@@ -70,7 +68,7 @@ func (self *SStoragecache) GetICloudImages() ([]cloudprovider.ICloudImage, error
 }
 
 func (self *SStoragecache) GetICustomizedCloudImages() ([]cloudprovider.ICloudImage, error) {
-	imagesSelf, err := self.region.GetImages("", ImageOwnerSelf, "", EnvFusionCompute)
+	imagesSelf, err := self.region.GetImages("", "", ImageOwnerSelf, "", EnvFusionCompute)
 	if err != nil {
 		return nil, errors.Wrapf(err, "GetImages")
 	}
@@ -169,8 +167,7 @@ func (self *SStoragecache) uploadImage(ctx context.Context, image *cloudprovider
 	}
 
 	// timeout: 1hour = 3600 seconds
-	serviceType := self.region.ecsClient.Images.ServiceType()
-	err = self.region.waitTaskStatus(serviceType, jobId, TASK_SUCCESS, 15*time.Second, 3600*time.Second)
+	err = self.region.waitTaskStatus(SERVICE_IMS, jobId, TASK_SUCCESS, 15*time.Second, 3600*time.Second)
 	if err != nil {
 		log.Errorf("waitTaskStatus %s", err)
 		return "", err
@@ -181,7 +178,7 @@ func (self *SStoragecache) uploadImage(ctx context.Context, image *cloudprovider
 	}
 
 	// https://support.huaweicloud.com/api-ims/zh-cn_topic_0022473688.html
-	return self.region.GetTaskEntityID(serviceType, jobId, "image_id")
+	return self.region.GetTaskEntityID(SERVICE_IMS, jobId, "image_id")
 }
 
 func (self *SRegion) getStoragecache() *SStoragecache {
@@ -203,8 +200,9 @@ type SJob struct {
 }
 
 // https://support.huaweicloud.com/api-ims/zh-cn_topic_0020092109.html
+/*
 func (self *SRegion) createIImage(snapshotId, imageName, imageDesc string) (string, error) {
-	snapshot, err := self.GetSnapshotById(snapshotId)
+	snapshot, err := self.GetSnapshot(snapshotId)
 	if err != nil {
 		return "", err
 	}
@@ -252,6 +250,7 @@ func (self *SRegion) createIImage(snapshotId, imageName, imageDesc string) (stri
 	}
 
 }
+*/
 
 func (self *SRegion) GetIStoragecaches() ([]cloudprovider.ICloudStoragecache, error) {
 	storageCache := self.getStoragecache()

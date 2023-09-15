@@ -552,7 +552,7 @@ func (self *SHuaweiClient) getLoadbalancerMetrics(opts *cloudprovider.MetricList
 }
 
 func (self *SHuaweiClient) getModelartsPoolMetrics(opts *cloudprovider.MetricListOptions) ([]cloudprovider.MetricValues, error) {
-	resp, err := self.modelartsPoolMonitor(opts.ResourceId, nil)
+	resp, err := self.modelartsPoolMonitor(opts.ResourceId)
 	if err != nil {
 		return nil, err
 	}

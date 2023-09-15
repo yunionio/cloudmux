@@ -15,6 +15,7 @@
 package huawei
 
 import (
+	"net/url"
 	"strings"
 	"time"
 
@@ -155,7 +156,7 @@ func (gateway *SNatGateway) CreateINatDEntry(rule cloudprovider.SNatDRule) (clou
 		return nil, err
 	}
 	dnat.gateway = gateway
-	return &dnat, nil
+	return dnat, nil
 }
 
 func (gateway *SNatGateway) CreateINatSEntry(rule cloudprovider.SNatSRule) (cloudprovider.ICloudNatSEntry, error) {
@@ -164,7 +165,7 @@ func (gateway *SNatGateway) CreateINatSEntry(rule cloudprovider.SNatSRule) (clou
 		return nil, err
 	}
 	snat.gateway = gateway
-	return &snat, nil
+	return snat, nil
 }
 
 func (gateway *SNatGateway) GetINatDEntryByID(id string) (cloudprovider.ICloudNatDEntry, error) {
@@ -173,7 +174,7 @@ func (gateway *SNatGateway) GetINatDEntryByID(id string) (cloudprovider.ICloudNa
 		return nil, err
 	}
 	dnat.gateway = gateway
-	return &dnat, nil
+	return dnat, nil
 }
 
 func (gateway *SNatGateway) GetINatSEntryByID(id string) (cloudprovider.ICloudNatSEntry, error) {
@@ -182,29 +183,40 @@ func (gateway *SNatGateway) GetINatSEntryByID(id string) (cloudprovider.ICloudNa
 		return nil, err
 	}
 	snat.gateway = gateway
-	return &snat, nil
+	return snat, nil
 }
 
-func (region *SRegion) GetNatGateways(vpcID, natGatewayID string) ([]SNatGateway, error) {
-	queues := make(map[string]string)
-	if len(natGatewayID) != 0 {
-		queues["id"] = natGatewayID
+func (region *SRegion) GetNatGateways(vpcId, id string) ([]SNatGateway, error) {
+	query := url.Values{}
+	if len(id) > 0 {
+		query.Set("id", id)
 	}
-	if len(vpcID) != 0 {
-		queues["router_id"] = vpcID
+	if len(vpcId) > 0 {
+		query.Set("router_id", vpcId)
 	}
-	natGateways := make([]SNatGateway, 0, 2)
-	err := doListAllWithMarker(region.ecsClient.NatGateways.List, queues, &natGateways)
-	if err != nil {
-		return nil, errors.Wrapf(err, "get nat gateways error by natgatewayid")
+	ret := []SNatGateway{}
+	for {
+		resp, err := region.list(SERVICE_NAT, "nat_gateways", query)
+		if err != nil {
+			return nil, err
+		}
+		part := struct {
+			NatGateways []SNatGateway
+		}{}
+		err = resp.Unmarshal(&part)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Unmarshal")
+		}
+		ret = append(ret, part.NatGateways...)
+		if len(part.NatGateways) == 0 {
+			break
+		}
+		query.Set("marker", part.NatGateways[len(part.NatGateways)-1].ID)
 	}
-	for i := range natGateways {
-		natGateways[i].region = region
-	}
-	return natGateways, nil
+	return ret, nil
 }
 
-func (region *SRegion) CreateNatDEntry(rule cloudprovider.SNatDRule, gatewayID string) (SNatDEntry, error) {
+func (region *SRegion) CreateNatDEntry(rule cloudprovider.SNatDRule, gatewayID string) (*SNatDEntry, error) {
 	params := make(map[string]interface{})
 	params["nat_gateway_id"] = gatewayID
 	params["private_ip"] = rule.InternalIP
@@ -213,19 +225,23 @@ func (region *SRegion) CreateNatDEntry(rule cloudprovider.SNatDRule, gatewayID s
 	params["external_service_port"] = rule.ExternalPort
 	params["protocol"] = rule.Protocol
 
-	packParams := map[string]map[string]interface{}{
+	packParams := map[string]interface{}{
 		"dnat_rule": params,
 	}
 
-	ret := SNatDEntry{}
-	err := DoCreate(region.ecsClient.DNatRules.Create, jsonutils.Marshal(packParams), &ret)
+	ret := &SNatDEntry{}
+	resp, err := region.post(SERVICE_NAT, "dnat_rules", packParams)
 	if err != nil {
-		return SNatDEntry{}, errors.Wrapf(err, `create dnat rule of nat gateway %q failed`, gatewayID)
+		return nil, err
+	}
+	err = resp.Unmarshal(ret, "dnat_rule")
+	if err != nil {
+		return nil, errors.Wrapf(err, "Unmarshal")
 	}
 	return ret, nil
 }
 
-func (region *SRegion) CreateNatSEntry(rule cloudprovider.SNatSRule, gatewayID string) (SNatSEntry, error) {
+func (region *SRegion) CreateNatSEntry(rule cloudprovider.SNatSRule, gatewayID string) (*SNatSEntry, error) {
 	params := make(map[string]interface{})
 	params["nat_gateway_id"] = gatewayID
 	if len(rule.NetworkID) != 0 {
@@ -236,35 +252,38 @@ func (region *SRegion) CreateNatSEntry(rule cloudprovider.SNatSRule, gatewayID s
 	}
 	params["floating_ip_id"] = rule.ExternalIPID
 
-	packParams := map[string]map[string]interface{}{
+	packParams := map[string]interface{}{
 		"snat_rule": params,
 	}
 
-	ret := SNatSEntry{}
-	err := DoCreate(region.ecsClient.SNatRules.Create, jsonutils.Marshal(packParams), &ret)
+	resp, err := region.post(SERVICE_NAT, "snat_rules", packParams)
 	if err != nil {
-		return SNatSEntry{}, errors.Wrapf(err, `create snat rule of nat gateway %q failed`, gatewayID)
+		return nil, err
+	}
+	ret := &SNatSEntry{}
+	err = resp.Unmarshal(ret, "snat_rule")
+	if err != nil {
+		return nil, errors.Wrapf(err, "Unmarshal")
 	}
 	return ret, nil
 }
 
-func (region *SRegion) GetNatDEntryByID(id string) (SNatDEntry, error) {
-	dnat := SNatDEntry{}
-	err := DoGet(region.ecsClient.DNatRules.Get, id, map[string]string{}, &dnat)
-
+func (region *SRegion) GetNatDEntryByID(id string) (*SNatDEntry, error) {
+	resp, err := region.list(SERVICE_NAT, "dnat_rules/"+id, nil)
 	if err != nil {
-		return SNatDEntry{}, err
+		return nil, err
 	}
-	return dnat, nil
+	dnat := &SNatDEntry{}
+	return dnat, resp.Unmarshal(dnat, "dnat_rule")
 }
 
-func (region *SRegion) GetNatSEntryByID(id string) (SNatSEntry, error) {
-	snat := SNatSEntry{}
-	err := DoGet(region.ecsClient.SNatRules.Get, id, map[string]string{}, &snat)
+func (region *SRegion) GetNatSEntryByID(id string) (*SNatSEntry, error) {
+	resp, err := region.list(SERVICE_NAT, "snat_rules/"+id, nil)
 	if err != nil {
-		return SNatSEntry{}, cloudprovider.ErrNotFound
+		return nil, err
 	}
-	return snat, nil
+	snat := &SNatSEntry{}
+	return snat, resp.Unmarshal(snat, "snat_rule")
 }
 
 func NatResouceStatusTransfer(status string) string {
@@ -283,13 +302,12 @@ func NatResouceStatusTransfer(status string) string {
 }
 
 func (self *SRegion) GetNatGateway(id string) (*SNatGateway, error) {
-	resp, err := self.ecsClient.NatGateways.Get(id, nil)
+	resp, err := self.list(SERVICE_NAT, "nat_gateways/"+id, nil)
 	if err != nil {
-		return nil, errors.Wrapf(err, "NatGateways.Get(%s)", id)
+		return nil, err
 	}
 	nat := &SNatGateway{region: self}
-	err = resp.Unmarshal(nat)
-	return nat, errors.Wrap(err, "resp.Unmarshal")
+	return nat, resp.Unmarshal(nat, "nat_gateway")
 }
 
 func (self *SVpc) CreateINatGateway(opts *cloudprovider.NatGatewayCreateOptions) (cloudprovider.ICloudNatGateway, error) {
@@ -312,7 +330,7 @@ func (self *SRegion) CreateNatGateway(opts *cloudprovider.NatGatewayCreateOption
 	case api.NAT_SPEC_XLARGE:
 		spec = "4"
 	}
-	params := jsonutils.Marshal(map[string]map[string]interface{}{
+	params := map[string]interface{}{
 		"nat_gateway": map[string]interface{}{
 			"name":                opts.Name,
 			"description":         opts.Desc,
@@ -320,20 +338,16 @@ func (self *SRegion) CreateNatGateway(opts *cloudprovider.NatGatewayCreateOption
 			"internal_network_id": opts.NetworkId,
 			"spec":                spec,
 		},
-	})
-	resp, err := self.ecsClient.NatGateways.Create(params)
+	}
+	resp, err := self.post(SERVICE_NAT, "nat_gateways", params)
 	if err != nil {
-		return nil, errors.Wrap(err, "AsyncCreate")
+		return nil, err
 	}
 	nat := &SNatGateway{region: self}
-	err = resp.Unmarshal(nat)
-	if err != nil {
-		return nil, errors.Wrapf(err, "resp.Unmarshal")
-	}
-	return nat, nil
+	return nat, resp.Unmarshal(nat, "teway")
 }
 
 func (self *SRegion) DeleteNatGateway(id string) error {
-	_, err := self.ecsClient.NatGateways.Delete(id, nil)
-	return errors.Wrapf(err, "NatGateways.Delete(%s)", id)
+	_, err := self.delete(SERVICE_NAT, "nat_gateways/"+id)
+	return err
 }

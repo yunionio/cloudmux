@@ -51,8 +51,8 @@ type SRegion struct {
 	ParentRegionID string  `json:"parent_region_id"`
 	Type           string  `json:"type"`
 
-	izones []cloudprovider.ICloudZone
-	ivpcs  []cloudprovider.ICloudVpc
+	zones []SZone
+	ivpcs []cloudprovider.ICloudVpc
 
 	storageCache *SStoragecache
 }
@@ -102,40 +102,40 @@ func (self *SRegion) getOBSClient() (*obs.ObsClient, error) {
 	return self.obsClient, nil
 }
 
-func (self *SRegion) fetchZones() error {
-	zones := make([]SZone, 0)
-	err := doListAll(self.ecsClient.Zones.List, nil, &zones)
-	if err != nil {
-		return err
-	}
-
-	self.izones = make([]cloudprovider.ICloudZone, 0)
-	for i := range zones {
-		zone := zones[i]
-		zone.region = self
-		self.izones = append(self.izones, &zone)
-	}
-	return nil
+func (self *SRegion) list(service, resource string, query url.Values) (jsonutils.JSONObject, error) {
+	return self.client.list(service, self.ID, resource, query)
 }
 
-func (self *SRegion) fetchIVpcs() error {
-	// https://support.huaweicloud.com/api-vpc/zh-cn_topic_0020090625.html
-	vpcs := make([]SVpc, 0)
-	querys := map[string]string{
-		"limit": "2048",
+func (self *SRegion) delete(service, resource string) (jsonutils.JSONObject, error) {
+	return self.client.delete(service, self.ID, resource)
+}
+
+func (self *SRegion) put(service, resource string, params map[string]interface{}) (jsonutils.JSONObject, error) {
+	return self.client.put(service, self.ID, resource, params)
+}
+
+func (self *SRegion) post(service, resource string, params map[string]interface{}) (jsonutils.JSONObject, error) {
+	return self.client.post(service, self.ID, resource, params)
+}
+
+func (self *SRegion) GetZones() ([]SZone, error) {
+	if len(self.zones) > 0 {
+		return self.zones, nil
 	}
-	err := doListAllWithMarker(self.ecsClient.Vpcs.List, querys, &vpcs)
+	resp, err := self.list(SERVICE_ECS, "os-availability-zone", nil)
 	if err != nil {
-		return err
+		return nil, errors.Wrapf(err, "list")
+	}
+	self.zones = []SZone{}
+	err = resp.Unmarshal(&self.zones, "availabilityZoneInfo")
+	if err != nil {
+		return nil, errors.Wrapf(err, "Unmarshal")
 	}
 
-	self.ivpcs = make([]cloudprovider.ICloudVpc, 0)
-	for i := range vpcs {
-		vpc := vpcs[i]
-		vpc.region = self
-		self.ivpcs = append(self.ivpcs, &vpc)
+	for i := range self.zones {
+		self.zones[i].region = self
 	}
-	return nil
+	return self.zones, nil
 }
 
 func (self *SRegion) GetIVMById(id string) (cloudprovider.ICloudVM, error) {
@@ -288,52 +288,29 @@ func (self *SRegion) GetLongitude() float32 {
 	return 0.0
 }
 
-func (self *SRegion) fetchInfrastructure() error {
-	_, err := self.getECSClient()
-	if err != nil {
-		return err
-	}
-
-	if err := self.fetchZones(); err != nil {
-		return err
-	}
-
-	if err := self.fetchIVpcs(); err != nil {
-		return err
-	}
-
-	for i := 0; i < len(self.ivpcs); i += 1 {
-		vpc := self.ivpcs[i].(*SVpc)
-		wire := SWire{region: self, vpc: vpc}
-		vpc.addWire(&wire)
-
-		for j := 0; j < len(self.izones); j += 1 {
-			zone := self.izones[j].(*SZone)
-			zone.addWire(&wire)
-		}
-	}
-	return nil
-}
-
 func (self *SRegion) GetIZones() ([]cloudprovider.ICloudZone, error) {
-	if self.izones == nil {
-		var err error
-		err = self.fetchInfrastructure()
-		if err != nil {
-			return nil, err
-		}
+	zones, err := self.GetZones()
+	if err != nil {
+		return nil, err
 	}
-	return self.izones, nil
+	ret := []cloudprovider.ICloudZone{}
+	for i := range zones {
+		ret = append(ret, &zones[i])
+	}
+	return ret, nil
 }
 
 func (self *SRegion) GetIVpcs() ([]cloudprovider.ICloudVpc, error) {
-	if self.ivpcs == nil {
-		err := self.fetchInfrastructure()
-		if err != nil {
-			return nil, err
-		}
+	vpcs, err := self.GetVpcs()
+	if err != nil {
+		return nil, err
 	}
-	return self.ivpcs, nil
+	ret := []cloudprovider.ICloudVpc{}
+	for i := range vpcs {
+		vpcs[i].region = self
+		ret = append(ret, &vpcs[i])
+	}
+	return ret, nil
 }
 
 func (self *SRegion) GetIEips() ([]cloudprovider.ICloudEIP, error) {
@@ -351,16 +328,11 @@ func (self *SRegion) GetIEips() ([]cloudprovider.ICloudEIP, error) {
 }
 
 func (self *SRegion) GetIVpcById(id string) (cloudprovider.ICloudVpc, error) {
-	ivpcs, err := self.GetIVpcs()
+	vpc, err := self.GetVpc(id)
 	if err != nil {
 		return nil, err
 	}
-	for i := 0; i < len(ivpcs); i += 1 {
-		if ivpcs[i].GetGlobalId() == id {
-			return ivpcs[i], nil
-		}
-	}
-	return nil, cloudprovider.ErrNotFound
+	return vpc, nil
 }
 
 func (self *SRegion) GetIZoneById(id string) (cloudprovider.ICloudZone, error) {
@@ -385,8 +357,9 @@ func (self *SRegion) GetIEipById(eipId string) (cloudprovider.ICloudEIP, error) 
 }
 
 // https://support.huaweicloud.com/api-vpc/zh-cn_topic_0060595555.html
-func (self *SRegion) DeleteSecurityGroup(secgroupId string) error {
-	return DoDelete(self.ecsClient.SecurityGroups.Delete, secgroupId, nil, nil)
+func (self *SRegion) DeleteSecurityGroup(id string) error {
+	_, err := self.list(SERVICE_VPC, "security-groups/"+id, nil)
+	return err
 }
 
 func (self *SRegion) GetISecurityGroupById(secgroupId string) (cloudprovider.ICloudSecurityGroup, error) {
@@ -426,7 +399,11 @@ func (self *SRegion) CreateVpc(name, cidr, desc string) (*SVpc, error) {
 		},
 	}
 	vpc := &SVpc{region: self}
-	return vpc, DoCreate(self.ecsClient.Vpcs.Create, jsonutils.Marshal(params), vpc)
+	resp, err := self.post(SERVICE_VPC, "vpcs", params)
+	if err != nil {
+		return nil, err
+	}
+	return vpc, resp.Unmarshal(vpc, "vpc")
 }
 
 // https://support.huaweicloud.com/api-vpc/zh-cn_topic_0020090596.html
@@ -462,8 +439,11 @@ func (self *SRegion) GetISnapshots() ([]cloudprovider.ICloudSnapshot, error) {
 }
 
 func (self *SRegion) GetISnapshotById(snapshotId string) (cloudprovider.ICloudSnapshot, error) {
-	snapshot, err := self.GetSnapshotById(snapshotId)
-	return &snapshot, err
+	snapshot, err := self.GetSnapshot(snapshotId)
+	if err != nil {
+		return nil, err
+	}
+	return snapshot, nil
 }
 
 func (self *SRegion) GetIHosts() ([]cloudprovider.ICloudHost, error) {
@@ -543,16 +523,23 @@ func (self *SRegion) GetCloudEnv() string {
 // https://support.huaweicloud.com/api-vpc/zh-cn_topic_0020090615.html
 // 目前desc字段并没有用到
 func (self *SRegion) CreateSecurityGroup(opts *cloudprovider.SecurityGroupCreateInput) (*SSecurityGroup, error) {
-	params := jsonutils.NewDict()
-	secgroupObj := jsonutils.NewDict()
-	secgroupObj.Add(jsonutils.NewString(opts.Name), "name")
-	if len(opts.VpcId) > 0 && opts.VpcId != api.NORMAL_VPC_ID {
-		secgroupObj.Add(jsonutils.NewString(opts.VpcId), "vpc_id")
+	info := map[string]interface{}{
+		"name": opts.Name,
 	}
-	params.Add(secgroupObj, "security_group")
+	if len(opts.VpcId) > 0 && opts.VpcId != api.NORMAL_VPC_ID {
+		info["vpc_id"] = opts.VpcId
+	}
+	params := map[string]interface{}{
+		"security_group": info,
+	}
 
-	secgroup := SSecurityGroup{region: self}
-	err := DoCreate(self.ecsClient.SecurityGroups.Create, params, &secgroup)
+	resp, err := self.post(SERVICE_VPC, "security-groups", params)
+	if err != nil {
+		return nil, err
+	}
+
+	secgroup := &SSecurityGroup{region: self}
+	err = resp.Unmarshal(secgroup, "security_group")
 	if err != nil {
 		return nil, err
 	}
@@ -576,12 +563,13 @@ func (self *SRegion) CreateSecurityGroup(opts *cloudprovider.SecurityGroupCreate
 			return nil, errors.Wrapf(err, "addSecurityGroupRules")
 		}
 	}
-	return &secgroup, nil
+	return secgroup, nil
 }
 
 // https://support.huaweicloud.com/api-vpc/zh-cn_topic_0087467071.html
-func (self *SRegion) delSecurityGroupRule(secGrpRuleId string) error {
-	_, err := self.ecsClient.SecurityGroupRules.DeleteInContextWithSpec(nil, secGrpRuleId, "", nil, nil, "")
+func (self *SRegion) delSecurityGroupRule(id string) error {
+	resource := fmt.Sprintf("vpc/security-group-rules/%s", id)
+	_, err := self.delete(SERVICE_VPC, resource)
 	return err
 }
 
@@ -634,26 +622,28 @@ func (self *SRegion) addSecurityGroupRules(secGrpId string, rule secrules.Securi
 }
 
 func (self *SRegion) addSecurityGroupRule(secGrpId, direction, portStart, portEnd, protocol, ipNet string) error {
-	params := jsonutils.NewDict()
-	secgroupObj := jsonutils.NewDict()
-	secgroupObj.Add(jsonutils.NewString(secGrpId), "security_group_id")
-	secgroupObj.Add(jsonutils.NewString(direction), "direction")
-	secgroupObj.Add(jsonutils.NewString(ipNet), "remote_ip_prefix")
-	secgroupObj.Add(jsonutils.NewString("IPV4"), "ethertype")
+	obj := map[string]interface{}{
+		"security_group_id": secGrpId,
+		"direction":         direction,
+		"remote_ip_prefix":  ipNet,
+		"ethertype":         "IPV4",
+	}
 	// 端口为空或者1-65535
 	if len(portStart) > 0 && portStart != "0" && portStart != "-1" {
-		secgroupObj.Add(jsonutils.NewString(portStart), "port_range_min")
+		obj["port_range_min"] = portStart
 	}
 	if len(portEnd) > 0 && portEnd != "0" && portEnd != "-1" {
-		secgroupObj.Add(jsonutils.NewString(portEnd), "port_range_max")
+		obj["port_range_max"] = portEnd
 	}
 	if len(protocol) > 0 {
-		secgroupObj.Add(jsonutils.NewString(protocol), "protocol")
+		obj["protocol"] = protocol
 	}
-	params.Add(secgroupObj, "security_group_rule")
 
-	rule := SecurityGroupRule{}
-	return DoCreate(self.ecsClient.SecurityGroupRules.Create, params, &rule)
+	params := map[string]interface{}{
+		"security_group_rule": obj,
+	}
+	_, err := self.post(SERVICE_VPC, "vpc/security-group-rules", params)
+	return err
 }
 
 func (self *SRegion) CreateILoadBalancer(loadbalancer *cloudprovider.SLoadbalancerCreateOptions) (cloudprovider.ICloudLoadbalancer, error) {
@@ -794,7 +784,7 @@ func (self *SRegion) GetSkus(zoneId string) ([]cloudprovider.ICloudSku, error) {
 }
 
 func (self *SRegion) GetIElasticcaches() ([]cloudprovider.ICloudElasticcache, error) {
-	caches, err := self.GetElasticCaches()
+	caches, err := self.GetElasticCaches("")
 	if err != nil {
 		return nil, err
 	}
@@ -813,18 +803,15 @@ func (region *SRegion) GetCapabilities() []string {
 }
 
 func (self *SRegion) GetDiskTypes() ([]SDiskType, error) {
-	ret, err := self.ecsClient.Disks.GetDiskTypes()
+	resp, err := self.list(SERVICE_EVS, "types", nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "GetDiskTypes")
+		return nil, err
 	}
-
 	dts := []SDiskType{}
-	_ret := jsonutils.NewArray(ret.Data...)
-	err = _ret.Unmarshal(&dts)
+	err = resp.Unmarshal(&dts, "volume_types")
 	if err != nil {
 		return nil, errors.Wrap(err, "Unmarshal")
 	}
-
 	return dts, nil
 }
 

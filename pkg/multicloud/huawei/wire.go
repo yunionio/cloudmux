@@ -16,9 +16,7 @@ package huawei
 
 import (
 	"fmt"
-	"time"
 
-	"yunion.io/x/jsonutils"
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/util/netutils"
@@ -102,28 +100,10 @@ func (self *SWire) GetINetworkById(netid string) (cloudprovider.ICloudNetwork, e
 通过华为web控制台创建子网需要指定可用区。这里是不指定的。
 */
 func (self *SWire) CreateINetwork(opts *cloudprovider.SNetworkCreateOptions) (cloudprovider.ICloudNetwork, error) {
-	networkId, err := self.region.createNetwork(self.vpc.GetId(), opts.Name, opts.Cidr, opts.Desc)
+	network, err := self.region.CreateNetwork(self.vpc.GetId(), opts.Name, opts.Cidr, opts.Desc)
 	if err != nil {
-		log.Errorf("createNetwork error %s", err)
-		return nil, err
+		return nil, errors.Wrapf(err, "CreateNetwork")
 	}
-
-	var network *SNetwork
-	err = cloudprovider.WaitCreated(5*time.Second, 60*time.Second, func() bool {
-		self.inetworks = nil
-		network = self.getNetworkById(networkId)
-		if network == nil {
-			return false
-		} else {
-			return true
-		}
-	})
-
-	if err != nil {
-		log.Errorf("cannot find network after create????")
-		return nil, err
-	}
-
 	network.wire = self
 	return network, nil
 }
@@ -172,21 +152,23 @@ func getDefaultGateWay(cidr string) (string, error) {
 
 // https://support.huaweicloud.com/api-vpc/zh-cn_topic_0020090590.html
 // cidr 掩码长度不能大于28
-func (self *SRegion) createNetwork(vpcId string, name string, cidr string, desc string) (string, error) {
+func (self *SRegion) CreateNetwork(vpcId string, name string, cidr string, desc string) (*SNetwork, error) {
 	gateway, err := getDefaultGateWay(cidr)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-
-	params := jsonutils.NewDict()
-	subnetObj := jsonutils.NewDict()
-	subnetObj.Add(jsonutils.NewString(name), "name")
-	subnetObj.Add(jsonutils.NewString(vpcId), "vpc_id")
-	subnetObj.Add(jsonutils.NewString(cidr), "cidr")
-	subnetObj.Add(jsonutils.NewString(gateway), "gateway_ip")
-	params.Add(subnetObj, "subnet")
-
-	subnet := SNetwork{}
-	err = DoCreate(self.ecsClient.Subnets.Create, params, &subnet)
-	return subnet.ID, err
+	params := map[string]interface{}{
+		"subnet": map[string]interface{}{
+			"name":       name,
+			"vpc_id":     vpcId,
+			"cidr":       cidr,
+			"gateway_ip": gateway,
+		},
+	}
+	resp, err := self.post(SERVICE_VPC, "subnets", params)
+	if err != nil {
+		return nil, err
+	}
+	ret := &SNetwork{}
+	return ret, resp.Unmarshal(ret, "subnet")
 }

@@ -15,10 +15,11 @@
 package huawei
 
 import (
+	"fmt"
+	"net/url"
 	"strings"
 	"time"
 
-	"yunion.io/x/jsonutils"
 	"yunion.io/x/pkg/errors"
 
 	api "yunion.io/x/cloudmux/pkg/apis/compute"
@@ -41,13 +42,25 @@ type SEnterpriseProject struct {
 
 func (self *SHuaweiClient) GetEnterpriseProjects() ([]SEnterpriseProject, error) {
 	projects := []SEnterpriseProject{}
-	client, err := self.newGeneralAPIClient()
-	if err != nil {
-		return nil, errors.Wrap(err, "newGeneralAPIClient")
-	}
-	err = doListAllWithOffset(client.EnterpriseProjects.List, map[string]string{}, &projects)
-	if err != nil {
-		return nil, errors.Wrap(err, "doListAllWithOffset")
+	query := url.Values{}
+	for {
+		resp, err := self.list(SERVICE_EPS, "", "enterprise-projects", query)
+		if err != nil {
+			return nil, err
+		}
+		part := struct {
+			EnterpriseProjects []SEnterpriseProject
+			TotalCount         int
+		}{}
+		err = resp.Unmarshal(&part)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Unmarshal")
+		}
+		projects = append(projects, part.EnterpriseProjects...)
+		if len(projects) >= part.TotalCount || len(part.EnterpriseProjects) == 0 {
+			break
+		}
+		query.Set("offset", fmt.Sprintf("%d", len(projects)))
 	}
 	return projects, nil
 }
@@ -72,17 +85,13 @@ func (ep *SEnterpriseProject) GetName() string {
 }
 
 func (self *SHuaweiClient) CreateExterpriseProject(name, desc string) (*SEnterpriseProject, error) {
-	client, err := self.newGeneralAPIClient()
-	if err != nil {
-		return nil, errors.Wrap(err, "newGeneralAPIClient")
-	}
-	params := map[string]string{
+	params := map[string]interface{}{
 		"name": name,
 	}
 	if len(desc) > 0 {
 		params["description"] = desc
 	}
-	resp, err := client.EnterpriseProjects.Create(jsonutils.Marshal(params))
+	resp, err := self.post(SERVICE_EPS, "", "enterprise-projects", params)
 	if err != nil {
 		if strings.Contains(err.Error(), "EPS.0004") {
 			return nil, cloudprovider.ErrNotSupported
@@ -93,7 +102,7 @@ func (self *SHuaweiClient) CreateExterpriseProject(name, desc string) (*SEnterpr
 		return nil, errors.Wrap(err, "EnterpriseProjects.Create")
 	}
 	project := &SEnterpriseProject{}
-	err = resp.Unmarshal(&project)
+	err = resp.Unmarshal(&project, "enterprise_project")
 	if err != nil {
 		return nil, errors.Wrap(err, "resp.Unmarshal")
 	}

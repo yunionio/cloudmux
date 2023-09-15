@@ -17,6 +17,7 @@ package huawei
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 
@@ -141,11 +142,11 @@ func (self *SImage) GetImageStatus() string {
 }
 
 func (self *SImage) Refresh() error {
-	new, err := self.storageCache.region.GetImage(self.GetId())
+	image, err := self.storageCache.region.GetImage(self.GetId())
 	if err != nil {
 		return err
 	}
-	return jsonutils.Update(self, new)
+	return jsonutils.Update(self, image)
 }
 
 func (self *SImage) GetImageType() cloudprovider.TImageType {
@@ -231,12 +232,16 @@ func (self *SImage) GetIStoragecache() cloudprovider.ICloudStoragecache {
 }
 
 func (self *SRegion) GetImage(imageId string) (*SImage, error) {
-	image := &SImage{}
-	err := DoGet(self.ecsClient.Images.Get, imageId, nil, image)
+	images, err := self.GetImages(imageId, "", "", "", "")
 	if err != nil {
 		return nil, errors.Wrap(err, "DoGet")
 	}
-	return image, nil
+	for i := range images {
+		if images[i].ID == imageId {
+			return &images[i], nil
+		}
+	}
+	return nil, errors.Wrapf(cloudprovider.ErrNotFound, imageId)
 }
 
 func excludeImage(image SImage) bool {
@@ -280,29 +285,47 @@ func excludeImage(image SImage) bool {
 }
 
 // https://support.huaweicloud.com/api-ims/zh-cn_topic_0060804959.html
-func (self *SRegion) GetImages(status string, imagetype TImageOwnerType, name string, envType string) ([]SImage, error) {
-	queries := map[string]string{}
+func (self *SRegion) GetImages(id, status string, imagetype TImageOwnerType, name string, envType string) ([]SImage, error) {
+	query := url.Values{}
 	if len(status) > 0 {
-		queries["status"] = status
+		query.Set("status", status)
 	}
-
+	if len(id) > 0 {
+		query.Set("id", id)
+	}
 	if len(imagetype) > 0 {
-		queries["__imagetype"] = string(imagetype)
+		query.Set("__imagetype", string(imagetype))
 		if imagetype == ImageOwnerPublic {
-			queries["protected"] = "True"
+			query.Set("protected", "True")
 		}
 	}
 	if len(envType) > 0 {
-		queries["virtual_env_type"] = envType
+		query.Set("virtual_env_type", envType)
 	}
 
 	if len(name) > 0 {
-		queries["name"] = name
+		query.Set("name", name)
 	}
 
 	images := make([]SImage, 0)
-	err := doListAllWithMarker(self.ecsClient.Images.List, queries, &images)
-
+	for {
+		resp, err := self.list(SERVICE_IMS, "cloudimages", query)
+		if err != nil {
+			return nil, err
+		}
+		part := struct {
+			Images []SImage
+		}{}
+		err = resp.Unmarshal(&part)
+		if err != nil {
+			return nil, err
+		}
+		images = append(images, part.Images...)
+		if len(part.Images) == 0 {
+			break
+		}
+		query.Set("marker", part.Images[len(part.Images)-1].ID)
+	}
 	// 排除掉需要特定镜像才能创建的实例类型
 	// https://support.huaweicloud.com/eu-west-0-api-ims/zh-cn_topic_0031617666.html#ZH-CN_TOPIC_0031617666__table48545918250
 	// https://support.huaweicloud.com/productdesc-ecs/zh-cn_topic_0088142947.html
@@ -313,11 +336,12 @@ func (self *SRegion) GetImages(status string, imagetype TImageOwnerType, name st
 		}
 	}
 
-	return filtedImages, err
+	return filtedImages, nil
 }
 
 func (self *SRegion) DeleteImage(imageId string) error {
-	return DoDelete(self.ecsClient.OpenStackImages.Delete, imageId, nil, nil)
+	_, err := self.delete(SERVICE_IMS, "images/"+imageId)
+	return err
 }
 
 func (self *SRegion) GetImageByName(name string) (*SImage, error) {
@@ -325,7 +349,7 @@ func (self *SRegion) GetImageByName(name string) (*SImage, error) {
 		return nil, fmt.Errorf("image name should not be empty")
 	}
 
-	images, err := self.GetImages("", TImageOwnerType(""), name, "")
+	images, err := self.GetImages("", "", TImageOwnerType(""), name, "")
 	if err != nil {
 		return nil, err
 	}
@@ -347,29 +371,27 @@ func (self *SRegion) GetImageByName(name string) (*SImage, error) {
    * openstack原生接口支持的格式：https://support.huaweicloud.com/api-ims/zh-cn_topic_0031615566.html
 */
 func (self *SRegion) ImportImageJob(name string, osDist string, osVersion string, osArch string, bucket string, key string, minDiskGB int64) (string, error) {
-	os_version, err := stdVersion(osDist, osVersion, osArch)
-	log.Debugf("%s %s %s: %s.min_disk %d GB", osDist, osVersion, osArch, os_version, minDiskGB)
+	osVersion, err := stdVersion(osDist, osVersion, osArch)
+	log.Debugf("%s %s %s: %s.min_disk %d GB", osDist, osVersion, osArch, osVersion, minDiskGB)
 	if err != nil {
 		log.Debugln(err)
 	}
-
-	params := jsonutils.NewDict()
-	params.Add(jsonutils.NewString(name), "name")
-	image_url := fmt.Sprintf("%s:%s", bucket, key)
-	params.Add(jsonutils.NewString(image_url), "image_url")
-	if len(os_version) > 0 {
-		params.Add(jsonutils.NewString(os_version), "os_version")
+	imageUrl := fmt.Sprintf("%s:%s", bucket, key)
+	params := map[string]interface{}{
+		"name":           name,
+		"image_url":      imageUrl,
+		"is_config_init": true,
+		"is_config":      true,
+		"min_disk":       minDiskGB,
 	}
-	params.Add(jsonutils.NewBool(true), "is_config_init")
-	params.Add(jsonutils.NewBool(true), "is_config")
-	params.Add(jsonutils.NewInt(minDiskGB), "min_disk")
-
-	ret, err := self.ecsClient.Images.PerformAction2("action", "", params, "")
+	if len(osVersion) > 0 {
+		params["os_version"] = osVersion
+	}
+	resp, err := self.post(SERVICE_IMS, "cloudimages/quickimport/action", params)
 	if err != nil {
 		return "", err
 	}
-
-	return ret.GetString("job_id")
+	return resp.GetString("job_id")
 }
 
 func formatVersion(osDist string, osVersion string) (string, error) {

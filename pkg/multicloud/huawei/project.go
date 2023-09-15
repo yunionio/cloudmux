@@ -15,10 +15,11 @@
 package huawei
 
 import (
-	"fmt"
 	"strings"
 
 	api "yunion.io/x/cloudmux/pkg/apis/compute"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/pkg/errors"
 )
 
 // https://support.huaweicloud.com/api-iam/zh-cn_topic_0057845625.html
@@ -46,23 +47,7 @@ func (self *SProject) GetHealthStatus() string {
 	if self.Enabled {
 		return api.CLOUD_PROVIDER_HEALTH_NORMAL
 	}
-
 	return api.CLOUD_PROVIDER_HEALTH_SUSPENDED
-}
-
-func (self *SHuaweiClient) fetchProjects() ([]SProject, error) {
-	if self.projects != nil {
-		return self.projects, nil
-	}
-
-	huawei, _ := self.newGeneralAPIClient()
-	projects := make([]SProject, 0)
-	err := doListAll(huawei.Projects.List, nil, &projects)
-	if err == nil {
-		self.projects = projects
-	}
-
-	return projects, err
 }
 
 // obs 权限必须赋予到mos project之上
@@ -79,20 +64,25 @@ func (self *SHuaweiClient) GetMosProjectId() string {
 	return ""
 }
 
-func (self *SHuaweiClient) GetProjectById(projectId string) (SProject, error) {
-	projects, err := self.fetchProjects()
+func (self *SHuaweiClient) GetProjectById(projectId string) (*SProject, error) {
+	projects, err := self.GetProjects()
 	if err != nil {
-		return SProject{}, err
+		return nil, err
 	}
 
-	for _, project := range projects {
-		if project.ID == projectId {
-			return project, nil
+	for i := range projects {
+		if projects[i].ID == projectId {
+			return &projects[i], nil
 		}
 	}
-	return SProject{}, fmt.Errorf("project %s not found", projectId)
+	return nil, errors.Wrapf(cloudprovider.ErrNotFound, projectId)
 }
 
 func (self *SHuaweiClient) GetProjects() ([]SProject, error) {
-	return self.fetchProjects()
+	if len(self.projects) > 0 {
+		return self.projects, nil
+	}
+	var err error
+	self.projects, err = self.getProjects()
+	return self.projects, err
 }

@@ -19,9 +19,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/huaweicloud/huaweicloud-sdk-go/auth/aksk"
@@ -29,7 +27,6 @@ import (
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/errors"
-	"yunion.io/x/pkg/gotypes"
 	"yunion.io/x/pkg/util/httputils"
 	"yunion.io/x/pkg/util/timeutils"
 
@@ -41,14 +38,6 @@ import (
 	"yunion.io/x/cloudmux/pkg/multicloud/huawei/obs"
 )
 
-/*
-待解决问题：
-1.同步的子账户中有一条空记录.需要查原因
-2.安全组同步需要进一步确认
-3.实例接口需要进一步确认
-4.BGP type 目前是hard code在代码中。需要考虑从cloudmeta服务中查询
-*/
-
 const (
 	CLOUD_PROVIDER_HUAWEI    = api.CLOUD_PROVIDER_HUAWEI
 	CLOUD_PROVIDER_HUAWEI_CN = "华为云"
@@ -59,15 +48,28 @@ const (
 
 	HUAWEI_DEFAULT_REGION = "cn-north-1"
 	HUAWEI_API_VERSION    = "2018-12-25"
+
+	SERVICE_IAM       = "iam"
+	SERVICE_ELB       = "elb"
+	SERVICE_VPC       = "vpc"
+	SERVICE_CES       = "ces"
+	SERVICE_RDS       = "rds"
+	SERVICE_ECS       = "ecs"
+	SERVICE_EPS       = "eps"
+	SERVICE_EVS       = "evs"
+	SERVICE_BSS       = "bss"
+	SERVICE_SFS       = "sfs-turbo"
+	SERVICE_CTS       = "cts"
+	SERVICE_NAT       = "nat"
+	SERVICE_BMS       = "bms"
+	SERVICE_CCI       = "cci"
+	SERVICE_CSBS      = "csbs"
+	SERVICE_IMS       = "ims"
+	SERVICE_AS        = "as"
+	SERVICE_CCE       = "cce"
+	SERVICE_DCS       = "dcs"
+	SERVICE_MODELARTS = "modelarts"
 )
-
-var HUAWEI_REGION_CACHES sync.Map
-
-type userRegionsCache struct {
-	UserId   string
-	ExpireAt time.Time
-	Regions  []SRegion
-}
 
 type HuaweiClientConfig struct {
 	cpcfg cloudprovider.ProviderConfig
@@ -105,21 +107,57 @@ type SHuaweiClient struct {
 
 	signer auth.Signer
 
-	isMainProject bool // whether the project is the main project in the region
-	clientRegion  string
-
 	userId          string
 	ownerId         string
 	ownerName       string
 	ownerCreateTime time.Time
 
-	iregions []cloudprovider.ICloudRegion
 	iBuckets []cloudprovider.ICloudBucket
 
 	projects []SProject
 	regions  []SRegion
 
 	httpClient *http.Client
+}
+
+// whether the project is the main project in the region
+func (self *SHuaweiClient) isMainProject() bool {
+	if len(self.projectId) > 0 {
+		project, err := self.GetProjectById(self.projectId)
+		if err != nil {
+			return false
+		}
+		regions, err := self.GetRegions()
+		if err != nil {
+			return false
+		}
+		for i := range regions {
+			if project.Name == regions[i].ID {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func (self *SHuaweiClient) clientRegion() string {
+	if len(self.projectId) > 0 {
+		project, err := self.GetProjectById(self.projectId)
+		if err != nil {
+			return HUAWEI_DEFAULT_REGION
+		}
+		regions, err := self.GetRegions()
+		if err != nil {
+			return HUAWEI_DEFAULT_REGION
+		}
+		for i := range regions {
+			if strings.Contains(project.Name, regions[i].ID) {
+				return regions[i].ID
+			}
+		}
+	}
+	return HUAWEI_DEFAULT_REGION
+
 }
 
 // 进行资源操作时参数account 对应数据库cloudprovider表中的account字段,由accessKey和projectID两部分组成，通过"/"分割。
@@ -138,11 +176,7 @@ func NewHuaweiClient(cfg *HuaweiClientConfig) (*SHuaweiClient, error) {
 }
 
 func (self *SHuaweiClient) init() error {
-	err := self.fetchRegions()
-	if err != nil {
-		return err
-	}
-	err = self.initSigner()
+	err := self.initSigner()
 	if err != nil {
 		return errors.Wrap(err, "initSigner")
 	}
@@ -218,146 +252,109 @@ func (self *SHuaweiClient) newGeneralAPIClient() (*client.Client, error) {
 }
 
 func (self *SHuaweiClient) lbList(regionId, resource string, query url.Values) (jsonutils.JSONObject, error) {
-	url := fmt.Sprintf("https://elb.%s.myhuaweicloud.com/v2/%s/%s", regionId, self.projectId, resource)
-	return self.request(httputils.GET, url, query, nil)
+	return self.list(SERVICE_ELB, regionId, resource, query)
 }
 
 func (self *SHuaweiClient) monitorList(resource string, query url.Values) (jsonutils.JSONObject, error) {
-	url := fmt.Sprintf("https://ces.%s.myhuaweicloud.com/v1.0/%s/%s", self.clientRegion, self.projectId, resource)
-	return self.request(httputils.GET, url, query, nil)
+	return self.list(SERVICE_CES, self.clientRegion(), resource, query)
 }
 
 func (self *SHuaweiClient) monitorPost(resource string, params map[string]interface{}) (jsonutils.JSONObject, error) {
-	url := fmt.Sprintf("https://ces.%s.myhuaweicloud.com/V1.0/%s/%s", self.clientRegion, self.projectId, resource)
-	return self.request(httputils.POST, url, nil, params)
+	return self.post(SERVICE_CES, self.clientRegion(), resource, params)
 }
 
-func (self *SHuaweiClient) modelartsPoolNetworkList(resource string, params map[string]interface{}) (jsonutils.JSONObject, error) {
-	uri := fmt.Sprintf("https://modelarts.%s.myhuaweicloud.com/v1/%s/networks", self.clientRegion, self.projectId)
-	return self.request(httputils.GET, uri, url.Values{}, params)
+func (self *SHuaweiClient) modelartsPoolNetworkList(resource string) (jsonutils.JSONObject, error) {
+	return self.list(SERVICE_MODELARTS, self.clientRegion(), "networks", nil)
 }
 
 func (self *SHuaweiClient) modelartsPoolNetworkCreate(params map[string]interface{}) (jsonutils.JSONObject, error) {
-	uri := fmt.Sprintf("https://modelarts.%s.myhuaweicloud.com/v1/%s/networks", self.clientRegion, self.projectId)
-	return self.request(httputils.POST, uri, url.Values{}, params)
+	return self.post(SERVICE_MODELARTS, self.clientRegion(), "networks", params)
 }
 
 func (cli *SHuaweiClient) modelartsPoolNetworkDetail(networkName string) (jsonutils.JSONObject, error) {
-	uri := fmt.Sprintf("https://modelarts.%s.myhuaweicloud.com/v1/%s/networks/%s", cli.clientRegion, cli.projectId, networkName)
-	return cli.request(httputils.GET, uri, url.Values{}, nil)
+	return cli.list(SERVICE_MODELARTS, cli.clientRegion(), "networks/"+networkName, nil)
 }
 
 func (self *SHuaweiClient) modelartsPoolById(poolName string) (jsonutils.JSONObject, error) {
-	uri := fmt.Sprintf("https://modelarts.%s.myhuaweicloud.com/v2/%s/pools/%s", self.clientRegion, self.projectId, poolName)
-	return self.request(httputils.GET, uri, url.Values{}, nil)
+	resource := fmt.Sprintf("pools/%s", poolName)
+	return self.list(SERVICE_MODELARTS, self.clientRegion(), resource, nil)
 }
 
-func (self *SHuaweiClient) modelartsPoolList(resource string, params map[string]interface{}) (jsonutils.JSONObject, error) {
-	uri := fmt.Sprintf("https://modelarts.%s.myhuaweicloud.com/v2/%s/%s", self.clientRegion, self.projectId, resource)
-	return self.request(httputils.GET, uri, url.Values{}, params)
+func (self *SHuaweiClient) modelartsPoolList(resource string) (jsonutils.JSONObject, error) {
+	return self.list(SERVICE_MODELARTS, self.clientRegion(), resource, nil)
 }
 
-func (cli *SHuaweiClient) modelartsPoolListWithStatus(resource, status string, params map[string]interface{}) (jsonutils.JSONObject, error) {
-	uri := fmt.Sprintf("https://modelarts.%s.myhuaweicloud.com/v2/%s/%s", cli.clientRegion, cli.projectId, resource)
+func (cli *SHuaweiClient) modelartsPoolListWithStatus(resource, status string) (jsonutils.JSONObject, error) {
 	value := url.Values{}
 	value.Add("status", status)
-	return cli.request(httputils.GET, uri, value, params)
+	return cli.list(SERVICE_MODELARTS, cli.clientRegion(), resource, value)
 }
 
 func (self *SHuaweiClient) modelartsPoolCreate(resource string, params map[string]interface{}) (jsonutils.JSONObject, error) {
-	uri := fmt.Sprintf("https://modelarts.%s.myhuaweicloud.com/v2/%s/%s", self.clientRegion, self.projectId, resource)
-	return self.request(httputils.POST, uri, url.Values{}, params)
+	return self.post(SERVICE_MODELARTS, self.clientRegion(), resource, params)
 }
 
-func (self *SHuaweiClient) modelartsPoolDelete(resource, poolName string, params map[string]interface{}) (jsonutils.JSONObject, error) {
-	uri := fmt.Sprintf("https://modelarts.%s.myhuaweicloud.com/v2/%s/pools/%s", self.clientRegion, self.projectId, poolName)
-	return self.request(httputils.DELETE, uri, url.Values{}, params)
+func (self *SHuaweiClient) modelartsPoolDelete(poolName string) (jsonutils.JSONObject, error) {
+	resource := fmt.Sprintf("pools/%s", poolName)
+	return self.delete(SERVICE_MODELARTS, self.clientRegion(), resource)
 }
 
 func (self *SHuaweiClient) modelartsPoolUpdate(poolName string, params map[string]interface{}) (jsonutils.JSONObject, error) {
-	uri := fmt.Sprintf("https://modelarts.%s.myhuaweicloud.com/v2/%s/pools/%s", self.clientRegion, self.projectId, poolName)
+	resource := fmt.Sprintf("pools/%s", poolName)
 	urlValue := url.Values{}
 	urlValue.Add("time_range", "")
 	urlValue.Add("statistics", "")
 	urlValue.Add("period", "")
-	return self.patchRequest(httputils.PATCH, uri, urlValue, params)
+	return self.patch(SERVICE_MODELARTS, self.clientRegion(), resource, urlValue, params)
 }
 
-func (self *SHuaweiClient) modelartsPoolMonitor(poolName string, params map[string]interface{}) (jsonutils.JSONObject, error) {
-	uri := fmt.Sprintf("https://modelarts.%s.myhuaweicloud.com/v2/%s/pools/%s/monitor", self.clientRegion, self.projectId, poolName)
-	return self.request(httputils.GET, uri, url.Values{}, params)
+func (self *SHuaweiClient) modelartsPoolMonitor(poolName string) (jsonutils.JSONObject, error) {
+	resource := fmt.Sprintf("pools/%s/monitor", poolName)
+	return self.list(SERVICE_MODELARTS, self.clientRegion(), resource, nil)
 }
 
-func (self *SHuaweiClient) modelartsResourceflavors(resource string, params map[string]interface{}) (jsonutils.JSONObject, error) {
-	uri := fmt.Sprintf("https://modelarts.%s.myhuaweicloud.com/v1/%s/%s", self.clientRegion, self.projectId, resource)
-	return self.request(httputils.GET, uri, url.Values{}, params)
-}
-
-func (self *SHuaweiClient) getAKSKList(userId string) (jsonutils.JSONObject, error) {
-	params := url.Values{}
-	params.Set("user_id", userId)
-	uri := fmt.Sprintf("https://iam.cn-north-4.myhuaweicloud.com/v3.0/OS-CREDENTIAL/credentials")
-	return self.request(httputils.GET, uri, params, nil)
-}
-
-func (self *SHuaweiClient) deleteAKSK(accesskey string) (jsonutils.JSONObject, error) {
-	uri := fmt.Sprintf("https://iam.cn-north-4.myhuaweicloud.com/v3.0/OS-CREDENTIAL/credentials/%s", accesskey)
-	return self.request(httputils.DELETE, uri, url.Values{}, nil)
-}
-
-func (self *SHuaweiClient) createAKSK(params map[string]interface{}) (jsonutils.JSONObject, error) {
-	uri := fmt.Sprintf("https://iam.cn-north-4.myhuaweicloud.com/v3.0/OS-CREDENTIAL/credentials")
-	return self.request(httputils.POST, uri, url.Values{}, params)
+func (self *SHuaweiClient) modelartsResourceflavors(resource string) (jsonutils.JSONObject, error) {
+	return self.list(SERVICE_MODELARTS, self.clientRegion(), resource, nil)
 }
 
 func (self *SHuaweiClient) lbGet(regionId, resource string) (jsonutils.JSONObject, error) {
-	uri := fmt.Sprintf("https://elb.%s.myhuaweicloud.com/v2/%s/%s", regionId, self.projectId, resource)
-	return self.request(httputils.GET, uri, url.Values{}, nil)
+	return self.list(SERVICE_ELB, regionId, resource, nil)
 }
 
 func (self *SHuaweiClient) lbCreate(regionId, resource string, params map[string]interface{}) (jsonutils.JSONObject, error) {
-	uri := fmt.Sprintf("https://elb.%s.myhuaweicloud.com/v2/%s/%s", regionId, self.projectId, resource)
-	return self.request(httputils.POST, uri, url.Values{}, params)
+	return self.post(SERVICE_ELB, regionId, resource, params)
 }
 
 func (self *SHuaweiClient) lbUpdate(regionId, resource string, params map[string]interface{}) (jsonutils.JSONObject, error) {
-	uri := fmt.Sprintf("https://elb.%s.myhuaweicloud.com/v2/%s/%s", regionId, self.projectId, resource)
-	return self.request(httputils.PUT, uri, url.Values{}, params)
+	return self.put(SERVICE_ELB, regionId, resource, params)
 }
 
 func (self *SHuaweiClient) lbDelete(regionId, resource string) (jsonutils.JSONObject, error) {
-	uri := fmt.Sprintf("https://elb.%s.myhuaweicloud.com/v2/%s/%s", regionId, self.projectId, resource)
-	return self.request(httputils.DELETE, uri, url.Values{}, nil)
+	return self.delete(SERVICE_ELB, regionId, resource)
 }
 
 func (self *SHuaweiClient) vpcList(regionId, resource string, query url.Values) (jsonutils.JSONObject, error) {
-	url := fmt.Sprintf("https://vpc.%s.myhuaweicloud.com/v1/%s/%s", regionId, self.projectId, resource)
-	return self.request(httputils.GET, url, query, nil)
+	return self.list(SERVICE_VPC, regionId, resource, query)
 }
 
 func (self *SHuaweiClient) vpcCreate(regionId, resource string, params map[string]interface{}) (jsonutils.JSONObject, error) {
-	uri := fmt.Sprintf("https://vpc.%s.myhuaweicloud.com/v1/%s/%s", regionId, self.projectId, resource)
-	return self.request(httputils.POST, uri, url.Values{}, params)
+	return self.post(SERVICE_VPC, regionId, resource, params)
 }
 
 func (self *SHuaweiClient) vpcPost(regionId, resource string, params map[string]interface{}) (jsonutils.JSONObject, error) {
-	uri := fmt.Sprintf("https://vpc.%s.myhuaweicloud.com/v1/%s/%s", regionId, self.projectId, resource)
-	return self.request(httputils.POST, uri, url.Values{}, params)
+	return self.post(SERVICE_VPC, regionId, resource, params)
 }
 
 func (self *SHuaweiClient) vpcGet(regionId, resource string) (jsonutils.JSONObject, error) {
-	uri := fmt.Sprintf("https://vpc.%s.myhuaweicloud.com/v1/%s/%s", regionId, self.projectId, resource)
-	return self.request(httputils.GET, uri, url.Values{}, nil)
+	return self.list(SERVICE_VPC, regionId, resource, nil)
 }
 
 func (self *SHuaweiClient) vpcDelete(regionId, resource string) (jsonutils.JSONObject, error) {
-	uri := fmt.Sprintf("https://vpc.%s.myhuaweicloud.com/v1/%s/%s", regionId, self.projectId, resource)
-	return self.request(httputils.DELETE, uri, url.Values{}, nil)
+	return self.delete(SERVICE_VPC, regionId, resource)
 }
 
 func (self *SHuaweiClient) vpcUpdate(regionId, resource string, params map[string]interface{}) (jsonutils.JSONObject, error) {
-	uri := fmt.Sprintf("https://vpc.%s.myhuaweicloud.com/v1/%s/%s", regionId, self.projectId, resource)
-	return self.request(httputils.PUT, uri, url.Values{}, params)
+	return self.put(SERVICE_VPC, regionId, resource, params)
 }
 
 type akClient struct {
@@ -367,8 +364,11 @@ type akClient struct {
 
 func (self *akClient) Do(req *http.Request) (*http.Response, error) {
 	req.Header.Del("Accept")
-	if req.Method == string(httputils.GET) || req.Method == string(httputils.DELETE) || req.Method == string(httputils.PATCH) {
+	if req.Method == string(httputils.GET) || req.Method == string(httputils.DELETE) || (req.Method == string(httputils.PATCH) && !strings.HasPrefix(req.Host, "modelarts")) {
 		req.Header.Del("Content-Length")
+	}
+	if strings.HasPrefix(req.Host, "modelarts") && req.Method == string(httputils.PATCH) {
+		req.Header.Set("Content-Type", "application/merge-patch+json")
 	}
 	aksk.Sign(req, self.aksk)
 	return self.client.Do(req)
@@ -384,6 +384,108 @@ func (self *SHuaweiClient) getAkClient() *akClient {
 	}
 }
 
+func (self *SHuaweiClient) list(service, regionId, resource string, query url.Values) (jsonutils.JSONObject, error) {
+	url, err := self.getUrl(service, regionId, resource, httputils.GET)
+	if err != nil {
+		return nil, err
+	}
+	return self.request(httputils.GET, url, query, nil)
+}
+
+func (self *SHuaweiClient) delete(service, regionId, resource string) (jsonutils.JSONObject, error) {
+	url, err := self.getUrl(service, regionId, resource, httputils.DELETE)
+	if err != nil {
+		return nil, err
+	}
+	return self.request(httputils.DELETE, url, nil, nil)
+}
+
+func (self *SHuaweiClient) getUrl(service, regionId, resource string, method httputils.THttpMethod) (string, error) {
+	url := ""
+	resource = strings.TrimPrefix(resource, "/")
+	switch service {
+	case SERVICE_IAM:
+		url = fmt.Sprintf("https://iam.myhuaweicloud.com/v3.0/%s", resource)
+		if !strings.HasPrefix(resource, "OS-") {
+			url = fmt.Sprintf("https://iam.myhuaweicloud.com/v3/%s", resource)
+		}
+	case SERVICE_ELB:
+		url = fmt.Sprintf("https://elb.%s.myhuaweicloud.com/v2/%s/%s", regionId, self.projectId, resource)
+	case SERVICE_VPC:
+		version := "v1"
+		if strings.HasPrefix(resource, "vpc/") {
+			version = "v3"
+		}
+		url = fmt.Sprintf("https://vpc.%s.myhuaweicloud.com/%s/%s/%s", regionId, version, self.projectId, resource)
+	case SERVICE_CES:
+		url = fmt.Sprintf("https://ces.%s.myhuaweicloud.com/v1.0/%s/%s", regionId, self.projectId, resource)
+	case SERVICE_MODELARTS:
+		url = fmt.Sprintf("https://modelarts.%s.myhuaweicloud.com/v2/%s/%s", regionId, self.projectId, resource)
+		if strings.HasPrefix(resource, "networks") || strings.HasPrefix(resource, "resourceflavors") {
+			url = fmt.Sprintf("https://modelarts.%s.myhuaweicloud.com/v1/%s/%s", regionId, self.projectId, resource)
+		}
+	case SERVICE_RDS:
+		url = fmt.Sprintf("https://rds.%s.myhuaweicloud.com/v3/%s/%s", regionId, self.projectId, resource)
+	case SERVICE_ECS:
+		version := "v1"
+		for _, prefix := range []string{
+			"os-availability-zone",
+			"servers",
+			"os-keypairs",
+		} {
+			if strings.HasPrefix(resource, prefix) {
+				version = "v2.1"
+				break
+			}
+		}
+		url = fmt.Sprintf("https://ecs.%s.myhuaweicloud.com/%s/%s/%s", regionId, version, self.projectId, resource)
+	case SERVICE_EPS:
+		url = fmt.Sprintf("https://eps.myhuaweicloud.com/v1.0/%s", resource)
+	case SERVICE_EVS:
+		version := "v2"
+		url = fmt.Sprintf("https://evs.%s.myhuaweicloud.com/%s/%s/%s", regionId, version, self.projectId, resource)
+	case SERVICE_BSS:
+		url = fmt.Sprintf("https://bss.myhuaweicloud.com/v2/%s", resource)
+	case SERVICE_SFS:
+		url = fmt.Sprintf("https://sfs-turbo.%s.myhuaweicloud.com/v1/%s/%s", regionId, self.projectId, resource)
+	case SERVICE_IMS:
+		url = fmt.Sprintf("https://ims.%s.myhuaweicloud.com/v2/%s", regionId, resource)
+	case SERVICE_DCS:
+		url = fmt.Sprintf("https://dcs.%s.myhuaweicloud.com/v2/%s/%s", regionId, self.projectId, resource)
+	case SERVICE_CTS:
+		url = fmt.Sprintf("https://cts.%s.myhuaweicloud.com/v3/%s/%s", regionId, self.projectId, resource)
+	case SERVICE_NAT:
+		url = fmt.Sprintf("https://nat.%s.myhuaweicloud.com/v2/%s/%s", regionId, self.projectId, resource)
+	default:
+		return "", fmt.Errorf("invalid service %s", service)
+	}
+	return url, nil
+}
+
+func (self *SHuaweiClient) post(service, regionId, resource string, params map[string]interface{}) (jsonutils.JSONObject, error) {
+	url, err := self.getUrl(service, regionId, resource, httputils.POST)
+	if err != nil {
+		return nil, err
+	}
+	return self.request(httputils.POST, url, nil, params)
+}
+
+func (self *SHuaweiClient) patch(service, regionId, resource string, query url.Values, params map[string]interface{}) (jsonutils.JSONObject, error) {
+	url, err := self.getUrl(service, regionId, resource, httputils.PATCH)
+	if err != nil {
+		return nil, err
+	}
+	return self.request(httputils.PATCH, url, query, params)
+}
+
+func (self *SHuaweiClient) put(service, regionId, resource string, params map[string]interface{}) (jsonutils.JSONObject, error) {
+	url, err := self.getUrl(service, regionId, resource, httputils.PUT)
+	if err != nil {
+		return nil, err
+	}
+	return self.request(httputils.PUT, url, nil, params)
+}
+
 func (self *SHuaweiClient) request(method httputils.THttpMethod, url string, query url.Values, params map[string]interface{}) (jsonutils.JSONObject, error) {
 	client := self.getAkClient()
 	if len(query) > 0 {
@@ -394,10 +496,12 @@ func (self *SHuaweiClient) request(method httputils.THttpMethod, url string, que
 		body = jsonutils.Marshal(params)
 	}
 	header := http.Header{}
-	if len(self.projectId) > 0 {
+	if len(self.projectId) > 0 && !strings.Contains(url, "eps") {
 		header.Set("X-Project-Id", self.projectId)
 	}
-	if strings.Contains(url, "/OS-CREDENTIAL/credentials") && len(self.ownerId) > 0 {
+	if (strings.Contains(url, "/OS-CREDENTIAL/") ||
+		strings.Contains(url, "/users") ||
+		strings.Contains(url, "eps.myhuaweicloud.com")) && len(self.ownerId) > 0 {
 		header.Set("X-Domain-Id", self.ownerId)
 	}
 	_, resp, err := httputils.JSONRequest(client, context.Background(), method, url, header, body, self.debug)
@@ -410,63 +514,39 @@ func (self *SHuaweiClient) request(method httputils.THttpMethod, url string, que
 	return resp, err
 }
 
-func (self *SHuaweiClient) fetchRegions() error {
-	huawei, _ := self.newGeneralAPIClient()
-	if self.regions == nil {
-		userId, err := self.GetUserId()
-		if err != nil {
-			return errors.Wrap(err, "GetUserId")
-		}
-
-		if regionsCache, ok := HUAWEI_REGION_CACHES.Load(userId); !ok || regionsCache.(*userRegionsCache).ExpireAt.Sub(time.Now()).Seconds() > 0 {
-			regions := make([]SRegion, 0)
-			err := doListAll(huawei.Regions.List, nil, &regions)
-			if err != nil {
-				return errors.Wrap(err, "Regions.List")
-			}
-
-			HUAWEI_REGION_CACHES.Store(userId, &userRegionsCache{ExpireAt: time.Now().Add(24 * time.Hour), UserId: userId, Regions: regions})
-		}
-
-		if regionsCache, ok := HUAWEI_REGION_CACHES.Load(userId); ok {
-			self.regions = regionsCache.(*userRegionsCache).Regions
-		}
+func (self *SHuaweiClient) getRegions() ([]SRegion, error) {
+	resp, err := self.list(SERVICE_IAM, "", "regions", nil)
+	if err != nil {
+		return nil, err
 	}
-
-	filtedRegions := make([]SRegion, 0)
-	if len(self.projectId) > 0 {
-		project, err := self.GetProjectById(self.projectId)
-		if err != nil {
-			return err
-		}
-
-		for _, region := range self.regions {
-			if strings.Count(project.Name, region.ID) >= 1 {
-				self.clientRegion = region.ID
-				filtedRegions = append(filtedRegions, region)
-			}
-			if project.Name == region.ID {
-				self.isMainProject = true
-			}
-		}
-	} else {
-		filtedRegions = self.regions
+	ret := struct {
+		Regions []SRegion
+	}{}
+	err = resp.Unmarshal(&ret)
+	if err != nil {
+		return ret.Regions, nil
 	}
-
-	if len(filtedRegions) == 0 {
-		return errors.Wrapf(cloudprovider.ErrNotFound, "empty regions")
+	for i := range ret.Regions {
+		ret.Regions[i].client = self
+		ret.Regions[i].ecsClient, _ = ret.Regions[i].getECSClient()
 	}
+	return ret.Regions, nil
+}
 
-	self.iregions = make([]cloudprovider.ICloudRegion, len(filtedRegions))
-	for i := 0; i < len(filtedRegions); i += 1 {
-		filtedRegions[i].client = self
-		_, err := filtedRegions[i].getECSClient()
-		if err != nil {
-			return err
-		}
-		self.iregions[i] = &filtedRegions[i]
+func (self *SHuaweiClient) getProjects() ([]SProject, error) {
+	resp, err := self.list(SERVICE_IAM, "", "projects", nil)
+	if err != nil {
+		return nil, err
 	}
-	return nil
+	ret := struct {
+		Projects []SProject
+	}{}
+	err = resp.Unmarshal(&ret)
+	if err != nil {
+		return ret.Projects, nil
+	}
+	return ret.Projects, nil
+
 }
 
 func (self *SHuaweiClient) invalidateIBuckets() {
@@ -531,13 +611,13 @@ func (self *SHuaweiClient) fetchBuckets() error {
 	ret := make([]cloudprovider.ICloudBucket, 0)
 	for i := range output.Buckets {
 		bInfo := output.Buckets[i]
-		region, err := self.getIRegionByRegionId(bInfo.Location)
-		if err != nil {
+		region := self.GetRegion(bInfo.Location)
+		if region == nil {
 			log.Errorf("fail to find region %s", bInfo.Location)
 			continue
 		}
 		b := SBucket{
-			region: region.(*SRegion),
+			region: region,
 
 			Name:         bInfo.Name,
 			Location:     bInfo.Location,
@@ -550,34 +630,28 @@ func (self *SHuaweiClient) fetchBuckets() error {
 }
 
 func (self *SHuaweiClient) GetCloudRegionExternalIdPrefix() string {
-	if len(self.projectId) > 0 {
-		return self.iregions[0].GetGlobalId()
-	} else {
-		return CLOUD_PROVIDER_HUAWEI
+	regions := self.GetIRegions()
+	if len(regions) == 1 {
+		return regions[0].GetGlobalId()
 	}
+	return CLOUD_PROVIDER_HUAWEI
 }
 
-func (self *SHuaweiClient) UpdateAccount(accessKey, secret string) error {
-	if self.accessKey != accessKey || self.accessSecret != secret {
-		self.accessKey = accessKey
-		self.accessSecret = secret
-		return self.fetchRegions()
-	} else {
-		return nil
+func (self *SHuaweiClient) GetRegions() ([]SRegion, error) {
+	if len(self.regions) > 0 {
+		return self.regions, nil
 	}
-}
-
-func (self *SHuaweiClient) GetRegions() []SRegion {
-	regions := make([]SRegion, len(self.iregions))
-	for i := 0; i < len(regions); i += 1 {
-		region := self.iregions[i].(*SRegion)
-		regions[i] = *region
-	}
-	return regions
+	var err error
+	self.regions, err = self.getRegions()
+	return self.regions, err
 }
 
 func (self *SHuaweiClient) GetSubAccounts() ([]cloudprovider.SSubAccount, error) {
-	projects, err := self.fetchProjects()
+	projects, err := self.GetProjects()
+	if err != nil {
+		return nil, err
+	}
+	regions, err := self.GetRegions()
 	if err != nil {
 		return nil, err
 	}
@@ -586,15 +660,20 @@ func (self *SHuaweiClient) GetSubAccounts() ([]cloudprovider.SSubAccount, error)
 	subAccounts := make([]cloudprovider.SSubAccount, 0)
 	for i := range projects {
 		project := projects[i]
-		// name 为MOS的project是华为云内部的一个特殊project。不需要同步到本地
-		if strings.ToLower(project.Name) == "mos" {
+		find := false
+		desc := ""
+		for _, region := range regions {
+			if strings.Contains(project.Name, region.ID) {
+				find = true
+				desc = region.Locales.ZhCN
+				break
+			}
+		}
+		if !find {
+			// name 为MOS的project是华为云内部的一个特殊project。不需要同步到本地
+			// skip invalid project
 			continue
 		}
-		// https://www.huaweicloud.com/notice/2018/20190618171312411.html
-		// expiredAt, _ := timeutils.ParseTimeStr("2020-09-16 00:00:00")
-		// if !self.ownerCreateTime.IsZero() && self.ownerCreateTime.After(expiredAt) && strings.ToLower(project.Name) == "cn-north-1" {
-		// 	continue
-		// }
 		s := cloudprovider.SSubAccount{
 			Name:             fmt.Sprintf("%s-%s", self.cpcfg.Name, project.Name),
 			Account:          fmt.Sprintf("%s/%s", self.accessKey, project.ID),
@@ -602,14 +681,9 @@ func (self *SHuaweiClient) GetSubAccounts() ([]cloudprovider.SSubAccount, error)
 			DefaultProjectId: "0",
 			Desc:             project.GetDescription(),
 		}
-		for j := range self.iregions {
-			region := self.iregions[j].(*SRegion)
-			if strings.Contains(project.Name, region.ID) {
-				s.Desc = region.Locales.ZhCN
-				break
-			}
+		if len(s.Desc) == 0 {
+			s.Desc = desc
 		}
-
 		subAccounts = append(subAccounts, s)
 	}
 
@@ -625,23 +699,36 @@ func (client *SHuaweiClient) GetIamLoginUrl() string {
 }
 
 func (self *SHuaweiClient) GetIRegions() []cloudprovider.ICloudRegion {
-	return self.iregions
-}
-
-func (self *SHuaweiClient) getIRegionByRegionId(id string) (cloudprovider.ICloudRegion, error) {
-	for i := 0; i < len(self.iregions); i += 1 {
-		log.Debugf("%d ID: %s", i, self.iregions[i].GetId())
-		if self.iregions[i].GetId() == id {
-			return self.iregions[i], nil
+	regions, err := self.GetRegions()
+	if err != nil {
+		return nil
+	}
+	projects, err := self.GetProjects()
+	if err != nil {
+		return nil
+	}
+	ret := []cloudprovider.ICloudRegion{}
+	for i := range regions {
+		regions[i].client = self
+		find := false
+		for _, project := range projects {
+			if strings.Contains(project.Name, regions[i].ID) && (len(self.projectId) == 0 || self.projectId == project.ID) {
+				find = true
+				break
+			}
+		}
+		if find {
+			ret = append(ret, &regions[i])
 		}
 	}
-	return nil, cloudprovider.ErrNotFound
+	return ret
 }
 
 func (self *SHuaweiClient) GetIRegionById(id string) (cloudprovider.ICloudRegion, error) {
-	for i := 0; i < len(self.iregions); i += 1 {
-		if self.iregions[i].GetGlobalId() == id {
-			return self.iregions[i], nil
+	regions := self.GetIRegions()
+	for i := 0; i < len(regions); i += 1 {
+		if regions[i].GetId() == id || regions[i].GetGlobalId() == id {
+			return regions[i], nil
 		}
 	}
 	return nil, cloudprovider.ErrNotFound
@@ -651,17 +738,19 @@ func (self *SHuaweiClient) GetRegion(regionId string) *SRegion {
 	if len(regionId) == 0 {
 		regionId = HUAWEI_DEFAULT_REGION
 	}
-	for i := 0; i < len(self.iregions); i += 1 {
-		if self.iregions[i].GetId() == regionId {
-			return self.iregions[i].(*SRegion)
+	regions, _ := self.GetRegions()
+	for i := 0; i < len(regions); i += 1 {
+		if regions[i].GetId() == regionId {
+			return &regions[i]
 		}
 	}
 	return nil
 }
 
 func (self *SHuaweiClient) GetIHostById(id string) (cloudprovider.ICloudHost, error) {
-	for i := 0; i < len(self.iregions); i += 1 {
-		ihost, err := self.iregions[i].GetIHostById(id)
+	regions := self.GetIRegions()
+	for i := 0; i < len(regions); i += 1 {
+		ihost, err := regions[i].GetIHostById(id)
 		if err == nil {
 			return ihost, nil
 		} else if errors.Cause(err) != cloudprovider.ErrNotFound {
@@ -672,8 +761,9 @@ func (self *SHuaweiClient) GetIHostById(id string) (cloudprovider.ICloudHost, er
 }
 
 func (self *SHuaweiClient) GetIVpcById(id string) (cloudprovider.ICloudVpc, error) {
-	for i := 0; i < len(self.iregions); i += 1 {
-		ivpc, err := self.iregions[i].GetIVpcById(id)
+	regions := self.GetIRegions()
+	for i := 0; i < len(regions); i += 1 {
+		ivpc, err := regions[i].GetIVpcById(id)
 		if err == nil {
 			return ivpc, nil
 		} else if errors.Cause(err) != cloudprovider.ErrNotFound {
@@ -684,8 +774,9 @@ func (self *SHuaweiClient) GetIVpcById(id string) (cloudprovider.ICloudVpc, erro
 }
 
 func (self *SHuaweiClient) GetIStorageById(id string) (cloudprovider.ICloudStorage, error) {
-	for i := 0; i < len(self.iregions); i += 1 {
-		istorage, err := self.iregions[i].GetIStorageById(id)
+	regions := self.GetIRegions()
+	for i := 0; i < len(regions); i += 1 {
+		istorage, err := regions[i].GetIStorageById(id)
 		if err == nil {
 			return istorage, nil
 		} else if errors.Cause(err) != cloudprovider.ErrNotFound {
@@ -739,14 +830,15 @@ func (self *SHuaweiClient) QueryAccountBalance() (*SAccountBalance, error) {
 
 // https://support.huaweicloud.com/api-bpconsole/zh-cn_topic_0075213309.html
 func (self *SHuaweiClient) queryDomainBalances(domainId string) ([]SBalance, error) {
-	huawei, _ := self.newGeneralAPIClient()
-	huawei.Balances.SetDomainId(domainId)
-	balances := make([]SBalance, 0)
-	err := doListAll(huawei.Balances.List, nil, &balances)
+	resp, err := self.list(SERVICE_BSS, "", "accounts/customer-accounts/balances", nil)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "request")
 	}
-
+	balances := make([]SBalance, 0)
+	err = resp.Unmarshal(&balances, "account_balances")
+	if err != nil {
+		return nil, errors.Wrapf(err, "Unmarshal")
+	}
 	return balances, nil
 }
 
@@ -787,7 +879,7 @@ func (self *SHuaweiClient) GetCapabilities() []string {
 	// huawei objectstore is shared across projects(subscriptions)
 	// to avoid multiple project access the same bucket
 	// only main project is allow to access objectstore bucket
-	if self.isMainProject {
+	if self.isMainProject() {
 		caps = append(caps, cloudprovider.CLOUD_CAPABILITY_OBJECTSTORE)
 	}
 	return caps
@@ -797,22 +889,13 @@ func (self *SHuaweiClient) GetUserId() (string, error) {
 	if len(self.userId) > 0 {
 		return self.userId, nil
 	}
-	client, err := self.newGeneralAPIClient()
+	resource := fmt.Sprintf("OS-CREDENTIAL/credentials/%s", self.accessKey)
+	resp, err := self.list(SERVICE_IAM, "", resource, nil)
 	if err != nil {
-		return "", errors.Wrap(err, "SHuaweiClient.GetUserId.newGeneralAPIClient")
+		return "", errors.Wrapf(err, "request")
 	}
-
-	type cred struct {
-		UserId string `json:"user_id"`
-	}
-
-	ret := &cred{}
-	err = DoGet(client.Credentials.Get, self.accessKey, nil, ret)
-	if err != nil {
-		return "", errors.Wrap(err, "SHuaweiClient.GetUserId.DoGet")
-	}
-	self.userId = ret.UserId
-	return self.userId, nil
+	self.userId, err = resp.GetString("credential", "user_id")
+	return self.userId, err
 }
 
 // owner id == domain_id == account id
@@ -822,29 +905,28 @@ func (self *SHuaweiClient) GetOwnerId() (string, error) {
 	}
 	userId, err := self.GetUserId()
 	if err != nil {
-		return "", errors.Wrap(err, "SHuaweiClient.GetOwnerId.GetUserId")
+		return "", errors.Wrap(err, "GetUserId")
 	}
 
-	client, err := self.newGeneralAPIClient()
+	resource := fmt.Sprintf("OS-USER/users/%s", userId)
+	resp, err := self.list(SERVICE_IAM, "", resource, nil)
 	if err != nil {
-		return "", errors.Wrap(err, "SHuaweiClient.GetOwnerId.newGeneralAPIClient")
+		return "", errors.Wrapf(err, "request")
 	}
 
-	type user struct {
+	user := struct {
 		DomainId   string `json:"domain_id"`
 		Name       string `json:"name"`
 		CreateTime string
-	}
-
-	ret := &user{}
-	err = DoGet(client.Users.Get, userId, nil, ret)
+	}{}
+	err = resp.Unmarshal(&user, "user")
 	if err != nil {
-		return "", errors.Wrap(err, "SHuaweiClient.GetOwnerId.DoGet")
+		return "", errors.Wrapf(err, "Unmarshal")
 	}
-	self.ownerName = ret.Name
+	self.ownerName = user.Name
 	// 2021-02-02 02:43:28.0
-	self.ownerCreateTime, _ = timeutils.ParseTimeStr(strings.TrimSuffix(ret.CreateTime, ".0"))
-	self.ownerId = ret.DomainId
+	self.ownerCreateTime, _ = timeutils.ParseTimeStr(strings.TrimSuffix(user.CreateTime, ".0"))
+	self.ownerId = user.DomainId
 	return self.ownerId, nil
 }
 
@@ -856,45 +938,14 @@ func (self *SHuaweiClient) initOwner() error {
 	return nil
 }
 
-func (self *SHuaweiClient) patchRequest(method httputils.THttpMethod, url string, query url.Values, params map[string]interface{}) (jsonutils.JSONObject, error) {
-	client := self.getAkClient()
-	if len(query) > 0 {
-		url = fmt.Sprintf("%s?%s", url, query.Encode())
-	}
-	var body jsonutils.JSONObject = nil
-	if len(params) > 0 {
-		body = jsonutils.Marshal(params)
-	}
-	header := http.Header{}
-	if len(self.projectId) > 0 {
-		header.Set("X-Project-Id", self.projectId)
-	}
-	var bodystr string
-	if !gotypes.IsNil(body) {
-		bodystr = body.String()
-	}
-	jbody := strings.NewReader(bodystr)
-	header.Set("Content-Length", strconv.FormatInt(int64(len(bodystr)), 10))
-	header.Set("Content-Type", "application/merge-patch+json")
-	resp, err := httputils.Request(client, context.Background(), method, url, header, jbody, self.debug)
-	_, respValue, err := httputils.ParseJSONResponse(bodystr, resp, err, self.debug)
-	if err != nil {
-		if e, ok := err.(*httputils.JSONClientError); ok && e.Code == 404 {
-			return nil, errors.Wrapf(cloudprovider.ErrNotFound, err.Error())
-		}
-		return nil, err
-	}
-	return respValue, err
-}
-
 func (self *SHuaweiClient) dbinstanceSetName(instanceId string, params map[string]interface{}) error {
-	uri := fmt.Sprintf("https://rds.%s.myhuaweicloud.com/v3/%s/instances/%s/name", self.clientRegion, self.projectId, instanceId)
-	_, err := self.request(httputils.PUT, uri, nil, params)
+	resource := fmt.Sprintf("instances/%s/name", instanceId)
+	_, err := self.put(SERVICE_RDS, self.clientRegion(), resource, params)
 	return err
 }
 
 func (self *SHuaweiClient) dbinstanceSetDesc(instanceId string, params map[string]interface{}) error {
-	uri := fmt.Sprintf("https://rds.%s.myhuaweicloud.com/v3/%s/instances/%s/alias", self.clientRegion, self.projectId, instanceId)
-	_, err := self.request(httputils.PUT, uri, nil, params)
+	resource := fmt.Sprintf("instances/%s/alias", instanceId)
+	_, err := self.put(SERVICE_RDS, self.clientRegion(), resource, params)
 	return err
 }
