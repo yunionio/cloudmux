@@ -36,6 +36,7 @@ type BaseOptions struct {
 	AccessKey  string `help:"Access key" default:"$ALIYUN_ACCESS_KEY" metavar:"ALIYUN_ACCESS_KEY"`
 	Secret     string `help:"Secret" default:"$ALIYUN_SECRET" metavar:"ALIYUN_SECRET"`
 	RegionId   string `help:"RegionId" default:"$ALIYUN_REGION" metavar:"ALIYUN_REGION"`
+	AccountId  string `help:"AccountId" default:"$ALIYUN_ACCOUNT_ID" metavar:"ALIYUN_ACCOUNT_ID"`
 	SUBCOMMAND string `help:"aliyuncli subcommand" subcommand:"true"`
 }
 
@@ -93,7 +94,7 @@ func newClient(options *BaseOptions) (*aliyun.SRegion, error) {
 			options.CloudEnv,
 			options.AccessKey,
 			options.Secret,
-		).Debug(options.Debug).
+		).AccountId(options.AccountId).Debug(options.Debug).
 			CloudproviderConfig(
 				cloudprovider.ProviderConfig{
 					ProxyFunc: proxyFunc,
