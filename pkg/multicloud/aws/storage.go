@@ -78,6 +78,10 @@ func (self *SStorage) GetIStoragecache() cloudprovider.ICloudStoragecache {
 	return self.zone.region.getStoragecache()
 }
 
+func (self *SStorage) IsEmulated() bool {
+	return true
+}
+
 func (self *SStorage) GetIZone() cloudprovider.ICloudZone {
 	return self.zone
 }
