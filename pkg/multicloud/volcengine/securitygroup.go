@@ -48,7 +48,7 @@ type SSecurityGroupRule struct {
 
 type SSecurityGroup struct {
 	multicloud.SSecurityGroup
-	VolcEngineTags
+	VolcengineTags
 
 	region            *SRegion
 	Description       string

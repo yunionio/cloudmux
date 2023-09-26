@@ -25,7 +25,7 @@ import (
 
 type SWire struct {
 	multicloud.SResourceBase
-	VolcEngineTags
+	VolcengineTags
 
 	zone      *SZone
 	vpc       *SVpc

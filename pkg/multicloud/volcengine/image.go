@@ -47,7 +47,7 @@ const (
 
 type SImage struct {
 	multicloud.SImageBase
-	VolcEngineTags
+	VolcengineTags
 	storageCache *SStoragecache
 
 	// normalized image info

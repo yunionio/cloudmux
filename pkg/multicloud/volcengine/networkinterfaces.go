@@ -53,7 +53,7 @@ type SPrivateIpSets struct {
 
 type SNetworkInterface struct {
 	multicloud.SNetworkInterfaceBase
-	VolcEngineTags
+	VolcengineTags
 	region *SRegion
 
 	InstanceId           string

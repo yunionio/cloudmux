@@ -27,7 +27,7 @@ type SUserCIDRs []string
 
 type SVpc struct {
 	multicloud.SVpc
-	VolcEngineTags
+	VolcengineTags
 
 	region *SRegion
 

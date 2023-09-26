@@ -26,7 +26,7 @@ import (
 
 type SDNATEntry struct {
 	multicloud.SResourceBase
-	VolcEngineTags
+	VolcengineTags
 	nat *SNatGateway
 
 	NatGatewayId  string

@@ -27,7 +27,7 @@ import (
 
 type SStorage struct {
 	multicloud.SStorageBase
-	VolcEngineTags
+	VolcengineTags
 	zone        *SZone
 	storageType string
 }
