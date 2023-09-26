@@ -53,7 +53,7 @@ type SRegion struct {
 	multicloud.SRegion
 	multicloud.SNoLbRegion
 
-	client    *SVolcEngineClient
+	client    *SVolcengineClient
 	tosClient *tos.ClientV2
 	RegionId  string
 
@@ -62,7 +62,7 @@ type SRegion struct {
 	storageCache *SStoragecache
 }
 
-func (region *SRegion) GetClient() *SVolcEngineClient {
+func (region *SRegion) GetClient() *SVolcengineClient {
 	return region.client
 }
 

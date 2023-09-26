@@ -66,7 +66,7 @@ func (f *SVolcengineProviderFactory) ValidateUpdateCloudaccountCredential(ctx co
 	return output, nil
 }
 
-func validateClientCloudenv(client *volcengine.SVolcEngineClient) error {
+func validateClientCloudenv(client *volcengine.SVolcengineClient) error {
 	regions := client.GetIRegions()
 	if len(regions) == 0 {
 		return nil
@@ -89,7 +89,7 @@ func parseAccount(account string) (accessKey string, projectId string) {
 
 func (self *SVolcengineProviderFactory) GetProvider(cfg cloudprovider.ProviderConfig) (cloudprovider.ICloudProvider, error) {
 	accessKey, accountId := parseAccount(cfg.Account)
-	client, err := volcengine.NewVolcEngineClient(
+	client, err := volcengine.NewVolcengineClient(
 		volcengine.NewVolcengineClientConfig(
 			accessKey,
 			cfg.Secret,
@@ -128,7 +128,7 @@ func init() {
 type SVolcengineProvider struct {
 	cloudprovider.SBaseProvider
 
-	client *volcengine.SVolcEngineClient
+	client *volcengine.SVolcengineClient
 }
 
 func (self *SVolcengineProvider) GetAccountId() string {

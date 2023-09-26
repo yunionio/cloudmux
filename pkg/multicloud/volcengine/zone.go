@@ -41,7 +41,7 @@ type SAvailableResource struct {
 
 type SZone struct {
 	multicloud.SResourceBase
-	VolcEngineTags
+	VolcengineTags
 	region *SRegion
 
 	host *SHost

@@ -29,7 +29,7 @@ import (
 
 type SNatGateway struct {
 	multicloud.SNatGatewayBase
-	VolcEngineTags
+	VolcengineTags
 
 	vpc *SVpc
 

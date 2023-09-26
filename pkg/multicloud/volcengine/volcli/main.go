@@ -85,7 +85,7 @@ func newClient(options *BaseOptions) (*volcengine.SRegion, error) {
 		return cfgProxyFunc(req.URL)
 	}
 
-	cli, err := volcengine.NewVolcEngineClient(
+	cli, err := volcengine.NewVolcengineClient(
 		volcengine.NewVolcengineClientConfig(
 			options.AccessKey,
 			options.SecretKey,

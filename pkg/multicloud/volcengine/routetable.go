@@ -26,7 +26,7 @@ import (
 
 type SRouteEntry struct {
 	multicloud.SResourceBase
-	VolcEngineTags
+	VolcengineTags
 	routeTable *SRouteTable
 
 	Description          string
@@ -48,7 +48,7 @@ type SubnetIds []string
 
 type SRouteTable struct {
 	multicloud.SResourceBase
-	VolcEngineTags
+	VolcengineTags
 	region *SRegion
 	vpc    *SVpc
 	routes []cloudprovider.ICloudRoute

@@ -33,7 +33,7 @@ import (
 
 type SBucket struct {
 	multicloud.SBaseBucket
-	VolcEngineTags
+	VolcengineTags
 	region *SRegion
 
 	Name         string

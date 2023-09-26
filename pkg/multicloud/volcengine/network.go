@@ -31,7 +31,7 @@ import (
 
 type SNetwork struct {
 	multicloud.SResourceBase
-	VolcEngineTags
+	VolcengineTags
 	wire *SWire
 
 	AccountId               string

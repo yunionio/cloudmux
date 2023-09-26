@@ -55,7 +55,7 @@ type SRdmaIPAddress []string
 
 type SInstance struct {
 	multicloud.SInstanceBase
-	VolcEngineTags
+	VolcengineTags
 
 	host *SHost
 

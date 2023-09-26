@@ -32,7 +32,7 @@ import (
 type SDisk struct {
 	storage *SStorage
 	multicloud.SDisk
-	VolcEngineTags
+	VolcengineTags
 
 	ZoneId             string
 	VolumeId           string
