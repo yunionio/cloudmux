@@ -68,22 +68,6 @@ func (wire *SWire) GetBandwidth() int {
 	return 10000
 }
 
-func (wire *SWire) addNetwork(subnet *SNetwork) {
-	if wire.inetworks == nil {
-		wire.inetworks = make([]cloudprovider.ICloudNetwork, 0)
-	}
-	find := false
-	for i := 0; i < len(wire.inetworks); i += 1 {
-		if wire.inetworks[i].GetId() == subnet.SubnetId {
-			find = true
-			break
-		}
-	}
-	if !find {
-		wire.inetworks = append(wire.inetworks, subnet)
-	}
-}
-
 func (wire *SWire) GetINetworks() ([]cloudprovider.ICloudNetwork, error) {
 	networks, err := wire.vpc.region.FetchSubnets(nil, wire.zone.ZoneId, wire.vpc.VpcId)
 	if err != nil {
