@@ -31,8 +31,6 @@ type SVpc struct {
 
 	region *SRegion
 
-	iwires []cloudprovider.ICloudWire
-
 	secgroups   []cloudprovider.ICloudSecurityGroup
 	routeTables []cloudprovider.ICloudRouteTable
 
@@ -87,23 +85,6 @@ func (vpc *SVpc) Refresh() error {
 
 func (vpc *SVpc) GetRegion() cloudprovider.ICloudRegion {
 	return vpc.region
-}
-
-func (vpc *SVpc) addWire(wire *SWire) {
-	if vpc.iwires == nil {
-		vpc.iwires = make([]cloudprovider.ICloudWire, 0)
-	}
-	vpc.iwires = append(vpc.iwires, wire)
-}
-
-func (vpc *SVpc) getWireByZoneId(zoneId string) *SWire {
-	for i := 0; i < len(vpc.iwires); i += 1 {
-		wire := vpc.iwires[i].(*SWire)
-		if wire.zone.ZoneId == zoneId {
-			return wire
-		}
-	}
-	return nil
 }
 
 func (vpc *SVpc) GetIWires() ([]cloudprovider.ICloudWire, error) {

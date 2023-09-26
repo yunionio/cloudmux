@@ -46,7 +46,6 @@ type SZone struct {
 
 	host *SHost
 
-	iwires             []cloudprovider.ICloudWire
 	istorages          []cloudprovider.ICloudStorage
 	Status             string
 	AvailableResources []SAvailableResource

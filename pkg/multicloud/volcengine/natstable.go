@@ -170,6 +170,9 @@ func (region *SRegion) CreateSnatEntry(rule cloudprovider.SNatSRule, natGatewayI
 	params["NatGatewayId"] = natGatewayId
 	params["SubnetId"] = rule.NetworkID
 	eips, _, err := region.GetEips(nil, rule.ExternalIP, nil, 1, 1)
+	if err != nil {
+		return "", err
+	}
 	params["EipId"] = eips[0].AllocationId
 	if len(rule.SourceCIDR) != 0 {
 		params["SourceCidr"] = rule.SourceCIDR

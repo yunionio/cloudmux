@@ -56,8 +56,7 @@ type SRegion struct {
 	tosClient *tos.ClientV2
 	RegionId  string
 
-	izones []cloudprovider.ICloudZone
-	ivpcs  []cloudprovider.ICloudVpc
+	ivpcs []cloudprovider.ICloudVpc
 
 	storageCache *SStoragecache
 }
@@ -122,54 +121,6 @@ func (region *SRegion) getStoragecache() *SStoragecache {
 	}
 	return region.storageCache
 }
-
-func (region *SRegion) _fetchZones() error {
-	params := make(map[string]string)
-	params["Region"] = region.RegionId
-	body, err := region.ecsRequest("DescribeZones", params)
-	if err != nil {
-		return err
-	}
-
-	zones := make([]SZone, 0)
-	err = body.Unmarshal(&zones, "Result", "Zones")
-	if err != nil {
-		return err
-	}
-
-	region.izones = make([]cloudprovider.ICloudZone, len(zones))
-
-	for i := 0; i < len(zones); i += 1 {
-		zones[i].region = region
-		if zones[i].LocalName == "" {
-			zones[i].LocalName = zones[i].ZoneId
-		}
-		region.izones[i] = &zones[i]
-	}
-
-	return nil
-}
-
-// func (region *SRegion) fetchInfrastructure() error {
-// 	err := region._fetchZones()
-// 	if err != nil {
-// 		return err
-// 	}
-// 	err = region.fetchIVpcs()
-// 	if err != nil {
-// 		return err
-// 	}
-// 	for i := 0; i < len(region.ivpcs); i += 1 {
-// 		for j := 0; j < len(region.izones); j += 1 {
-// 			zone := region.izones[j].(*SZone)
-// 			vpc := region.ivpcs[i].(*SVpc)
-// 			wire := SWire{zone: zone, vpc: vpc}
-// 			zone.addWire(&wire)
-// 			vpc.addWire(&wire)
-// 		}
-// 	}
-// 	return nil
-// }
 
 func (region *SRegion) GetZones(id string) ([]SZone, error) {
 	params := map[string]string{}
