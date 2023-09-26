@@ -212,7 +212,7 @@ func (instance *SInstance) GetIEIP() (cloudprovider.ICloudEIP, error) {
 	if len(instance.EipAddress.EipAddress) > 0 {
 		return instance.host.zone.region.GetEip(instance.EipAddress.AllocationId)
 	}
-	return nil, nil
+	return nil, errors.ErrNotFound
 }
 
 func (instance *SInstance) GetINics() ([]cloudprovider.ICloudNic, error) {

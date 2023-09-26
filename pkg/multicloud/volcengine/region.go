@@ -51,6 +51,7 @@ var RegionEndpoint = map[string]string{
 
 type SRegion struct {
 	multicloud.SRegion
+	multicloud.SNoLbRegion
 
 	client    *SVolcEngineClient
 	tosClient *tos.ClientV2
@@ -420,46 +421,6 @@ func (region *SRegion) GetIBuckets() ([]cloudprovider.ICloudBucket, error) {
 		ret = append(ret, iBuckets[i])
 	}
 	return ret, nil
-}
-
-// LoadBalancer
-func (region *SRegion) CreateILoadBalancer(loadbalancer *cloudprovider.SLoadbalancerCreateOptions) (cloudprovider.ICloudLoadbalancer, error) {
-	return nil, nil
-}
-
-func (region *SRegion) GetILoadBalancerById(loadbalancerId string) (cloudprovider.ICloudLoadbalancer, error) {
-	return nil, nil
-}
-
-func (region *SRegion) GetILoadBalancers() ([]cloudprovider.ICloudLoadbalancer, error) {
-	return nil, nil
-}
-
-// LoadBalancerAcl
-func (region *SRegion) CreateILoadBalancerAcl(acl *cloudprovider.SLoadbalancerAccessControlList) (cloudprovider.ICloudLoadbalancerAcl, error) {
-	return nil, nil
-}
-
-func (region *SRegion) GetILoadBalancerAclById(aclId string) (cloudprovider.ICloudLoadbalancerAcl, error) {
-	// return region.GetLoadbalancerAclDetail(aclId)
-	return nil, nil
-}
-
-func (region *SRegion) GetILoadBalancerAcls() ([]cloudprovider.ICloudLoadbalancerAcl, error) {
-	return nil, nil
-}
-
-// LoadBalancerCertificate
-func (region *SRegion) CreateILoadBalancerCertificate(cert *cloudprovider.SLoadbalancerCertificate) (cloudprovider.ICloudLoadbalancerCertificate, error) {
-	return nil, nil
-}
-
-func (region *SRegion) GetILoadBalancerCertificateById(certId string) (cloudprovider.ICloudLoadbalancerCertificate, error) {
-	return nil, nil
-}
-
-func (region *SRegion) GetILoadBalancerCertificates() ([]cloudprovider.ICloudLoadbalancerCertificate, error) {
-	return nil, nil
 }
 
 func (region *SRegion) GetCapabilities() []string {

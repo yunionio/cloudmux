@@ -192,7 +192,7 @@ func (disk *SDisk) GetCreatedAt() time.Time {
 }
 
 func (disk *SDisk) GetExtSnapshotPolicyIds() ([]string, error) {
-	return nil, nil
+	return nil, errors.ErrNotImplemented
 }
 
 func (disk *SDisk) GetExpiredAt() time.Time {

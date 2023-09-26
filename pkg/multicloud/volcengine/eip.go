@@ -240,7 +240,7 @@ func (region *SRegion) GetEips(eipIds []string, associatedId string, addresses [
 	}
 
 	eips := make([]SEipAddress, 0)
-	err = body.Unmarshal(&eips, "EipAddresses")
+	err = body.Unmarshal(&eips, "Result", "EipAddresses")
 	if err != nil {
 		return nil, 0, errors.Wrapf(err, "Unmarshal EipAddress details fail")
 	}
