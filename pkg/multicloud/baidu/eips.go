@@ -12,23 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package shell
-
-import (
-	"yunion.io/x/log"
-	"yunion.io/x/pkg/util/shellutils"
-
-	"yunion.io/x/cloudmux/pkg/multicloud/baidu"
-)
-
-func init() {
-	type RegionListOptions struct {
-	}
-	shellutils.R(&RegionListOptions{}, "region-list", "list regions", func(cli *baidu.SRegion, args *RegionListOptions) error {
-		regions := cli.GetClient().GetRegions()
-		log.Infoln("this is regions:", regions)
-		printList(regions, 0, 0, 0, []string{})
-		return nil
-	})
-
-}
+package baidu

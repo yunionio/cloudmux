@@ -22,12 +22,12 @@ import (
 )
 
 func init() {
-	type RegionListOptions struct {
+	type VpcListOptions struct {
 	}
-	shellutils.R(&RegionListOptions{}, "region-list", "list regions", func(cli *baidu.SRegion, args *RegionListOptions) error {
-		regions := cli.GetClient().GetRegions()
-		log.Infoln("this is regions:", regions)
-		printList(regions, 0, 0, 0, []string{})
+	shellutils.R(&VpcListOptions{}, "vpc-list", "list vpcs", func(cli *baidu.SRegion, args *VpcListOptions) error {
+		vpcs, _ := cli.GetVpcs()
+		log.Infoln("this is vpcs:", vpcs)
+		printList(vpcs, 0, 0, 0, []string{})
 		return nil
 	})
 

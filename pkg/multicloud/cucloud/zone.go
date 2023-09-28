@@ -12,41 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package qingcloud
+package cucloud
 
 import (
-	"strings"
-
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/pkg/errors"
+	"yunion.io/x/pkg/util/httputils"
 )
 
 type SZone struct {
 	region *SRegion
 
-	host     *SHost
-	Status   string
-	ZoneId   string
-	RegionId string
+	host          *SHost
+	ZoneName      string
+	Status        string
+	ZoneId        string
+	CloudRegionId string
 }
 
-func (zone *SRegion) GetZones() ([]SZone, error) {
-	params := map[string]string{}
-	resp, err := zone.ec2Request("DescribeZones", params)
+func (region *SRegion) GetZones() ([]SZone, error) {
+	resp, err := region.client.request(httputils.GET, "/instance/v1/product/zones", nil)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "request zone")
 	}
-	ret := []SZone{}
-	err = resp.Unmarshal(&ret, "zone_set")
-	if err != nil {
-		return nil, err
-	}
-	result := []SZone{}
-	for i := range ret {
-		if strings.HasPrefix(ret[i].ZoneId, zone.Region) {
-			result = append(result, ret[i])
-		}
-	}
-	return result, nil
+	zones := []SZone{}
+	return zones, resp.Unmarshal(&zones, "result", "list")
 }
 
 func (zone *SZone) GetIHosts() ([]cloudprovider.ICloudHost, error) {

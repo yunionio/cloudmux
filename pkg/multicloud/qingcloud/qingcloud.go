@@ -115,7 +115,9 @@ func (self *SQingCloudClient) GetRegion(id string) (*SRegion, error) {
 func (self *SQingCloudClient) getUrl(service string) (string, error) {
 	switch service {
 	case "ec2":
-		return fmt.Sprintf("https://api.qingcloud.com/iaas/"), nil
+		return "https://api.qingcloud.com/iaas/", nil
+	case "vpc":
+		return "https://api.qingcloud.com/iaas/", nil
 	default:
 		return "", errors.Wrapf(cloudprovider.ErrNotSupported, service)
 	}

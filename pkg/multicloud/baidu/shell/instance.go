@@ -15,19 +15,23 @@
 package shell
 
 import (
+	"github.com/pkg/errors"
+	"yunion.io/x/cloudmux/pkg/multicloud/baidu"
+	"yunion.io/x/jsonutils"
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/util/shellutils"
-
-	"yunion.io/x/cloudmux/pkg/multicloud/baidu"
 )
 
 func init() {
-	type RegionListOptions struct {
+	type InstanceListOptions struct {
 	}
-	shellutils.R(&RegionListOptions{}, "region-list", "list regions", func(cli *baidu.SRegion, args *RegionListOptions) error {
-		regions := cli.GetClient().GetRegions()
-		log.Infoln("this is regions:", regions)
-		printList(regions, 0, 0, 0, []string{})
+	shellutils.R(&InstanceListOptions{}, "instance-list", "list regions", func(cli *baidu.SRegion, args *InstanceListOptions) error {
+		res, err := cli.GetInstances()
+		if err != nil {
+			return errors.Wrap(err, "GetInstances")
+		}
+		log.Infoln("this is instances:", jsonutils.Marshal(res))
+		printList(res, 0, 0, 0, []string{})
 		return nil
 	})
 

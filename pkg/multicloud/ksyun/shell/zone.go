@@ -15,20 +15,20 @@
 package shell
 
 import (
-	"yunion.io/x/log"
 	"yunion.io/x/pkg/util/shellutils"
 
-	"yunion.io/x/cloudmux/pkg/multicloud/baidu"
+	"yunion.io/x/cloudmux/pkg/multicloud/ksyun"
 )
 
 func init() {
-	type RegionListOptions struct {
+	type ZoneListOptions struct {
 	}
-	shellutils.R(&RegionListOptions{}, "region-list", "list regions", func(cli *baidu.SRegion, args *RegionListOptions) error {
-		regions := cli.GetClient().GetRegions()
-		log.Infoln("this is regions:", regions)
+	shellutils.R(&ZoneListOptions{}, "zone-list", "list zones", func(cli *ksyun.SRegion, args *ZoneListOptions) error {
+		regions, err := cli.GetZones()
+		if err != nil {
+			return err
+		}
 		printList(regions, 0, 0, 0, []string{})
 		return nil
 	})
-
 }

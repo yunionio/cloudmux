@@ -275,6 +275,15 @@ func (self *SChinaUnionClient) request(method httputils.THttpMethod, resource st
 			uri = fmt.Sprintf("%s?%s", uri, values.Encode())
 		}
 	case httputils.POST:
+		values := url.Values{}
+		for k, v := range params {
+			if k == "cloudRegionCode" {
+				values.Set(k, v.(string))
+			}
+		}
+		if len(values) > 0 {
+			uri = fmt.Sprintf("%s?%s", uri, values.Encode())
+		}
 		body = jsonutils.Marshal(params)
 	}
 	req := httputils.NewJsonRequest(method, uri, body)
