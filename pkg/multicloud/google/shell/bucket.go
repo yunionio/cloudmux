@@ -15,6 +15,7 @@
 package shell
 
 import (
+	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/util/shellutils"
 
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
@@ -95,4 +96,31 @@ func init() {
 		return cli.SetBucketAcl(args.BUCKET, cloudprovider.TBucketACLType(args.ACL))
 	})
 
+	type BucketCORSListOptions struct {
+		ID string
+	}
+	shellutils.R(&BucketCORSListOptions{}, "bucket-cors-list", "List all cors bucket", func(cli cloudprovider.ICloudRegion, args *BucketCORSListOptions) error {
+		bucket, err := cli.GetIBucketById(args.ID)
+		if err != nil {
+			return errors.Wrap(err, "GetIBucketById")
+		}
+		cors, err := bucket.GetCORSRules()
+		if err != nil {
+			return errors.Wrap(err, "GetCORSRules")
+		}
+		printObject(cors)
+		return nil
+	})
+
+	shellutils.R(&BucketCORSListOptions{}, "bucket-cors-delete", "delete all cors bucket", func(cli cloudprovider.ICloudRegion, args *BucketCORSListOptions) error {
+		bucket, err := cli.GetIBucketById(args.ID)
+		if err != nil {
+			return errors.Wrap(err, "GetIBucketById")
+		}
+		err = bucket.DeleteCORS()
+		if err != nil {
+			return errors.Wrap(err, "DeleteCORS")
+		}
+		return nil
+	})
 }
