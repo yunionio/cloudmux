@@ -15,8 +15,6 @@
 package shell
 
 import (
-	"yunion.io/x/pkg/errors"
-	"yunion.io/x/pkg/util/secrules"
 	"yunion.io/x/pkg/util/shellutils"
 
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
@@ -25,10 +23,9 @@ import (
 
 func init() {
 	type SSecurityGroupListOptions struct {
-		Vpc string `help:"Vpc ID"`
 	}
-	shellutils.R(&SSecurityGroupListOptions{}, "secgroup-list", "List secgroups", func(cli *ctyun.SRegion, args *SSecurityGroupListOptions) error {
-		secgroups, e := cli.GetSecurityGroups(args.Vpc)
+	shellutils.R(&SSecurityGroupListOptions{}, "security-group-list", "List secgroups", func(cli *ctyun.SRegion, args *SSecurityGroupListOptions) error {
+		secgroups, e := cli.GetSecurityGroups()
 		if e != nil {
 			return e
 		}
@@ -39,7 +36,7 @@ func init() {
 	type SSecurityGroupIdOptions struct {
 		ID string `help:"Security Group ID"`
 	}
-	shellutils.R(&SSecurityGroupIdOptions{}, "secgroup-show", "Show secgroup", func(cli *ctyun.SRegion, args *SSecurityGroupIdOptions) error {
+	shellutils.R(&SSecurityGroupIdOptions{}, "security-group-show", "Show secgroup", func(cli *ctyun.SRegion, args *SSecurityGroupIdOptions) error {
 		group, e := cli.GetSecurityGroup(args.ID)
 		if e != nil {
 			return e
@@ -48,7 +45,7 @@ func init() {
 		return nil
 	})
 
-	shellutils.R(&SSecurityGroupIdOptions{}, "secgroup-delete", "Delete secgroup", func(cli *ctyun.SRegion, args *SSecurityGroupIdOptions) error {
+	shellutils.R(&SSecurityGroupIdOptions{}, "security-group-delete", "Delete secgroup", func(cli *ctyun.SRegion, args *SSecurityGroupIdOptions) error {
 		return cli.DeleteSecurityGroup(args.ID)
 	})
 
@@ -56,7 +53,7 @@ func init() {
 		VpcId string `help:"vpc id"`
 		Name  string `help:"secgroup name"`
 	}
-	shellutils.R(&cloudprovider.SecurityGroupCreateInput{}, "secgroup-create", "Create secgroup", func(cli *ctyun.SRegion, args *cloudprovider.SecurityGroupCreateInput) error {
+	shellutils.R(&cloudprovider.SecurityGroupCreateInput{}, "security-group-create", "Create secgroup", func(cli *ctyun.SRegion, args *cloudprovider.SecurityGroupCreateInput) error {
 		sec, e := cli.CreateSecurityGroup(args)
 		if e != nil {
 			return e
@@ -67,13 +64,9 @@ func init() {
 
 	type SecurityGroupRuleCreateOptions struct {
 		GROUP string `help:"secgroup id"`
-		RULE  string
+		cloudprovider.SecurityGroupRuleCreateOptions
 	}
-	shellutils.R(&SecurityGroupRuleCreateOptions{}, "secgroup-rule-create", "Create secgroup rule", func(cli *ctyun.SRegion, args *SecurityGroupRuleCreateOptions) error {
-		rule, err := secrules.ParseSecurityRule(args.RULE)
-		if err != nil {
-			return errors.Wrap(err, "ParseSecurityRule")
-		}
-		return cli.CreateSecurityGroupRule(args.GROUP, *rule)
+	shellutils.R(&SecurityGroupRuleCreateOptions{}, "security-group-rule-create", "Create secgroup rule", func(cli *ctyun.SRegion, args *SecurityGroupRuleCreateOptions) error {
+		return cli.CreateSecurityGroupRule(args.GROUP, &args.SecurityGroupRuleCreateOptions)
 	})
 }

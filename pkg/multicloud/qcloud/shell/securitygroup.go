@@ -24,13 +24,12 @@ import (
 func init() {
 	type SecurityGroupListOptions struct {
 		Ids    []string `help:"Secgroup Ids"`
-		VpcId  string   `help:"Vpc Id"`
 		Name   string   `help:"Secgroup Name"`
 		Limit  int      `help:"page size"`
 		Offset int      `help:"page offset"`
 	}
 	shellutils.R(&SecurityGroupListOptions{}, "security-group-list", "List SecurityGroup", func(cli *qcloud.SRegion, args *SecurityGroupListOptions) error {
-		secgrps, total, err := cli.GetSecurityGroups(args.Ids, args.VpcId, args.Name, args.Limit, args.Offset)
+		secgrps, total, err := cli.GetSecurityGroups(args.Ids, args.Name, args.Limit, args.Offset)
 		if err != nil {
 			return err
 		}
@@ -47,7 +46,11 @@ func init() {
 			return err
 		}
 		printObject(secgroup)
-		rules, _, _, err := cloudprovider.GetSecurityGroupRules(secgroup)
+		return nil
+	})
+
+	shellutils.R(&SecurityGroupOptions{}, "security-group-rule-list", "List SecurityGroup rules", func(cli *qcloud.SRegion, args *SecurityGroupOptions) error {
+		rules, err := cli.GetSecurityGroupRules(args.ID)
 		if err != nil {
 			return err
 		}
