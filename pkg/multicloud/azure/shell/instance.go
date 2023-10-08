@@ -39,28 +39,6 @@ func init() {
 		return nil
 	})
 
-	shellutils.R(&InstanceListOptions{}, "classic-instance-list", "List classic instance", func(cli *azure.SRegion, args *InstanceListOptions) error {
-		instances, err := cli.GetClassicInstances()
-		if err != nil {
-			return err
-		}
-		printList(instances, len(instances), 0, 0, []string{})
-		return nil
-	})
-
-	type SClassicInstacneIdOptions struct {
-		ID string
-	}
-
-	shellutils.R(&SClassicInstacneIdOptions{}, "classic-instance-disk-list", "List classic instance disks", func(cli *azure.SRegion, args *SClassicInstacneIdOptions) error {
-		disks, err := cli.GetClassicInstanceDisks(args.ID)
-		if err != nil {
-			return err
-		}
-		printList(disks, len(disks), 0, 0, []string{})
-		return nil
-	})
-
 	shellutils.R(&InstanceListOptions{}, "instance-scaleset-list", "List classic instance", func(cli *azure.SRegion, args *InstanceListOptions) error {
 		instances, err := cli.GetInstanceScaleSets()
 		if err != nil {

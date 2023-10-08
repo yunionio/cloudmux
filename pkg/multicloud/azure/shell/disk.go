@@ -63,15 +63,6 @@ func init() {
 		return nil
 	})
 
-	shellutils.R(&DiskOptions{}, "classic-disk-show", "Show classic disk", func(cli *azure.SRegion, args *DiskOptions) error {
-		disk, err := cli.GetClassicDisk(args.ID)
-		if err != nil {
-			return err
-		}
-		printObject(disk)
-		return nil
-	})
-
 	shellutils.R(&DiskOptions{}, "disk-delete", "Delete disks", func(cli *azure.SRegion, args *DiskOptions) error {
 		return cli.DeleteDisk(args.ID)
 	})
