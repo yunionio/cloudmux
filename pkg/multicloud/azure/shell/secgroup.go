@@ -42,7 +42,7 @@ func init() {
 			return err
 		}
 		printObject(secgrp)
-		rules, _, _, err := cloudprovider.GetSecurityGroupRules(secgrp)
+		rules, err := secgrp.GetRules()
 		if err != nil {
 			return err
 		}

@@ -39,7 +39,7 @@ func init() {
 		ID string `help:"ID or name of security group"`
 	}
 	shellutils.R(&SecurityGroupIdOptions{}, "security-group-show", "Show details of a security group", func(cli *ucloud.SRegion, args *SecurityGroupIdOptions) error {
-		secgrp, err := cli.GetSecurityGroupById(args.ID)
+		secgrp, err := cli.GetSecurityGroup(args.ID)
 		if err != nil {
 			return err
 		}
@@ -57,7 +57,7 @@ func init() {
 	}
 
 	shellutils.R(&SecurityGroupCreateOptions{}, "security-group-create", "Create security group", func(cli *ucloud.SRegion, args *SecurityGroupCreateOptions) error {
-		secgrpId, err := cli.CreateDefaultSecurityGroup(args.NAME, args.Desc, nil)
+		secgrpId, err := cli.CreateSecurityGroup(args.NAME, args.Desc)
 		if err != nil {
 			return err
 		}

@@ -42,13 +42,8 @@ func init() {
 	type SecurityGroupIdOptions struct {
 		ID string `help:"ID or name of security group"`
 	}
-	shellutils.R(&SecurityGroupIdOptions{}, "security-group-show", "Show details of a security group", func(cli *volcengine.SRegion, args *SecurityGroupIdOptions) error {
-		secgrp, err := cli.GetSecurityGroupDetails(args.ID)
-		if err != nil {
-			return err
-		}
-		printObject(secgrp)
-		rules, _, _, err := cloudprovider.GetSecurityGroupRules(secgrp)
+	shellutils.R(&SecurityGroupIdOptions{}, "security-group-rule-list", "Show details of a security group", func(cli *volcengine.SRegion, args *SecurityGroupIdOptions) error {
+		rules, err := cli.GetSecurityGroupRules(args.ID)
 		if err != nil {
 			return err
 		}
@@ -63,8 +58,8 @@ func init() {
 		Desc            string `help:"SecurityGroup description"`
 	}
 
-	shellutils.R(&SecurityGroupCreateOptions{}, "security-group-create", "Create details of a security group", func(cli *volcengine.SRegion, args *SecurityGroupCreateOptions) error {
-		secgroupId, err := cli.CreateSecurityGroup(args.VpcId, args.NAME, args.Desc, args.ResourceGroupId)
+	shellutils.R(&cloudprovider.SecurityGroupCreateInput{}, "security-group-create", "Create details of a security group", func(cli *volcengine.SRegion, args *cloudprovider.SecurityGroupCreateInput) error {
+		secgroupId, err := cli.CreateSecurityGroup(args)
 		if err != nil {
 			return err
 		}

@@ -43,7 +43,7 @@ func init() {
 		ID string `help:"ID or name of security group"`
 	}
 	shellutils.R(&SecurityGroupShowOptions{}, "security-group-show", "Show details of a security group", func(cli *apsara.SRegion, args *SecurityGroupShowOptions) error {
-		secgrp, err := cli.GetSecurityGroupDetails(args.ID)
+		secgrp, err := cli.GetSecurityGroup(args.ID)
 		if err != nil {
 			return err
 		}
