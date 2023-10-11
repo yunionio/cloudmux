@@ -31,12 +31,10 @@ import (
 )
 
 type BaseOptions struct {
-	cloudprovider.SCtyunExtraOptions
-
 	Debug      bool   `help:"Show debug" default:"false"`
 	AccessKey  string `help:"Access key" default:"$CTYUN_ACCESS_KEY"`
 	Secret     string `help:"Secret" default:"$CTYUN_SECRET"`
-	RegionId   string `help:"RegionId" default:"$CTYUN_REGION"`
+	RegionId   string `help:"RegionId" default:"$CTYUN_REGION" default:"cn-beijing-5"`
 	SUBCOMMAND string `help:"ctyuncli subcommand" subcommand:"true"`
 }
 
@@ -90,7 +88,7 @@ func newClient(options *BaseOptions) (*ctyun.SRegion, error) {
 
 	cli, err := ctyun.NewSCtyunClient(
 		ctyun.NewSCtyunClientConfig(
-			options.AccessKey, options.Secret, &options.SCtyunExtraOptions,
+			options.AccessKey, options.Secret,
 		).Debug(options.Debug).
 			CloudproviderConfig(
 				cloudprovider.ProviderConfig{
@@ -102,9 +100,9 @@ func newClient(options *BaseOptions) (*ctyun.SRegion, error) {
 		return nil, err
 	}
 
-	region := cli.GetRegion(options.RegionId)
-	if region == nil {
-		return nil, fmt.Errorf("No such region %s", options.RegionId)
+	region, err := cli.GetRegion(options.RegionId)
+	if err != nil {
+		return nil, err
 	}
 
 	return region, nil

@@ -24,10 +24,10 @@ import (
 )
 
 func init() {
-	type VSecurityGroupListOptions struct {
+	type SSecurityGroupListOptions struct {
 		Vpc string `help:"Vpc ID"`
 	}
-	shellutils.R(&VSecurityGroupListOptions{}, "secgroup-list", "List secgroups", func(cli *ctyun.SRegion, args *VSecurityGroupListOptions) error {
+	shellutils.R(&SSecurityGroupListOptions{}, "secgroup-list", "List secgroups", func(cli *ctyun.SRegion, args *SSecurityGroupListOptions) error {
 		secgroups, e := cli.GetSecurityGroups(args.Vpc)
 		if e != nil {
 			return e
@@ -36,16 +36,20 @@ func init() {
 		return nil
 	})
 
-	type VSecurityGroupRuleListOptions struct {
-		Group string `help:"Security Group ID"`
+	type SSecurityGroupIdOptions struct {
+		ID string `help:"Security Group ID"`
 	}
-	shellutils.R(&VSecurityGroupRuleListOptions{}, "secrule-list", "List secgroup rules", func(cli *ctyun.SRegion, args *VSecurityGroupRuleListOptions) error {
-		secrules, e := cli.GetSecurityGroupRules(args.Group)
+	shellutils.R(&SSecurityGroupIdOptions{}, "secgroup-show", "Show secgroup", func(cli *ctyun.SRegion, args *SSecurityGroupIdOptions) error {
+		group, e := cli.GetSecurityGroup(args.ID)
 		if e != nil {
 			return e
 		}
-		printList(secrules, 0, 0, 0, nil)
+		printObject(group)
 		return nil
+	})
+
+	shellutils.R(&SSecurityGroupIdOptions{}, "secgroup-delete", "Delete secgroup", func(cli *ctyun.SRegion, args *SSecurityGroupIdOptions) error {
+		return cli.DeleteSecurityGroup(args.ID)
 	})
 
 	type SecurityGroupCreateOptions struct {
@@ -53,11 +57,11 @@ func init() {
 		Name  string `help:"secgroup name"`
 	}
 	shellutils.R(&cloudprovider.SecurityGroupCreateInput{}, "secgroup-create", "Create secgroup", func(cli *ctyun.SRegion, args *cloudprovider.SecurityGroupCreateInput) error {
-		vpc, e := cli.CreateSecurityGroup(args)
+		sec, e := cli.CreateSecurityGroup(args)
 		if e != nil {
 			return e
 		}
-		printObject(vpc)
+		printObject(sec)
 		return nil
 	})
 
@@ -65,11 +69,11 @@ func init() {
 		GROUP string `help:"secgroup id"`
 		RULE  string
 	}
-	shellutils.R(&SecurityGroupRuleCreateOptions{}, "secrule-create", "Create secgroup rule", func(cli *ctyun.SRegion, args *SecurityGroupRuleCreateOptions) error {
+	shellutils.R(&SecurityGroupRuleCreateOptions{}, "secgroup-rule-create", "Create secgroup rule", func(cli *ctyun.SRegion, args *SecurityGroupRuleCreateOptions) error {
 		rule, err := secrules.ParseSecurityRule(args.RULE)
 		if err != nil {
 			return errors.Wrap(err, "ParseSecurityRule")
 		}
-		return cli.AddSecurityGroupRules(args.GROUP, *rule)
+		return cli.CreateSecurityGroupRule(args.GROUP, *rule)
 	})
 }
