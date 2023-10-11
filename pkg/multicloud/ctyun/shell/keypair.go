@@ -21,17 +21,30 @@ import (
 )
 
 func init() {
-	type VCrmUserOptions struct {
-		Type      string `json:"type"`
-		CrmBizId  string `json:"crm_biz_id"`
-		AccountId string `json:"account_id"`
+	type SKeypairOptions struct {
+		Name string
 	}
-	shellutils.R(&VCrmUserOptions{}, "crm-user-show", "Show crm user", func(cli *ctyun.SRegion, args *VCrmUserOptions) error {
-		user, e := cli.GetCrmUser(args.Type, args.CrmBizId, args.AccountId)
-		if e != nil {
-			return e
+	shellutils.R(&SKeypairOptions{}, "keypair-list", "List keypair", func(cli *ctyun.SRegion, args *SKeypairOptions) error {
+		keypairs, err := cli.GetKeypairs(args.Name)
+		if err != nil {
+			return err
 		}
-		printObject(user)
+		printList(keypairs, 0, 0, 0, nil)
 		return nil
 	})
+
+	type SKeypairImportOptions struct {
+		NAME       string
+		PUBLIC_KEY string
+	}
+
+	shellutils.R(&SKeypairImportOptions{}, "keypair-import", "Import keypair", func(cli *ctyun.SRegion, args *SKeypairImportOptions) error {
+		keypair, err := cli.ImportKeypair(args.NAME, args.PUBLIC_KEY)
+		if err != nil {
+			return err
+		}
+		printObject(keypair)
+		return nil
+	})
+
 }

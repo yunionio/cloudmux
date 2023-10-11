@@ -17,6 +17,7 @@ package shell
 import (
 	"yunion.io/x/pkg/util/shellutils"
 
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/ctyun"
 )
 
@@ -32,16 +33,30 @@ func init() {
 		return nil
 	})
 
-	type VpcCreateOptions struct {
-		NAME string `help:"vpc name"`
-		CIDR string `help:"10.0.0.0/8~10.255.255.0/24或者172.16.0.0/12 ~ 172.31.255.0/24或者192.168.0.0/16 ~ 192.168.255.0/24"`
-	}
-	shellutils.R(&VpcCreateOptions{}, "vpc-create", "Create vpc", func(cli *ctyun.SRegion, args *VpcCreateOptions) error {
-		vpc, e := cli.CreateVpc(args.NAME, args.CIDR)
+	shellutils.R(&cloudprovider.VpcCreateOptions{}, "vpc-create", "Create vpc", func(cli *ctyun.SRegion, args *cloudprovider.VpcCreateOptions) error {
+		vpc, e := cli.CreateVpc(args)
 		if e != nil {
 			return e
 		}
 		printObject(vpc)
 		return nil
 	})
+
+	type VpcIdOptions struct {
+		ID string
+	}
+
+	shellutils.R(&VpcIdOptions{}, "vpc-show", "Show vpc", func(cli *ctyun.SRegion, args *VpcIdOptions) error {
+		vpc, e := cli.GetVpc(args.ID)
+		if e != nil {
+			return e
+		}
+		printObject(vpc)
+		return nil
+	})
+
+	shellutils.R(&VpcIdOptions{}, "vpc-delete", "Delete vpc", func(cli *ctyun.SRegion, args *VpcIdOptions) error {
+		return cli.DeleteVpc(args.ID)
+	})
+
 }

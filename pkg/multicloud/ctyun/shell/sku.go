@@ -21,14 +21,16 @@ import (
 )
 
 func init() {
-	type VProjectListOptions struct {
+	type SkuListOptions struct {
+		ZoneId string
 	}
-	shellutils.R(&VProjectListOptions{}, "project-list", "List projects", func(cli *ctyun.SRegion, args *VProjectListOptions) error {
-		projects, e := cli.FetchProjects()
+	shellutils.R(&SkuListOptions{}, "instance-type-list", "List instance type", func(cli *ctyun.SRegion, args *SkuListOptions) error {
+		skus, e := cli.GetServerSkus(args.ZoneId)
 		if e != nil {
 			return e
 		}
-		printList(projects, 0, 0, 0, nil)
+		printList(skus, 0, 0, 0, nil)
 		return nil
 	})
+
 }

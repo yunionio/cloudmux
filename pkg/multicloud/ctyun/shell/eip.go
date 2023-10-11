@@ -17,14 +17,16 @@ package shell
 import (
 	"yunion.io/x/pkg/util/shellutils"
 
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/ctyun"
 )
 
 func init() {
-	type VEipListOptions struct {
+	type SEipListOptions struct {
+		Status string `choices:"ACTIVE|DOWN|FREEZING|EXPIRED"`
 	}
-	shellutils.R(&VEipListOptions{}, "eip-list", "List eips", func(cli *ctyun.SRegion, args *VEipListOptions) error {
-		eips, e := cli.GetEips()
+	shellutils.R(&SEipListOptions{}, "eip-list", "List eips", func(cli *ctyun.SRegion, args *SEipListOptions) error {
+		eips, e := cli.GetEips(args.Status)
 		if e != nil {
 			return e
 		}
@@ -32,19 +34,30 @@ func init() {
 		return nil
 	})
 
-	type EipCreateOptions struct {
-		ZoneId     string `help:"zone id"`
-		Name       string `help:"eip name"`
-		Size       string `help:"size"`
-		ShareType  string `help:"share type" choice:"PER|WHOLE"`
-		ChargeMode string `help:"charge mode" choice:"bandwidth|traffic"`
-	}
-	shellutils.R(&EipCreateOptions{}, "eip-create", "Create eip", func(cli *ctyun.SRegion, args *EipCreateOptions) error {
-		eip, e := cli.CreateEip(args.ZoneId, args.Name, args.Size, args.ShareType, args.ChargeMode)
+	shellutils.R(&cloudprovider.SEip{}, "eip-create", "Create eip", func(cli *ctyun.SRegion, args *cloudprovider.SEip) error {
+		eip, e := cli.CreateEip(args)
 		if e != nil {
 			return e
 		}
 		printObject(eip)
 		return nil
 	})
+
+	type EipIdOptions struct {
+		ID string
+	}
+
+	shellutils.R(&EipIdOptions{}, "eip-show", "Show eip", func(cli *ctyun.SRegion, args *EipIdOptions) error {
+		eip, e := cli.GetEip(args.ID)
+		if e != nil {
+			return e
+		}
+		printObject(eip)
+		return nil
+	})
+
+	shellutils.R(&EipIdOptions{}, "eip-delete", "Delete eip", func(cli *ctyun.SRegion, args *EipIdOptions) error {
+		return cli.DeleteEip(args.ID)
+	})
+
 }

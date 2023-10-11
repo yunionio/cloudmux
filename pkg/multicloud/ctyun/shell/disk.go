@@ -15,20 +15,18 @@
 package shell
 
 import (
-	"context"
-
 	"yunion.io/x/pkg/util/shellutils"
 
 	"yunion.io/x/cloudmux/pkg/multicloud/ctyun"
 )
 
 func init() {
-	type VDiskListOptions struct {
+	type SDiskListOptions struct {
 	}
-	shellutils.R(&VDiskListOptions{}, "disk-list", "List disks", func(cli *ctyun.SRegion, args *VDiskListOptions) error {
-		disks, e := cli.GetDisks()
-		if e != nil {
-			return e
+	shellutils.R(&SDiskListOptions{}, "disk-list", "List disks", func(cli *ctyun.SRegion, args *SDiskListOptions) error {
+		disks, err := cli.GetDisks()
+		if err != nil {
+			return err
 		}
 		printList(disks, 0, 0, 0, nil)
 		return nil
@@ -36,52 +34,42 @@ func init() {
 
 	type DiskCreateOptions struct {
 		ZoneId   string `help:"zone id"`
-		Name     string `help:"disk name"`
-		DiskType string `help:"disk type" choice:"SSD|SAS|SATA"`
-		Size     string `help:"disk size"`
+		NAME     string `help:"disk name"`
+		DiskType string `help:"disk type" choice:"SATA|SSD-genric|SSD|FAST-SSD" default:"SATA"`
+		SizeGb   int    `help:"disk size" default:"10"`
 	}
 	shellutils.R(&DiskCreateOptions{}, "disk-create", "Create disk", func(cli *ctyun.SRegion, args *DiskCreateOptions) error {
-		disk, e := cli.CreateDisk(args.ZoneId, args.Name, args.DiskType, args.Size)
-		if e != nil {
-			return e
+		disk, err := cli.CreateDisk(args.ZoneId, args.NAME, args.DiskType, args.SizeGb)
+		if err != nil {
+			return err
 		}
 		printObject(disk)
 		return nil
 	})
 
 	type DiskResizeOptions struct {
-		DiskId string `help:"disk id"`
-		Size   int64  `help:"disk size GB"`
+		DISK string `help:"disk id"`
+		SIZE int64  `help:"disk size GB"`
 	}
 	shellutils.R(&DiskResizeOptions{}, "disk-resize", "Resize disk", func(cli *ctyun.SRegion, args *DiskResizeOptions) error {
-		disk, err := cli.GetDisk(args.DiskId)
-		if err != nil {
-			return err
-		}
-
-		e := disk.Resize(context.Background(), args.Size*1024)
-		if e != nil {
-			return e
-		}
-		printObject(disk)
-		return nil
+		return cli.ResizeDisk(args.DISK, args.SIZE)
 	})
 
-	type VDiskRestoreOptions struct {
-		DiskId     string `help:"disk id"`
-		SnapshotId string `help:"snapshot id"`
+	type DiskIdOptions struct {
+		ID string
 	}
-	shellutils.R(&VDiskRestoreOptions{}, "disk-restore", "Restore disk", func(cli *ctyun.SRegion, args *VDiskRestoreOptions) error {
-		disk, err := cli.GetDisk(args.DiskId)
+
+	shellutils.R(&DiskIdOptions{}, "disk-delete", "Delete disk", func(cli *ctyun.SRegion, args *DiskIdOptions) error {
+		return cli.DeleteDisk(args.ID)
+	})
+
+	shellutils.R(&DiskIdOptions{}, "disk-show", "Show disk", func(cli *ctyun.SRegion, args *DiskIdOptions) error {
+		disk, err := cli.GetDisk(args.ID)
 		if err != nil {
 			return err
-		}
-
-		_, e := disk.Reset(context.Background(), args.SnapshotId)
-		if e != nil {
-			return e
 		}
 		printObject(disk)
 		return nil
 	})
+
 }

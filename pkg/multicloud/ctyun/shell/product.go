@@ -21,14 +21,14 @@ import (
 )
 
 func init() {
-	type RegionListOptions struct {
+	type SProductOptions struct {
 	}
-	shellutils.R(&RegionListOptions{}, "region-list", "List regions", func(cli *ctyun.SRegion, args *RegionListOptions) error {
-		regions, err := cli.GetClient().GetRegions()
+	shellutils.R(&SProductOptions{}, "product-show", "Show balance", func(cli *ctyun.SRegion, args *SProductOptions) error {
+		product, err := cli.GetProduct()
 		if err != nil {
 			return err
 		}
-		printList(regions, 0, 0, 0, nil)
+		printObject(product)
 		return nil
 	})
 }
