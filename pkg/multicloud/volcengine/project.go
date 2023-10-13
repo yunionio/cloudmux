@@ -27,8 +27,8 @@ import (
 
 type SProject struct {
 	multicloud.SProjectBase
-	VolcengineTags
-	client *SVolcengineClient
+	VolcEngineTags
+	client *SVolcEngineClient
 
 	AccountId         int
 	ProjectName       string
@@ -73,7 +73,7 @@ func (project *SProject) GetStatus() string {
 	}
 }
 
-func (client *SVolcengineClient) GetProject(name string) (*SProject, error) {
+func (client *SVolcEngineClient) GetProject(name string) (*SProject, error) {
 	params := map[string]string{
 		"ProjectName": name,
 	}
@@ -89,13 +89,13 @@ func (client *SVolcengineClient) GetProject(name string) (*SProject, error) {
 	return project, nil
 }
 
-func (client *SVolcengineClient) ListProjects(limit int, offset int) ([]SProject, int, error) {
+func (client *SVolcEngineClient) ListProjects(limit int, offset int) ([]SProject, int, error) {
 	if limit > 50 || limit <= 0 {
 		limit = 50
 	}
 	params := map[string]string{
-		"PageNumber": fmt.Sprintf("%d", (offset/limit)+1),
-		"PageSize":   fmt.Sprintf("%d", limit),
+		"Limit":  fmt.Sprintf("%d", limit),
+		"Offset": fmt.Sprintf("%d", offset),
 	}
 	resp, err := client.iamRequest("", "ListProjects", params)
 	if err != nil {
@@ -110,7 +110,7 @@ func (client *SVolcengineClient) ListProjects(limit int, offset int) ([]SProject
 	return projects, int(total), nil
 }
 
-func (client *SVolcengineClient) CreateIProject(name string) (cloudprovider.ICloudProject, error) {
+func (client *SVolcEngineClient) CreateIProject(name string) (cloudprovider.ICloudProject, error) {
 	group, err := client.CreateProject(name)
 	if err != nil {
 		return nil, errors.Wrap(err, "CreateProject")
@@ -118,7 +118,7 @@ func (client *SVolcengineClient) CreateIProject(name string) (cloudprovider.IClo
 	return group, nil
 }
 
-func (client *SVolcengineClient) CreateProject(name string) (*SProject, error) {
+func (client *SVolcEngineClient) CreateProject(name string) (*SProject, error) {
 	params := map[string]string{
 		"DisplayName": name,
 		"ProjectName": name,

@@ -41,7 +41,7 @@ type SAvailableResource struct {
 
 type SZone struct {
 	multicloud.SResourceBase
-	VolcengineTags
+	VolcEngineTags
 	region *SRegion
 
 	host *SHost
@@ -113,11 +113,16 @@ func (zone *SZone) GetIHosts() ([]cloudprovider.ICloudHost, error) {
 }
 
 func (zone *SZone) GetIHostById(id string) (cloudprovider.ICloudHost, error) {
-	host := zone.getHost()
-	if host.GetGlobalId() == id {
-		return host, nil
+	hosts, err := zone.GetIHosts()
+	if err != nil {
+		return nil, err
 	}
-	return nil, cloudprovider.ErrNotFound
+	for i := range hosts {
+		if hosts[i].GetGlobalId() == id {
+			return hosts[i], nil
+		}
+	}
+	return nil, errors.Wrap(cloudprovider.ErrNotFound, "GetIHostById")
 }
 
 // Storage

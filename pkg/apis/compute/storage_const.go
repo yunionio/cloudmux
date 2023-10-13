@@ -107,9 +107,9 @@ const (
 	STORAGE_ECLOUD_SYSTEM = "system" // 系统盘
 
 	// volcengine storage type
-	STORAGE_VOLCENGINE_FlexPL = "essd_flexpl" // 极速型SSD(单盘最大IOPS 5万)
-	STORAGE_VOLCENGINE_PL0    = "essd_pl0"    // 极速型SSD(单盘最大IOPS 1万)
-	STORAGE_VOLCENGINE_PTSSD  = "ptssd"       // 性能型SSD(上一代产品)
+	STORAGE_VOLCENGINE_FlexPL = "ESSD_FlexPL" // 极速型SSD(单盘最大IOPS 5万)
+	STORAGE_VOLCENGINE_PL0    = "ESSD_PL0"    // 极速型SSD(单盘最大IOPS 1万)
+	STORAGE_VOLCENGINE_PTSSD  = "PTSSD"       // 性能型SSD(上一代产品)
 )
 
 const (

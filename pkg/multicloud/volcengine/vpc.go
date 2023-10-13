@@ -27,7 +27,7 @@ type SUserCIDRs []string
 
 type SVpc struct {
 	multicloud.SVpc
-	VolcengineTags
+	VolcEngineTags
 
 	region *SRegion
 
@@ -117,7 +117,7 @@ func (vpc *SVpc) fetchSecurityGroups() error {
 	secgroups := make([]SSecurityGroup, 0)
 	pageNumber := 1
 	for {
-		parts, total, err := vpc.region.GetSecurityGroups(vpc.VpcId, "", nil, pageNumber, 50)
+		parts, total, err := vpc.region.GetSecurityGroups(vpc.VpcId, "", nil, 50, pageNumber)
 		if err != nil {
 			return err
 		}

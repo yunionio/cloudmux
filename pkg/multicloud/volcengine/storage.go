@@ -27,7 +27,7 @@ import (
 
 type SStorage struct {
 	multicloud.SStorageBase
-	VolcengineTags
+	VolcEngineTags
 	zone        *SZone
 	storageType string
 }
@@ -54,13 +54,14 @@ func (storage *SStorage) GetIZone() cloudprovider.ICloudZone {
 
 func (storage *SStorage) GetIDisks() ([]cloudprovider.ICloudDisk, error) {
 	disks := make([]SDisk, 0)
-	pageNumber := 0
+	pageNumber := 1
 	storageType := storage.storageType
 	for {
 		parts, total, err := storage.zone.region.GetDisks("", storage.zone.GetId(), storageType, nil, pageNumber, 50)
 		if err != nil {
 			return nil, errors.Wrapf(err, "GetDisks")
 		}
+		disks = append(disks, parts...)
 		if len(parts) >= total {
 			break
 		}

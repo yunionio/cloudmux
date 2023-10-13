@@ -26,19 +26,19 @@ import (
 	"yunion.io/x/jsonutils"
 )
 
-type SVolcengineProviderFactory struct {
+type SVolcEngineProviderFactory struct {
 	cloudprovider.SPublicCloudBaseProviderFactory
 }
 
-func (self *SVolcengineProviderFactory) GetId() string {
+func (self *SVolcEngineProviderFactory) GetId() string {
 	return volcengine.CLOUD_PROVIDER_VOLCENGINE
 }
 
-func (self *SVolcengineProviderFactory) GetName() string {
+func (self *SVolcEngineProviderFactory) GetName() string {
 	return volcengine.CLOUD_PROVIDER_VOLCENGINE_CN
 }
 
-func (self *SVolcengineProviderFactory) ValidateCreateCloudaccountData(ctx context.Context, input cloudprovider.SCloudaccountCredential) (cloudprovider.SCloudaccount, error) {
+func (self *SVolcEngineProviderFactory) ValidateCreateCloudaccountData(ctx context.Context, input cloudprovider.SCloudaccountCredential) (cloudprovider.SCloudaccount, error) {
 	output := cloudprovider.SCloudaccount{}
 	if len(input.AccessKeyId) == 0 {
 		return output, errors.Wrap(cloudprovider.ErrMissingParameter, "access_key_id")
@@ -51,7 +51,7 @@ func (self *SVolcengineProviderFactory) ValidateCreateCloudaccountData(ctx conte
 	return output, nil
 }
 
-func (f *SVolcengineProviderFactory) ValidateUpdateCloudaccountCredential(ctx context.Context, input cloudprovider.SCloudaccountCredential, cloudaccount string) (cloudprovider.SCloudaccount, error) {
+func (f *SVolcEngineProviderFactory) ValidateUpdateCloudaccountCredential(ctx context.Context, input cloudprovider.SCloudaccountCredential, cloudaccount string) (cloudprovider.SCloudaccount, error) {
 	output := cloudprovider.SCloudaccount{}
 	if len(input.AccessKeyId) == 0 {
 		return output, errors.Wrap(cloudprovider.ErrMissingParameter, "access_key_id")
@@ -66,7 +66,7 @@ func (f *SVolcengineProviderFactory) ValidateUpdateCloudaccountCredential(ctx co
 	return output, nil
 }
 
-func validateClientCloudenv(client *volcengine.SVolcengineClient) error {
+func validateClientCloudenv(client *volcengine.SVolcEngineClient) error {
 	regions := client.GetIRegions()
 	if len(regions) == 0 {
 		return nil
@@ -87,10 +87,10 @@ func parseAccount(account string) (accessKey string, projectId string) {
 	return
 }
 
-func (self *SVolcengineProviderFactory) GetProvider(cfg cloudprovider.ProviderConfig) (cloudprovider.ICloudProvider, error) {
+func (self *SVolcEngineProviderFactory) GetProvider(cfg cloudprovider.ProviderConfig) (cloudprovider.ICloudProvider, error) {
 	accessKey, accountId := parseAccount(cfg.Account)
-	client, err := volcengine.NewVolcengineClient(
-		volcengine.NewVolcengineClientConfig(
+	client, err := volcengine.NewVolcEngineClient(
+		volcengine.NewVolcEngineClientConfig(
 			accessKey,
 			cfg.Secret,
 		).CloudproviderConfig(cfg).AccountId(accountId),
@@ -104,13 +104,13 @@ func (self *SVolcengineProviderFactory) GetProvider(cfg cloudprovider.ProviderCo
 		return nil, errors.Wrap(err, "validateClientCloudenv")
 	}
 
-	return &SVolcengineProvider{
+	return &SVolcEngineProvider{
 		SBaseProvider: cloudprovider.NewBaseProvider(self),
 		client:        client,
 	}, nil
 }
 
-func (self *SVolcengineProviderFactory) GetClientRC(info cloudprovider.SProviderInfo) (map[string]string, error) {
+func (self *SVolcEngineProviderFactory) GetClientRC(info cloudprovider.SProviderInfo) (map[string]string, error) {
 	accessKey, accountId := parseAccount(info.Account)
 	return map[string]string{
 		"VOLCENGINE_ACCESS_KEY": accessKey,
@@ -121,21 +121,21 @@ func (self *SVolcengineProviderFactory) GetClientRC(info cloudprovider.SProvider
 }
 
 func init() {
-	factory := SVolcengineProviderFactory{}
+	factory := SVolcEngineProviderFactory{}
 	cloudprovider.RegisterFactory(&factory)
 }
 
-type SVolcengineProvider struct {
+type SVolcEngineProvider struct {
 	cloudprovider.SBaseProvider
 
-	client *volcengine.SVolcengineClient
+	client *volcengine.SVolcEngineClient
 }
 
-func (self *SVolcengineProvider) GetAccountId() string {
+func (self *SVolcEngineProvider) GetAccountId() string {
 	return self.client.GetAccountId()
 }
 
-func (self *SVolcengineProvider) GetSysInfo() (jsonutils.JSONObject, error) {
+func (self *SVolcEngineProvider) GetSysInfo() (jsonutils.JSONObject, error) {
 	regions := self.client.GetIRegions()
 	info := jsonutils.NewDict()
 	info.Add(jsonutils.NewInt(int64(len(regions))), "region_count")
@@ -143,47 +143,47 @@ func (self *SVolcengineProvider) GetSysInfo() (jsonutils.JSONObject, error) {
 	return info, nil
 }
 
-func (self *SVolcengineProvider) GetBalance() (*cloudprovider.SBalanceInfo, error) {
+func (self *SVolcEngineProvider) GetBalance() (*cloudprovider.SBalanceInfo, error) {
 	// GetBalance is not currently open
 	return &cloudprovider.SBalanceInfo{
 		Amount:   0.0,
 		Currency: "CNY",
 		Status:   api.CLOUD_PROVIDER_HEALTH_NORMAL,
-	}, cloudprovider.ErrNotImplemented
+	}, nil
 }
 
-func (self *SVolcengineProvider) GetBucketCannedAcls(regionId string) []string {
+func (self *SVolcEngineProvider) GetBucketCannedAcls(regionId string) []string {
 	return nil
 }
 
-func (self *SVolcengineProvider) GetCapabilities() []string {
+func (self *SVolcEngineProvider) GetCapabilities() []string {
 	return self.client.GetCapabilities()
 }
 
-func (self *SVolcengineProvider) GetIProjects() ([]cloudprovider.ICloudProject, error) {
+func (self *SVolcEngineProvider) GetIProjects() ([]cloudprovider.ICloudProject, error) {
 	return self.client.GetIProjects()
 }
 
-func (self *SVolcengineProvider) GetIRegionById(extId string) (cloudprovider.ICloudRegion, error) {
+func (self *SVolcEngineProvider) GetIRegionById(extId string) (cloudprovider.ICloudRegion, error) {
 	return self.client.GetIRegionById(extId)
 }
 
-func (self *SVolcengineProvider) GetIRegions() []cloudprovider.ICloudRegion {
+func (self *SVolcEngineProvider) GetIRegions() []cloudprovider.ICloudRegion {
 	return self.client.GetIRegions()
 }
 
-func (self *SVolcengineProvider) GetObjectCannedAcls(regionId string) []string {
+func (self *SVolcEngineProvider) GetObjectCannedAcls(regionId string) []string {
 	return nil
 }
 
-func (self *SVolcengineProvider) GetStorageClasses(regionId string) []string {
+func (self *SVolcEngineProvider) GetStorageClasses(regionId string) []string {
 	return nil
 }
 
-func (self *SVolcengineProvider) GetSubAccounts() ([]cloudprovider.SSubAccount, error) {
+func (self *SVolcEngineProvider) GetSubAccounts() ([]cloudprovider.SSubAccount, error) {
 	return self.client.GetSubAccounts()
 }
 
-func (self *SVolcengineProvider) GetVersion() string {
+func (self *SVolcEngineProvider) GetVersion() string {
 	return volcengine.VOLCENGINE_API_VERSION
 }

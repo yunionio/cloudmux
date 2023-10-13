@@ -47,13 +47,18 @@ func (ip *SPrivateIp) IsPrimary() bool {
 	return ip.Primary
 }
 
+type SAssociatedElasticIp struct {
+	AllocationId string
+	EipAddress   string
+}
+
 type SPrivateIpSets struct {
 	PrivateIpSet []SPrivateIp
 }
 
 type SNetworkInterface struct {
 	multicloud.SNetworkInterfaceBase
-	VolcengineTags
+	VolcEngineTags
 	region *SRegion
 
 	InstanceId           string
@@ -71,6 +76,7 @@ type SNetworkInterface struct {
 	Status               string
 	ZoneId               string
 	PrivateIpAddresses   []string
+	AssociatedElasticIp  SAssociatedElasticIp
 }
 
 func (nic *SNetworkInterface) GetName() string {

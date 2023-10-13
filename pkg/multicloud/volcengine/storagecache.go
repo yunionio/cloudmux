@@ -29,7 +29,7 @@ import (
 
 type SStoragecache struct {
 	multicloud.SResourceBase
-	VolcengineTags
+	VolcEngineTags
 	region *SRegion
 }
 

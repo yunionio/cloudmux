@@ -26,7 +26,7 @@ import (
 
 type SRouteEntry struct {
 	multicloud.SResourceBase
-	VolcengineTags
+	VolcEngineTags
 	routeTable *SRouteTable
 
 	Description          string
@@ -48,7 +48,7 @@ type SubnetIds []string
 
 type SRouteTable struct {
 	multicloud.SResourceBase
-	VolcengineTags
+	VolcEngineTags
 	region *SRegion
 	vpc    *SVpc
 	routes []cloudprovider.ICloudRoute
@@ -182,7 +182,7 @@ func (table *SRouteTable) RemoteGetRoutes(pageNumber int, pageSize int) ([]*SRou
 	}
 
 	entries := SRouteEntrys{}
-	err = body.Unmarshal(&entries, "Result", "RouterEntries")
+	err = body.Unmarshal(&entries, "Result", "RouteEntries")
 	if err != nil {
 		return nil, 0, errors.Wrapf(err, "Unmarshal routeEntrys fail")
 	}

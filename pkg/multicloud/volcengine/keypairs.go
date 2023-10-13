@@ -105,7 +105,7 @@ func (region *SRegion) DetachKeyPair(instanceId string, name string) error {
 	return nil
 }
 
-func (region *SRegion) lookUpVolcengineKeypair(publicKey string) (string, error) {
+func (region *SRegion) lookUpVolcEngineKeypair(publicKey string) (string, error) {
 	pk, _, _, _, err := ssh.ParseAuthorizedKey([]byte(publicKey))
 	if err != nil {
 		return "", fmt.Errorf("publicKey error %s", err)
@@ -120,7 +120,7 @@ func (region *SRegion) lookUpVolcengineKeypair(publicKey string) (string, error)
 	}
 }
 
-func (region *SRegion) importVolcengineKeypair(publicKey string) (string, error) {
+func (region *SRegion) importVolcEngineKeypair(publicKey string) (string, error) {
 	prefix, e := goutils.RandomAlphabetic(6)
 	if e != nil {
 		return "", fmt.Errorf("publicKey error %s", e)
@@ -135,9 +135,9 @@ func (region *SRegion) importVolcengineKeypair(publicKey string) (string, error)
 }
 
 func (region *SRegion) syncKeypair(publicKey string) (string, error) {
-	name, e := region.lookUpVolcengineKeypair(publicKey)
+	name, e := region.lookUpVolcEngineKeypair(publicKey)
 	if e == nil {
 		return name, nil
 	}
-	return region.importVolcengineKeypair(publicKey)
+	return region.importVolcEngineKeypair(publicKey)
 }

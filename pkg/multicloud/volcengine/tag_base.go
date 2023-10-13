@@ -23,11 +23,11 @@ import (
 	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
-type VolcengineTags struct {
+type VolcEngineTags struct {
 	Tags []multicloud.STag
 }
 
-func (itag *VolcengineTags) GetTags() (map[string]string, error) {
+func (itag *VolcEngineTags) GetTags() (map[string]string, error) {
 	ret := map[string]string{}
 	for _, tag := range itag.Tags {
 		if len(tag.TagKey) > 0 {
@@ -39,7 +39,7 @@ func (itag *VolcengineTags) GetTags() (map[string]string, error) {
 	return ret, nil
 }
 
-func (itag *VolcengineTags) GetSysTags() map[string]string {
+func (itag *VolcEngineTags) GetSysTags() map[string]string {
 	ret := map[string]string{}
 	prefix := "volc:"
 	for _, tag := range itag.Tags {
@@ -57,6 +57,6 @@ func (itag *VolcengineTags) GetSysTags() map[string]string {
 	return ret
 }
 
-func (itag *VolcengineTags) SetTags(tags map[string]string, replace bool) error {
+func (itag *VolcEngineTags) SetTags(tags map[string]string, replace bool) error {
 	return errors.Wrap(cloudprovider.ErrNotImplemented, "SetTags")
 }
