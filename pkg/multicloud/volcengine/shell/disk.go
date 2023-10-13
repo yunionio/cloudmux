@@ -21,14 +21,14 @@ import (
 
 func init() {
 	type DiskListOptions struct {
-		Instance string `help:"Instance ID"`
-		Zone     string `help:"Zone ID"`
-		Category string `help:"Disk category"`
-		Offset   int    `help:"List offset"`
-		Limit    int    `help:"List limit"`
+		Instance   string `help:"Instance ID"`
+		Zone       string `help:"Zone ID"`
+		VolumeType string `help:"Disk category"`
+		Offset     int    `help:"List offset"`
+		Limit      int    `help:"List limit"`
 	}
 	shellutils.R(&DiskListOptions{}, "disk-list", "List disks", func(cli *volcengine.SRegion, args *DiskListOptions) error {
-		disks, total, e := cli.GetDisks(args.Instance, args.Zone, args.Category, nil, args.Offset, args.Limit)
+		disks, total, e := cli.GetDisks(args.Instance, args.Zone, args.VolumeType, nil, args.Offset, args.Limit)
 		if e != nil {
 			return e
 		}

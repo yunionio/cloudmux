@@ -52,7 +52,7 @@ const (
 type SEipAddress struct {
 	region *SRegion
 	multicloud.SEipBase
-	VolcengineTags
+	VolcEngineTags
 
 	Name         string
 	AllocationId string

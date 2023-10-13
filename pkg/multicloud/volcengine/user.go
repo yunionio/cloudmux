@@ -45,7 +45,7 @@ type SCallerIdentity struct {
 	IdentityType string
 }
 
-func (client *SVolcengineClient) GetCallerIdentity() (*SCallerIdentity, error) {
+func (client *SVolcEngineClient) GetCallerIdentity() (*SCallerIdentity, error) {
 	// sys is not currently supported
 	params := map[string]string{}
 	body, err := client.iamRequest("", "ListUsers", params)

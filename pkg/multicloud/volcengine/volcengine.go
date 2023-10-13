@@ -36,7 +36,7 @@ import (
 const (
 	CLOUD_PROVIDER_VOLCENGINE    = api.CLOUD_PROVIDER_VOLCENGINE
 	CLOUD_PROVIDER_VOLCENGINE_CN = "火山云"
-	CLOUD_PROVIDER_VOLCENGINE_EN = "Volcengine"
+	CLOUD_PROVIDER_VOLCENGINE_EN = "VolcEngine"
 
 	VOLCENGINE_API_VERSION     = "2020-04-01"
 	VOLCENGINE_IAM_API_VERSION = "2021-08-01"
@@ -54,7 +54,7 @@ const (
 	VOLCENGINE_DEFAULT_REGION  = "cn-beijing"
 )
 
-type VolcengineClientConfig struct {
+type VolcEngineClientConfig struct {
 	cpcfg     cloudprovider.ProviderConfig
 	cloudEnv  string
 	accessKey string
@@ -63,35 +63,35 @@ type VolcengineClientConfig struct {
 	debug     bool
 }
 
-func NewVolcengineClientConfig(accessKey, secretKey string) *VolcengineClientConfig {
-	cfg := &VolcengineClientConfig{
+func NewVolcEngineClientConfig(accessKey, secretKey string) *VolcEngineClientConfig {
+	cfg := &VolcEngineClientConfig{
 		accessKey: accessKey,
 		secretKey: secretKey,
 	}
 	return cfg
 }
 
-func (cfg *VolcengineClientConfig) CloudproviderConfig(cpcfg cloudprovider.ProviderConfig) *VolcengineClientConfig {
+func (cfg *VolcEngineClientConfig) CloudproviderConfig(cpcfg cloudprovider.ProviderConfig) *VolcEngineClientConfig {
 	cfg.cpcfg = cpcfg
 	return cfg
 }
 
-func (cfg *VolcengineClientConfig) AccountId(id string) *VolcengineClientConfig {
+func (cfg *VolcEngineClientConfig) AccountId(id string) *VolcEngineClientConfig {
 	cfg.accountId = id
 	return cfg
 }
 
-func (cfg *VolcengineClientConfig) Debug(debug bool) *VolcengineClientConfig {
+func (cfg *VolcEngineClientConfig) Debug(debug bool) *VolcEngineClientConfig {
 	cfg.debug = debug
 	return cfg
 }
 
-func (cfg VolcengineClientConfig) Copy() VolcengineClientConfig {
+func (cfg VolcEngineClientConfig) Copy() VolcEngineClientConfig {
 	return cfg
 }
 
-type SVolcengineClient struct {
-	*VolcengineClientConfig
+type SVolcEngineClient struct {
+	*VolcEngineClientConfig
 
 	ownerId string
 
@@ -100,9 +100,9 @@ type SVolcengineClient struct {
 	iBuckets []cloudprovider.ICloudBucket
 }
 
-func NewVolcengineClient(cfg *VolcengineClientConfig) (*SVolcengineClient, error) {
-	client := SVolcengineClient{
-		VolcengineClientConfig: cfg,
+func NewVolcEngineClient(cfg *VolcEngineClientConfig) (*SVolcEngineClient, error) {
+	client := SVolcEngineClient{
+		VolcEngineClientConfig: cfg,
 	}
 	err := client.fetchRegions()
 	if err != nil {
@@ -112,7 +112,7 @@ func NewVolcengineClient(cfg *VolcengineClientConfig) (*SVolcengineClient, error
 }
 
 // Regions
-func (client *SVolcengineClient) fetchRegions() error {
+func (client *SVolcEngineClient) fetchRegions() error {
 	body, err := client.ecsRequest("", "DescribeRegions", nil)
 	if err != nil {
 		return errors.Wrapf(err, "DescribeRegions")
@@ -130,7 +130,7 @@ func (client *SVolcengineClient) fetchRegions() error {
 	return nil
 }
 
-func (client *SVolcengineClient) GetRegions() []SRegion {
+func (client *SVolcEngineClient) GetRegions() []SRegion {
 	regions := make([]SRegion, len(client.iregions))
 	for i := 0; i < len(regions); i += 1 {
 		region := client.iregions[i].(*SRegion)
@@ -139,7 +139,7 @@ func (client *SVolcengineClient) GetRegions() []SRegion {
 	return regions
 }
 
-func (client *SVolcengineClient) GetRegion(regionId string) *SRegion {
+func (client *SVolcEngineClient) GetRegion(regionId string) *SRegion {
 	if len(regionId) == 0 {
 		regionId = VOLCENGINE_DEFAULT_REGION
 	}
@@ -151,20 +151,20 @@ func (client *SVolcengineClient) GetRegion(regionId string) *SRegion {
 	return nil
 }
 
-func (client *SVolcengineClient) GetIRegions() []cloudprovider.ICloudRegion {
+func (client *SVolcEngineClient) GetIRegions() []cloudprovider.ICloudRegion {
 	return client.iregions
 }
 
-func (client *SVolcengineClient) GetIRegionById(id string) (cloudprovider.ICloudRegion, error) {
+func (client *SVolcEngineClient) GetIRegionById(id string) (cloudprovider.ICloudRegion, error) {
 	for i := 0; i < len(client.iregions); i += 1 {
-		if client.iregions[i].GetId() == id {
+		if (client.iregions[i].GetId() == id) || (client.iregions[i].GetGlobalId() == id) {
 			return client.iregions[i], nil
 		}
 	}
 	return nil, cloudprovider.ErrNotFound
 }
 
-func (client *SVolcengineClient) GetAccountId() string {
+func (client *SVolcEngineClient) GetAccountId() string {
 	if len(client.ownerId) > 0 {
 		return client.ownerId
 	}
@@ -176,7 +176,7 @@ func (client *SVolcengineClient) GetAccountId() string {
 	return client.ownerId
 }
 
-func (client *SVolcengineClient) GetSubAccounts() ([]cloudprovider.SSubAccount, error) {
+func (client *SVolcEngineClient) GetSubAccounts() ([]cloudprovider.SSubAccount, error) {
 	err := client.fetchRegions()
 	if err != nil {
 		return nil, err
@@ -189,7 +189,7 @@ func (client *SVolcengineClient) GetSubAccounts() ([]cloudprovider.SSubAccount, 
 	return []cloudprovider.SSubAccount{subAccount}, nil
 }
 
-func (client *SVolcengineClient) GetIProjects() ([]cloudprovider.ICloudProject, error) {
+func (client *SVolcEngineClient) GetIProjects() ([]cloudprovider.ICloudProject, error) {
 	projects, err := client.GetProjects()
 	if err != nil {
 		return nil, err
@@ -201,11 +201,11 @@ func (client *SVolcengineClient) GetIProjects() ([]cloudprovider.ICloudProject, 
 	return ret, nil
 }
 
-func (client *SVolcengineClient) GetProjects() ([]SProject, error) {
+func (client *SVolcEngineClient) GetProjects() ([]SProject, error) {
 	if len(client.projects) > 0 {
 		return client.projects, nil
 	}
-	limit, offset := 50, 1
+	limit, offset := 50, 0
 	client.projects = []SProject{}
 	for {
 		parts, total, err := client.ListProjects(limit, offset)
@@ -221,7 +221,7 @@ func (client *SVolcengineClient) GetProjects() ([]SProject, error) {
 	return client.projects, nil
 }
 
-func (client *SVolcengineClient) jsonRequest(cred sdk.Credentials, domain string, apiVersion string, apiName string, params map[string]string) (jsonutils.JSONObject, error) {
+func (client *SVolcEngineClient) jsonRequest(cred sdk.Credentials, domain string, apiVersion string, apiName string, params map[string]string) (jsonutils.JSONObject, error) {
 
 	query := url.Values{
 		"Action":  []string{apiName},
@@ -270,7 +270,7 @@ func (client *SVolcengineClient) jsonRequest(cred sdk.Credentials, domain string
 	return result, nil
 }
 
-func (client *SVolcengineClient) getSdkCredential(region string, service string, token string) sdk.Credentials {
+func (client *SVolcEngineClient) getSdkCredential(region string, service string, token string) sdk.Credentials {
 	cred := sdk.Credentials{
 		AccessKeyID:     client.accessKey,
 		SecretAccessKey: client.secretKey,
@@ -281,7 +281,7 @@ func (client *SVolcengineClient) getSdkCredential(region string, service string,
 	return cred
 }
 
-func (client *SVolcengineClient) getDefaultCredential(region string, service string) sdk.Credentials {
+func (client *SVolcEngineClient) getDefaultCredential(region string, service string) sdk.Credentials {
 	if region == "" {
 		region = VOLCENGINE_DEFAULT_REGION
 	}
@@ -295,27 +295,27 @@ func (client *SVolcengineClient) getDefaultCredential(region string, service str
 	return cred
 }
 
-func (client *SVolcengineClient) ecsRequest(region string, apiName string, params map[string]string) (jsonutils.JSONObject, error) {
+func (client *SVolcEngineClient) ecsRequest(region string, apiName string, params map[string]string) (jsonutils.JSONObject, error) {
 	cred := client.getDefaultCredential(region, VOLCENGINE_SERVICE_ECS)
 	return client.jsonRequest(cred, VOLCENGINE_API, VOLCENGINE_API_VERSION, apiName, params)
 }
 
-func (client *SVolcengineClient) iamRequest(region string, apiName string, params map[string]string) (jsonutils.JSONObject, error) {
+func (client *SVolcEngineClient) iamRequest(region string, apiName string, params map[string]string) (jsonutils.JSONObject, error) {
 	cred := client.getDefaultCredential(region, VOLCENGINE_SERVICE_IAM)
-	return client.jsonRequest(cred, VOLCENGINE_IAM_API, VOLCENGINE_API_VERSION, apiName, params)
+	return client.jsonRequest(cred, VOLCENGINE_IAM_API, VOLCENGINE_IAM_API_VERSION, apiName, params)
 }
 
-func (client *SVolcengineClient) getTosClient(regionId string) (*tos.ClientV2, error) {
+func (client *SVolcEngineClient) getTosClient(regionId string) (*tos.ClientV2, error) {
 	tosClient, err := tos.NewClientV2(VOLCENGINE_TOS_API, tos.WithRegion(regionId), tos.WithCredentials(tos.NewStaticCredentials(client.accessKey, client.secretKey)))
 	return tosClient, err
 }
 
 // Buckets
-func (client *SVolcengineClient) invalidateIBuckets() {
+func (client *SVolcEngineClient) invalidateIBuckets() {
 	client.iBuckets = nil
 }
 
-func (client *SVolcengineClient) getIBuckets() ([]cloudprovider.ICloudBucket, error) {
+func (client *SVolcEngineClient) getIBuckets() ([]cloudprovider.ICloudBucket, error) {
 	if client.iBuckets == nil {
 		err := client.fetchBuckets()
 		if err != nil {
@@ -325,7 +325,7 @@ func (client *SVolcengineClient) getIBuckets() ([]cloudprovider.ICloudBucket, er
 	return client.iBuckets, nil
 }
 
-func (client *SVolcengineClient) fetchBuckets() error {
+func (client *SVolcEngineClient) fetchBuckets() error {
 	toscli, err := client.getTosClient(VOLCENGINE_DEFAULT_REGION)
 	if err != nil {
 		return errors.Wrap(err, "client.getOssClient")
@@ -367,7 +367,7 @@ func getTOSInternalDomain(regionId string) string {
 	return "tos-cn-beijing.ivolces.com"
 }
 
-func (region *SVolcengineClient) GetCapabilities() []string {
+func (region *SVolcEngineClient) GetCapabilities() []string {
 	caps := []string{
 		cloudprovider.CLOUD_CAPABILITY_PROJECT,
 		cloudprovider.CLOUD_CAPABILITY_COMPUTE,
@@ -378,6 +378,6 @@ func (region *SVolcengineClient) GetCapabilities() []string {
 	return caps
 }
 
-func (client *SVolcengineClient) GetAccessEnv() string {
+func (client *SVolcEngineClient) GetAccessEnv() string {
 	return api.CLOUD_ACCESS_ENV_VOLCENGINE_CHINA
 }

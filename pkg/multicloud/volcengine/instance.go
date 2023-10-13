@@ -55,7 +55,7 @@ type SRdmaIPAddress []string
 
 type SInstance struct {
 	multicloud.SInstanceBase
-	VolcengineTags
+	VolcEngineTags
 
 	host *SHost
 
@@ -211,6 +211,16 @@ func (instance *SInstance) GetIDisks() ([]cloudprovider.ICloudDisk, error) {
 func (instance *SInstance) GetIEIP() (cloudprovider.ICloudEIP, error) {
 	if len(instance.EipAddress.EipAddress) > 0 {
 		return instance.host.zone.region.GetEip(instance.EipAddress.AllocationId)
+	}
+	for _, nic := range instance.NetworkInterfaces {
+		if len(nic.AssociatedElasticIp.EipAddress) > 0 {
+			eip := SEipAddress{region: instance.host.zone.region}
+			eip.region = instance.host.zone.region
+			eip.EipAddress = nic.AssociatedElasticIp.EipAddress
+			eip.InstanceId = instance.InstanceId
+			eip.AllocationId = instance.InstanceId
+			return &eip, nil
+		}
 	}
 	return nil, errors.ErrNotFound
 }
