@@ -12,23 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package shell
+package baidu
 
 import (
-	"yunion.io/x/log"
-	"yunion.io/x/pkg/util/shellutils"
-
-	"yunion.io/x/cloudmux/pkg/multicloud/baidu"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
-func init() {
-	type RegionListOptions struct {
-	}
-	shellutils.R(&RegionListOptions{}, "region-list", "list regions", func(cli *baidu.SRegion, args *RegionListOptions) error {
-		regions := cli.GetClient().GetRegions()
-		log.Infoln("this is regions:", regions)
-		printList(regions, 0, 0, 0, []string{})
-		return nil
-	})
+type SZone struct {
+	multicloud.SResourceBase
+	region *SRegion
+	host   *SHost
 
+	iwires    []cloudprovider.ICloudWire
+	istorages []cloudprovider.ICloudStorage
+
+	ZoneName string `json:"zoneName"`
+
+	/* 支持的磁盘种类集合 */
+	storageTypes []string
 }
