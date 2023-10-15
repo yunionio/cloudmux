@@ -296,7 +296,7 @@ func (region *SRegion) AllocateEIP(opts *cloudprovider.SEip) (*SEipAddress, erro
 		return nil, errors.Wrapf(err, "AllocateEipAddress fail")
 	}
 
-	eipId, err := body.GetString("AllocationId")
+	eipId, err := body.GetString("Result", "AllocationId")
 	if err != nil {
 		return nil, errors.Wrapf(err, "get AllocationId after created fail")
 	}

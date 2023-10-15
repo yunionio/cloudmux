@@ -15,6 +15,8 @@
 package shell
 
 import (
+	"time"
+
 	"yunion.io/x/cloudmux/pkg/multicloud/volcengine"
 	"yunion.io/x/pkg/util/shellutils"
 )
@@ -45,7 +47,7 @@ func init() {
 		return nil
 	})
 
-	shellutils.R(&NetworkShowOptions{}, "vswitch-delete", "Show vswitch details", func(cli *volcengine.SRegion, args *NetworkShowOptions) error {
+	shellutils.R(&NetworkShowOptions{}, "network-delete", "Delete subnet", func(cli *volcengine.SRegion, args *NetworkShowOptions) error {
 		e := cli.DeleteSubnet(args.ID)
 		if e != nil {
 			return e
@@ -62,7 +64,12 @@ func init() {
 	}
 
 	shellutils.R(&NetworkCreateOption{}, "network-create", "create network", func(cli *volcengine.SRegion, args *NetworkCreateOption) error {
-		network, err := cli.CreateSubnet(args.ZoneId, args.VpcId, args.Name, args.CIDR, args.Desc)
+		networkId, err := cli.CreateSubnet(args.ZoneId, args.VpcId, args.Name, args.CIDR, args.Desc)
+		if err != nil {
+			return err
+		}
+		time.Sleep(time.Second * 1)
+		network, _, err := cli.GetSubnets([]string{networkId}, "", "", 1, 1)
 		if err != nil {
 			return err
 		}

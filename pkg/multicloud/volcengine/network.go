@@ -144,7 +144,7 @@ func (region *SRegion) CreateSubnet(zoneId string, vpcId string, name string, ci
 	if err != nil {
 		return "", err
 	}
-	return body.GetString("SubnetId")
+	return body.GetString("Result", "SubnetId")
 }
 
 func (region *SRegion) DeleteSubnet(SubnetId string) error {

@@ -199,6 +199,7 @@ func (region *SRegion) CreateVpc(opts *cloudprovider.VpcCreateOptions) (*SVpc, e
 	if err != nil {
 		return nil, err
 	}
+	time.Sleep(time.Second * 1)
 	return region.getVpc(vpcId)
 }
 
@@ -222,12 +223,15 @@ func (region *SRegion) getVpc(vpcId string) (*SVpc, error) {
 	return &vpcs[0], nil
 }
 
-func (region *SRegion) GetVpcs(vpcId []string, pageNumber int, pageSize int) ([]SVpc, int, error) {
+func (region *SRegion) GetVpcs(vpcIds []string, pageNumber int, pageSize int) ([]SVpc, int, error) {
 	params := make(map[string]string)
 	params["PageSize"] = fmt.Sprintf("%d", pageSize)
 	params["PageNumber"] = fmt.Sprintf("%d", pageNumber)
-	if len(vpcId) > 0 {
-		params["VpcId"] = strings.Join(vpcId, ",")
+	if len(vpcIds) > 0 {
+		for index, id := range vpcIds {
+			key := fmt.Sprintf("VpcIds.%d", index+1)
+			params[key] = id
+		}
 	}
 	body, err := region.vpcRequest("DescribeVpcs", params)
 	if err != nil {
@@ -577,4 +581,78 @@ func (region *SRegion) GetRouteTables(ids []string, pageNumber int, pageSize int
 	}
 	total, _ := body.Int("Result", "TotalCount")
 	return routetables, int(total), nil
+}
+
+func (region *SRegion) GetIHostById(id string) (cloudprovider.ICloudHost, error) {
+	izones, err := region.GetIZones()
+	if err != nil {
+		return nil, err
+	}
+	for i := 0; i < len(izones); i += 1 {
+		ihost, err := izones[i].GetIHostById(id)
+		if err == nil {
+			return ihost, nil
+		} else if errors.Cause(err) != cloudprovider.ErrNotFound {
+			return nil, err
+		}
+	}
+	return nil, cloudprovider.ErrNotFound
+}
+
+func (regioin *SRegion) GetIHosts() ([]cloudprovider.ICloudHost, error) {
+	iHosts := make([]cloudprovider.ICloudHost, 0)
+
+	izones, err := regioin.GetIZones()
+	if err != nil {
+		return nil, err
+	}
+	for i := 0; i < len(izones); i += 1 {
+		iZoneHost, err := izones[i].GetIHosts()
+		if err != nil {
+			return nil, err
+		}
+		iHosts = append(iHosts, iZoneHost...)
+	}
+	return iHosts, nil
+}
+
+func (region *SRegion) GetIDiskById(id string) (cloudprovider.ICloudDisk, error) {
+	return region.getDisk(id)
+}
+
+func (region *SRegion) GetIStorageById(id string) (cloudprovider.ICloudStorage, error) {
+	izones, err := region.GetIZones()
+	if err != nil {
+		return nil, err
+	}
+	for i := 0; i < len(izones); i += 1 {
+		istore, err := izones[i].GetIStorageById(id)
+		if err == nil {
+			return istore, nil
+		} else if errors.Cause(err) != cloudprovider.ErrNotFound {
+			return nil, err
+		}
+	}
+	return nil, cloudprovider.ErrNotFound
+}
+
+func (region *SRegion) GetIStorages() ([]cloudprovider.ICloudStorage, error) {
+	iStores := make([]cloudprovider.ICloudStorage, 0)
+
+	izones, err := region.GetIZones()
+	if err != nil {
+		return nil, err
+	}
+	for i := 0; i < len(izones); i += 1 {
+		iZoneStores, err := izones[i].GetIStorages()
+		if err != nil {
+			return nil, err
+		}
+		iStores = append(iStores, iZoneStores...)
+	}
+	return iStores, nil
+}
+
+func (region *SRegion) GetIVMById(id string) (cloudprovider.ICloudVM, error) {
+	return region.GetInstance(id)
 }

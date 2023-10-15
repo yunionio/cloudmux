@@ -83,7 +83,7 @@ func (disk *SDisk) Delete(ctx context.Context) error {
 }
 
 func (disk *SDisk) Resize(ctx context.Context, sizeMb int64) error {
-	return disk.storage.zone.region.resizeDisk(disk.VolumeId, sizeMb)
+	return disk.storage.zone.region.ResizeDisk(disk.VolumeId, sizeMb)
 }
 
 func (disk *SDisk) GetName() string {
@@ -121,7 +121,7 @@ func (disk *SDisk) Refresh() error {
 func (disk *SDisk) ResizeDisk(newSize int64) error {
 	// newSize 单位为 GB. 只能扩容，不能缩减。范围参考下面链接。
 	// https://www.volcengine.com/docs/6396/76561
-	return disk.storage.zone.region.resizeDisk(disk.VolumeId, newSize)
+	return disk.storage.zone.region.ResizeDisk(disk.VolumeId, newSize)
 }
 
 func (disk *SDisk) GetDiskFormat() string {
@@ -287,7 +287,7 @@ func (region *SRegion) CreateDisk(zoneId string, category string, name string, s
 	if err != nil {
 		return "", err
 	}
-	return body.GetString("VolumeId")
+	return body.GetString("Result", "VolumeId")
 }
 
 func (region *SRegion) getDisk(diskId string) (*SDisk, error) {
@@ -309,8 +309,7 @@ func (region *SRegion) DeleteDisk(diskId string) error {
 	return err
 }
 
-func (region *SRegion) resizeDisk(diskId string, sizeMb int64) error {
-	sizeGb := sizeMb / 1024
+func (region *SRegion) ResizeDisk(diskId string, sizeGb int64) error {
 	params := make(map[string]string)
 	params["VolumeId"] = diskId
 	params["NewSize"] = fmt.Sprintf("%d", sizeGb)
