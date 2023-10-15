@@ -209,7 +209,7 @@ func (instance *SInstance) GetIDisks() ([]cloudprovider.ICloudDisk, error) {
 }
 
 func (instance *SInstance) GetIEIP() (cloudprovider.ICloudEIP, error) {
-	if len(instance.EipAddress.EipAddress) > 0 {
+	if len(instance.EipAddress.AllocationId) > 0 {
 		return instance.host.zone.region.GetEip(instance.EipAddress.AllocationId)
 	}
 	for _, nic := range instance.NetworkInterfaces {

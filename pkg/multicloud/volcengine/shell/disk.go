@@ -15,20 +15,23 @@
 package shell
 
 import (
+	"time"
+
 	"yunion.io/x/cloudmux/pkg/multicloud/volcengine"
 	"yunion.io/x/pkg/util/shellutils"
 )
 
 func init() {
 	type DiskListOptions struct {
-		Instance   string `help:"Instance ID"`
-		Zone       string `help:"Zone ID"`
-		VolumeType string `help:"Disk category"`
-		Offset     int    `help:"List offset"`
-		Limit      int    `help:"List limit"`
+		Instance string   `help:"Instance ID"`
+		Zone     string   `help:"Zone ID"`
+		DiskType string   `help:"Disk category"`
+		DiskId   []string `help:"Disk IDs"`
+		Offset   int      `help:"List offset"`
+		Limit    int      `help:"List limit"`
 	}
 	shellutils.R(&DiskListOptions{}, "disk-list", "List disks", func(cli *volcengine.SRegion, args *DiskListOptions) error {
-		disks, total, e := cli.GetDisks(args.Instance, args.Zone, args.VolumeType, nil, args.Offset, args.Limit)
+		disks, total, e := cli.GetDisks(args.Instance, args.Zone, args.DiskType, args.DiskId, args.Offset, args.Limit)
 		if e != nil {
 			return e
 		}
@@ -37,13 +40,55 @@ func init() {
 	})
 
 	type DiskDeleteOptions struct {
-		ID string `help:"Volume ID"`
+		ID string `help:"Disk ID"`
 	}
 	shellutils.R(&DiskDeleteOptions{}, "disk-delete", "List disks", func(cli *volcengine.SRegion, args *DiskDeleteOptions) error {
 		e := cli.DeleteDisk(args.ID)
 		if e != nil {
 			return e
 		}
+		return nil
+	})
+
+	type DiskResizeOptions struct {
+		ID      string `help:"Disk ID"`
+		SIZE_GB int64
+	}
+	shellutils.R(&DiskResizeOptions{}, "disk-resize", "Resize disks", func(cli *volcengine.SRegion, args *DiskResizeOptions) error {
+		e := cli.ResizeDisk(args.ID, args.SIZE_GB)
+		if e != nil {
+			return e
+		}
+		return nil
+	})
+
+	type DiskCreateOptions struct {
+		Name     string
+		Desc     string
+		Category string `choices:"PTSSD|ESSD_PL0|ESSD_FlexPL" default:"PTSSD"`
+		ZoneId   string
+		SizeGb   int `default:"10"`
+	}
+
+	shellutils.R(&DiskCreateOptions{}, "disk-create", "create a disk", func(cli *volcengine.SRegion, args *DiskCreateOptions) error {
+		diskId, err := cli.CreateDisk(
+			args.ZoneId,
+			args.Category,
+			args.Name,
+			args.SizeGb,
+			args.Desc,
+			"",
+		)
+		if err != nil {
+			return err
+		}
+		// waiting for creating
+		time.Sleep(time.Second * 1)
+		disk, err := cli.GetIDiskById(diskId)
+		if err != nil {
+			return err
+		}
+		printObject(disk)
 		return nil
 	})
 }

@@ -24,11 +24,12 @@ import (
 func init() {
 	test.TestShell()
 	type VpcListOptions struct {
-		Limit  int `help:"page size"`
-		Offset int `help:"page offset"`
+		Limit  int      `help:"page size"`
+		Offset int      `help:"page offset"`
+		VpcIds []string `help:"Vpc IDs"`
 	}
 	shellutils.R(&VpcListOptions{}, "vpc-list", "List vpc", func(cli *volcengine.SRegion, args *VpcListOptions) error {
-		vpcs, total, err := cli.GetVpcs(nil, args.Offset, args.Limit)
+		vpcs, total, err := cli.GetVpcs(args.VpcIds, args.Offset, args.Limit)
 		if err != nil {
 			return err
 		}
