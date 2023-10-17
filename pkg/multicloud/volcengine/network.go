@@ -247,7 +247,7 @@ func (region *SRegion) GetSubnetAttributes(SubnetId string) (*SNetwork, error) {
 		log.Debugf("%s", body.PrettyString())
 	}
 	subnet := SNetwork{}
-	err = body.Unmarshal(&subnet)
+	err = body.Unmarshal(&subnet, "Result")
 	if err != nil {
 		return nil, errors.Wrapf(err, "Unmarshal subnet fail")
 	}

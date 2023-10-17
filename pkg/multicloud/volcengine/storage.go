@@ -16,6 +16,7 @@ package volcengine
 
 import (
 	"fmt"
+	"time"
 
 	api "yunion.io/x/cloudmux/pkg/apis/compute"
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
@@ -118,10 +119,17 @@ func (storage *SStorage) CreateIDisk(conf *cloudprovider.DiskCreateConfig) (clou
 		log.Errorf("createDisk fail %s", err)
 		return nil, err
 	}
-	disk, err := storage.zone.region.getDisk(diskId)
+	var disk *SDisk
+	err = cloudprovider.WaitCreated(5*time.Second, 60*time.Second, func() bool {
+		disk, _ := storage.zone.region.getDisk(diskId)
+		if disk == nil {
+			return false
+		} else {
+			return true
+		}
+	})
 	if err != nil {
-		log.Errorf("getDisk fail %s", err)
-		return nil, err
+		return nil, errors.Wrapf(err, "cannot find disk after create")
 	}
 	disk.storage = storage
 	return disk, nil

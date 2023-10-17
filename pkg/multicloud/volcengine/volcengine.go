@@ -15,8 +15,10 @@
 package volcengine
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -263,9 +265,14 @@ func (client *SVolcEngineClient) jsonRequest(cred sdk.Credentials, domain string
 	}
 	req = cred.Sign(req)
 	resp, err := http.DefaultClient.Do(req)
+	rbody, _ := io.ReadAll(resp.Body)
+	resp.Body = io.NopCloser(bytes.NewBuffer(rbody))
 	_, result, err := httputils.ParseJSONResponse("", resp, err, client.debug)
 	if err != nil {
-		return nil, err
+		jrbody, _ := jsonutils.Parse(rbody)
+		errorCode, _ := jrbody.GetString("ResponseMetadata", "Error", "Code")
+		errorMessage, _ := jrbody.GetString("ResponseMetadata", "Error", "Message")
+		return nil, errors.Wrapf(err, errorCode, errorMessage)
 	}
 	return result, nil
 }

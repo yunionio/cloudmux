@@ -16,11 +16,13 @@ package volcengine
 
 import (
 	"fmt"
+	"time"
 
 	api "yunion.io/x/cloudmux/pkg/apis/compute"
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud"
 	"yunion.io/x/log"
+	"yunion.io/x/pkg/errors"
 )
 
 type SWire struct {
@@ -103,12 +105,23 @@ func (wire *SWire) CreateINetwork(opts *cloudprovider.SNetworkCreateOptions) (cl
 		log.Errorf("createSubnet error %s", err)
 		return nil, err
 	}
-	wire.inetworks = nil
-	subnet := wire.getNetworkById(subnetId)
-	if subnet == nil {
-		log.Errorf("cannot find subnet after create????")
-		return nil, cloudprovider.ErrNotFound
+	var subnet *SNetwork
+	err = cloudprovider.WaitCreated(5*time.Second, 60*time.Second, func() bool {
+		subnet = wire.getNetworkById(subnetId)
+		if subnet == nil {
+			return false
+		} else {
+			return true
+		}
+	})
+	if err != nil {
+		return nil, errors.Wrapf(err, "cannot find subnet after create")
 	}
+	subnet.wire = wire
+	if wire.inetworks == nil {
+		wire.inetworks = []cloudprovider.ICloudNetwork{}
+	}
+	wire.inetworks = append(wire.inetworks, subnet)
 	return subnet, nil
 }
 
