@@ -199,8 +199,19 @@ func (region *SRegion) CreateVpc(opts *cloudprovider.VpcCreateOptions) (*SVpc, e
 	if err != nil {
 		return nil, err
 	}
-	time.Sleep(time.Second * 1)
-	return region.getVpc(vpcId)
+	var vpc *SVpc
+	err = cloudprovider.WaitCreated(5*time.Second, 60*time.Second, func() bool {
+		vpc, _ = region.getVpc(vpcId)
+		if vpc == nil {
+			return false
+		} else {
+			return true
+		}
+	})
+	if err != nil {
+		return nil, errors.Wrapf(err, "cannot find networks after create")
+	}
+	return vpc, err
 }
 
 func (region *SRegion) DeleteVpc(vpcId string) error {
@@ -452,7 +463,19 @@ func (region *SRegion) CreateISecurityGroup(conf *cloudprovider.SecurityGroupCre
 			return nil, err
 		}
 	}
-	return region.GetISecurityGroupById(externalId)
+	var secgroup *SSecurityGroup
+	err = cloudprovider.WaitCreated(5*time.Second, 60*time.Second, func() bool {
+		secgroup, _ := region.GetISecurityGroupById(externalId)
+		if secgroup == nil {
+			return false
+		} else {
+			return true
+		}
+	})
+	if err != nil {
+		return nil, errors.Wrapf(err, "cannot find security group after create")
+	}
+	return secgroup, err
 }
 
 func (region *SRegion) GetISecurityGroupById(secgroupId string) (cloudprovider.ICloudSecurityGroup, error) {

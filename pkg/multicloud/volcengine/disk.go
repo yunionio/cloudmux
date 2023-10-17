@@ -83,7 +83,7 @@ func (disk *SDisk) Delete(ctx context.Context) error {
 }
 
 func (disk *SDisk) Resize(ctx context.Context, sizeMb int64) error {
-	return disk.storage.zone.region.ResizeDisk(disk.VolumeId, sizeMb)
+	return disk.storage.zone.region.ResizeDisk(disk.VolumeId, sizeMb/1024)
 }
 
 func (disk *SDisk) GetName() string {

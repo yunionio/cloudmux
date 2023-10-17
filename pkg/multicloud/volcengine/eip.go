@@ -22,6 +22,7 @@ import (
 	api "yunion.io/x/cloudmux/pkg/apis/compute"
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud"
+	"yunion.io/x/jsonutils"
 	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/utils"
 )
@@ -105,6 +106,17 @@ func (eipaddr *SEipAddress) GetStatus() string {
 	default:
 		return api.EIP_STATUS_UNKNOWN
 	}
+}
+
+func (eipaddr *SEipAddress) Refresh() error {
+	if eipaddr.IsEmulated() {
+		return nil
+	}
+	new, err := eipaddr.region.GetEip(eipaddr.AllocationId)
+	if err != nil {
+		return err
+	}
+	return jsonutils.Update(eipaddr, new)
 }
 
 func (eipaddr *SEipAddress) GetProjectId() string {
@@ -301,9 +313,17 @@ func (region *SRegion) AllocateEIP(opts *cloudprovider.SEip) (*SEipAddress, erro
 		return nil, errors.Wrapf(err, "get AllocationId after created fail")
 	}
 
-	eip, err := region.GetEip(eipId)
+	var eip *SEipAddress
+	err = cloudprovider.WaitCreated(5*time.Second, 60*time.Second, func() bool {
+		eip, _ := region.GetEip(eipId)
+		if eip == nil {
+			return false
+		} else {
+			return true
+		}
+	})
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "cannot find eip after create")
 	}
 	return eip, nil
 }
