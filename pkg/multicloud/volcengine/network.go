@@ -187,7 +187,7 @@ func (subnet *SNetwork) Delete() error {
 		log.Errorf("fail to dissociateWithSNAT")
 		return err
 	}
-	err = cloudprovider.Wait(10*time.Second, 60*time.Second, func() (bool, error) {
+	err = cloudprovider.Wait(10*time.Second, time.Minute, func() (bool, error) {
 		err := subnet.wire.zone.region.DeleteSubnet(subnet.SubnetId)
 		if err != nil {
 			if isError(err, "DependencyViolation") {

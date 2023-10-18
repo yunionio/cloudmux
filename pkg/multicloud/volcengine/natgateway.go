@@ -122,17 +122,16 @@ func (nat *SNatGateway) GetNatSpec() string {
 }
 
 func (nat *SNatGateway) Refresh() error {
-	newNat, total, err := nat.vpc.region.GetNatGateways("", nat.NatGatewayId, 1, 1)
+	newNat, _, err := nat.vpc.region.GetNatGateways("", nat.NatGatewayId, 1, 1)
 	if err != nil {
 		return errors.Wrapf(err, "GetNatGateways")
 	}
-	if total > 1 {
-		return errors.Wrapf(cloudprovider.ErrDuplicateId, "get %d natgateways by id %s", total, nat.NatGatewayId)
+	for _, nt := range newNat {
+		if nt.NatGatewayId == nat.NatGatewayId {
+			return jsonutils.Update(nat, nt)
+		}
 	}
-	if total == 0 {
-		return errors.Wrapf(cloudprovider.ErrNotFound, nat.NatGatewayId)
-	}
-	return jsonutils.Update(nat, newNat[0])
+	return errors.Wrapf(cloudprovider.ErrNotFound, "%s not found", nat.NatGatewayId)
 }
 
 func (nat *SNatGateway) GetCreatedAt() time.Time {
@@ -266,25 +265,24 @@ func (region *SRegion) CreateNatGateway(opts *cloudprovider.NatGatewayCreateOpti
 		return nil, errors.Errorf("empty NatGatewayId after created")
 	}
 
-	var nat *SNatGateway = nil
 	err = cloudprovider.Wait(time.Second*5, time.Minute*15, func() (bool, error) {
-		nats, total, err := region.GetNatGateways("", natId, 0, 1)
-		if err != nil {
-			return false, errors.Wrapf(err, "GetNatGateways(%s)", natId)
+		_, _, err := region.GetNatGateways("", natId, 1, 1)
+		if errors.Cause(err) == cloudprovider.ErrNotFound {
+			return false, nil
+		} else {
+			return true, err
 		}
-		if total > 1 {
-			return false, errors.Wrapf(cloudprovider.ErrDuplicateId, "get %d nats", total)
-		}
-		if total == 0 {
-			return false, errors.Wrapf(cloudprovider.ErrNotFound, "search %s after %s created", opts.Name, natId)
-		}
-		nat = &nats[0]
-		return true, nil
 	})
 	if err != nil {
-		return nil, errors.Wrapf(err, "cloudprovider.Wait")
+		return nil, errors.Wrapf(err, "cannot find nat gateway after create")
 	}
-	return nat, nil
+	nats, _, err := region.GetNatGateways("", natId, 1, 1)
+	for _, nat := range nats {
+		if nat.NatGatewayId == natId {
+			return &nat, nil
+		}
+	}
+	return nil, errors.Wrapf(cloudprovider.ErrNotFound, "%s not found", natId)
 }
 
 func (region *SRegion) DeleteNatGateway(natId string, isForce bool) error {

@@ -176,7 +176,7 @@ func (eipaddr *SEipAddress) Delete() error {
 }
 
 func (eipaddr *SEipAddress) Associate(conf *cloudprovider.AssociateConfig) error {
-	_ = cloudprovider.Wait(20*time.Second, 60*time.Second, func() (bool, error) {
+	_ = cloudprovider.Wait(20*time.Second, time.Minute, func() (bool, error) {
 		err := eipaddr.region.AssociateEip(eipaddr.AllocationId, conf.InstanceId)
 		if err != nil {
 			if isError(err, "IncorrectInstanceStatus") {
@@ -264,7 +264,7 @@ func (region *SRegion) GetEips(eipIds []string, associatedId string, addresses [
 }
 
 func (region *SRegion) GetEip(eipId string) (*SEipAddress, error) {
-	eips, _, err := region.GetEips([]string{eipId}, "", make([]string, 0), 0, 1)
+	eips, _, err := region.GetEips([]string{eipId}, "", make([]string, 0), 1, 1)
 	if err != nil {
 		return nil, err
 	}
@@ -313,19 +313,18 @@ func (region *SRegion) AllocateEIP(opts *cloudprovider.SEip) (*SEipAddress, erro
 		return nil, errors.Wrapf(err, "get AllocationId after created fail")
 	}
 
-	var eip *SEipAddress
-	err = cloudprovider.WaitCreated(5*time.Second, 60*time.Second, func() bool {
-		eip, _ := region.GetEip(eipId)
-		if eip == nil {
-			return false
+	err = cloudprovider.Wait(5*time.Second, time.Minute, func() (bool, error) {
+		_, err := region.GetEip(eipId)
+		if errors.Cause(err) == cloudprovider.ErrNotFound {
+			return false, nil
 		} else {
-			return true
+			return true, err
 		}
 	})
 	if err != nil {
 		return nil, errors.Wrapf(err, "cannot find eip after create")
 	}
-	return eip, nil
+	return region.GetEip(eipId)
 }
 
 func (region *SRegion) CreateEIP(opts *cloudprovider.SEip) (cloudprovider.ICloudEIP, error) {

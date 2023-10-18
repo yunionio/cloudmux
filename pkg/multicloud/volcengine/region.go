@@ -199,19 +199,18 @@ func (region *SRegion) CreateVpc(opts *cloudprovider.VpcCreateOptions) (*SVpc, e
 	if err != nil {
 		return nil, err
 	}
-	var vpc *SVpc
-	err = cloudprovider.WaitCreated(5*time.Second, 60*time.Second, func() bool {
-		vpc, _ = region.getVpc(vpcId)
-		if vpc == nil {
-			return false
+	err = cloudprovider.Wait(5*time.Second, time.Minute, func() (bool, error) {
+		_, err = region.getVpc(vpcId)
+		if errors.Cause(err) == cloudprovider.ErrNotFound {
+			return false, nil
 		} else {
-			return true
+			return true, err
 		}
 	})
 	if err != nil {
 		return nil, errors.Wrapf(err, "cannot find networks after create")
 	}
-	return vpc, err
+	return region.getVpc(vpcId)
 }
 
 func (region *SRegion) DeleteVpc(vpcId string) error {
@@ -223,15 +222,17 @@ func (region *SRegion) DeleteVpc(vpcId string) error {
 }
 
 func (region *SRegion) getVpc(vpcId string) (*SVpc, error) {
-	vpcs, total, err := region.GetVpcs([]string{vpcId}, 1, 50)
+	vpcs, _, err := region.GetVpcs([]string{vpcId}, 1, 50)
 	if err != nil {
 		return nil, err
 	}
-	if total != 1 {
-		return nil, cloudprovider.ErrNotFound
+	for _, vpc := range vpcs {
+		if vpc.VpcId == vpcId {
+			vpc.region = region
+			return &vpc, nil
+		}
 	}
-	vpcs[0].region = region
-	return &vpcs[0], nil
+	return nil, errors.Wrapf(cloudprovider.ErrNotFound, "%s not found", vpcId)
 }
 
 func (region *SRegion) GetVpcs(vpcIds []string, pageNumber int, pageSize int) ([]SVpc, int, error) {
@@ -416,7 +417,7 @@ func (region *SRegion) GetIBucketById(name string) (cloudprovider.ICloudBucket, 
 			return &b, nil
 		}
 	}
-	return nil, errors.Wrapf(errors.ErrNotFound, "Bucket Not Found")
+	return nil, errors.Wrapf(cloudprovider.ErrNotFound, "Bucket Not Found")
 }
 
 func (region *SRegion) GetIBucketByName(name string) (cloudprovider.ICloudBucket, error) {
@@ -463,19 +464,18 @@ func (region *SRegion) CreateISecurityGroup(conf *cloudprovider.SecurityGroupCre
 			return nil, err
 		}
 	}
-	var secgroup *SSecurityGroup
-	err = cloudprovider.WaitCreated(5*time.Second, 60*time.Second, func() bool {
-		secgroup, _ := region.GetISecurityGroupById(externalId)
-		if secgroup == nil {
-			return false
+	err = cloudprovider.Wait(5*time.Second, time.Minute, func() (bool, error) {
+		_, err := region.GetISecurityGroupById(externalId)
+		if errors.Cause(err) == cloudprovider.ErrNotFound {
+			return false, nil
 		} else {
-			return true
+			return true, err
 		}
 	})
 	if err != nil {
 		return nil, errors.Wrapf(err, "cannot find security group after create")
 	}
-	return secgroup, err
+	return region.GetISecurityGroupById(externalId)
 }
 
 func (region *SRegion) GetISecurityGroupById(secgroupId string) (cloudprovider.ICloudSecurityGroup, error) {
@@ -483,18 +483,17 @@ func (region *SRegion) GetISecurityGroupById(secgroupId string) (cloudprovider.I
 }
 
 func (region *SRegion) GetISecurityGroupByName(opts *cloudprovider.SecurityGroupFilterOptions) (cloudprovider.ICloudSecurityGroup, error) {
-	secgroups, total, err := region.GetSecurityGroups(opts.VpcId, opts.Name, nil, 1, 100)
+	secgroups, _, err := region.GetSecurityGroups(opts.VpcId, opts.Name, nil, 1, 100)
 	if err != nil {
 		return nil, err
 	}
-	if total == 0 {
-		return nil, cloudprovider.ErrNotFound
+	for _, secgroup := range secgroups {
+		if secgroup.SecurityGroupName == opts.Name {
+			secgroup.region = region
+			return &secgroup, nil
+		}
 	}
-	if total > 1 {
-		return nil, cloudprovider.ErrDuplicateId
-	}
-	secgroups[0].region = region
-	return &secgroups[0], nil
+	return nil, errors.Wrapf(cloudprovider.ErrNotFound, "%s not found", opts.Name)
 }
 
 func (region *SRegion) DeleteISecurityGroupById(secgroupId string) error {

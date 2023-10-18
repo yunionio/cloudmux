@@ -83,20 +83,20 @@ func (wire *SWire) GetINetworks() ([]cloudprovider.ICloudNetwork, error) {
 	return ret, nil
 }
 
-func (wire *SWire) getNetworkById(SubnetId string) *SNetwork {
+func (wire *SWire) getNetworkById(SubnetId string) (*SNetwork, error) {
 	networks, err := wire.GetINetworks()
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	log.Debugf("search for networks %d", len(networks))
 	for i := 0; i < len(networks); i += 1 {
 		log.Debugf("search %s", networks[i].GetName())
 		network := networks[i].(*SNetwork)
 		if network.SubnetId == SubnetId {
-			return network
+			return network, nil
 		}
 	}
-	return nil
+	return nil, cloudprovider.ErrNotFound
 }
 
 func (wire *SWire) CreateINetwork(opts *cloudprovider.SNetworkCreateOptions) (cloudprovider.ICloudNetwork, error) {
@@ -105,17 +105,20 @@ func (wire *SWire) CreateINetwork(opts *cloudprovider.SNetworkCreateOptions) (cl
 		log.Errorf("createSubnet error %s", err)
 		return nil, err
 	}
-	var subnet *SNetwork
-	err = cloudprovider.WaitCreated(5*time.Second, 60*time.Second, func() bool {
-		subnet = wire.getNetworkById(subnetId)
-		if subnet == nil {
-			return false
+	err = cloudprovider.Wait(5*time.Second, time.Minute, func() (bool, error) {
+		_, err = wire.getNetworkById(subnetId)
+		if errors.Cause(err) == cloudprovider.ErrNotFound {
+			return false, nil
 		} else {
-			return true
+			return true, err
 		}
 	})
 	if err != nil {
 		return nil, errors.Wrapf(err, "cannot find subnet after create")
+	}
+	subnet, err := wire.getNetworkById(subnetId)
+	if err != nil {
+		return nil, errors.Wrapf(cloudprovider.ErrNotFound, "%s not found", subnetId)
 	}
 	subnet.wire = wire
 	if wire.inetworks == nil {

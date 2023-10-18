@@ -39,7 +39,7 @@ func init() {
 		ID string `help:"ID or name of routetable"`
 	}
 	shellutils.R(&RouteTableShowOptions{}, "routetable-show", "Show routetable", func(cli *volcengine.SRegion, args *RouteTableShowOptions) error {
-		routetables, _, e := cli.GetRouteTables([]string{args.ID}, 0, 1)
+		routetables, _, e := cli.GetRouteTables([]string{args.ID}, 1, 1)
 		if e != nil {
 			return e
 		}

@@ -119,17 +119,19 @@ func (storage *SStorage) CreateIDisk(conf *cloudprovider.DiskCreateConfig) (clou
 		log.Errorf("createDisk fail %s", err)
 		return nil, err
 	}
-	var disk *SDisk
-	err = cloudprovider.WaitCreated(5*time.Second, 60*time.Second, func() bool {
-		disk, _ := storage.zone.region.getDisk(diskId)
-		if disk == nil {
-			return false
-		} else {
-			return true
+	err = cloudprovider.Wait(5*time.Second, time.Minute, func() (bool, error) {
+		_, err := storage.zone.region.getDisk(diskId)
+		if errors.Cause(err) == cloudprovider.ErrNotFound {
+			return false, nil
 		}
+		return true, err
 	})
 	if err != nil {
 		return nil, errors.Wrapf(err, "cannot find disk after create")
+	}
+	disk, err := storage.zone.region.getDisk(diskId)
+	if err != nil {
+		return nil, err
 	}
 	disk.storage = storage
 	return disk, nil

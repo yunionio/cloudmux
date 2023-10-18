@@ -291,14 +291,16 @@ func (region *SRegion) CreateDisk(zoneId string, category string, name string, s
 }
 
 func (region *SRegion) getDisk(diskId string) (*SDisk, error) {
-	disks, total, err := region.GetDisks("", "", "", []string{diskId}, 1, 50)
+	disks, _, err := region.GetDisks("", "", "", []string{diskId}, 1, 50)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, fmt.Sprint("%s not found", diskId))
 	}
-	if total != 1 {
-		return nil, cloudprovider.ErrNotFound
+	for _, disk := range disks {
+		if disk.VolumeId == diskId {
+			return &disk, nil
+		}
 	}
-	return &disks[0], nil
+	return nil, errors.Wrapf(cloudprovider.ErrNotFound, fmt.Sprint("%s not found", diskId))
 }
 
 func (region *SRegion) DeleteDisk(diskId string) error {
