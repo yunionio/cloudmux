@@ -222,7 +222,7 @@ func (instance *SInstance) GetIEIP() (cloudprovider.ICloudEIP, error) {
 			return &eip, nil
 		}
 	}
-	return nil, errors.ErrNotFound
+	return nil, cloudprovider.ErrNotFound
 }
 
 func (instance *SInstance) GetINics() ([]cloudprovider.ICloudNic, error) {
@@ -365,7 +365,8 @@ func (instance *SInstance) GetCreatedAt() time.Time {
 }
 
 func (instance *SInstance) GetExpiredAt() time.Time {
-	return instance.ExpiredAt
+	// return instance.ExpiredAt
+	return time.Time{}
 }
 
 func (instance *SInstance) AssignSecurityGroup(secgroupId string) error {
