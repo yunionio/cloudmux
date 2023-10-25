@@ -28,28 +28,21 @@ func init() {
 		VpcId            string   `help:"VPC ID"`
 		Name             string   `help:"Secgroup Name"`
 		SecurityGroupIds []string `help:"SecurityGroup ids"`
-		Limit            int      `help:"page size"`
-		Offset           int      `help:"page offset"`
 	}
 	shellutils.R(&SecurityGroupListOptions{}, "security-group-list", "List security group", func(cli *aliyun.SRegion, args *SecurityGroupListOptions) error {
-		secgrps, total, e := cli.GetSecurityGroups(args.VpcId, args.Name, args.SecurityGroupIds, args.Offset, args.Limit)
-		if e != nil {
-			return e
+		secgrps, err := cli.GetSecurityGroups(args.VpcId, args.Name, args.SecurityGroupIds)
+		if err != nil {
+			return err
 		}
-		printList(secgrps, total, args.Offset, args.Limit, []string{})
+		printList(secgrps, 0, 0, 0, []string{})
 		return nil
 	})
 
 	type SecurityGroupIdOptions struct {
 		ID string `help:"ID or name of security group"`
 	}
-	shellutils.R(&SecurityGroupIdOptions{}, "security-group-show", "Show details of a security group", func(cli *aliyun.SRegion, args *SecurityGroupIdOptions) error {
-		secgrp, err := cli.GetSecurityGroupDetails(args.ID)
-		if err != nil {
-			return err
-		}
-		printObject(secgrp)
-		rules, _, _, err := cloudprovider.GetSecurityGroupRules(secgrp)
+	shellutils.R(&SecurityGroupIdOptions{}, "security-group-rule-list", "Show details of a security group", func(cli *aliyun.SRegion, args *SecurityGroupIdOptions) error {
+		rules, err := cli.GetSecurityGroupRules(args.ID)
 		if err != nil {
 			return err
 		}
@@ -66,15 +59,8 @@ func init() {
 		return nil
 	})
 
-	type SecurityGroupCreateOptions struct {
-		NAME            string `help:"SecurityGroup name"`
-		VpcId           string `help:"VPC ID"`
-		ResourceGroupId string
-		Desc            string `help:"SecurityGroup description"`
-	}
-
-	shellutils.R(&SecurityGroupCreateOptions{}, "security-group-create", "Create details of a security group", func(cli *aliyun.SRegion, args *SecurityGroupCreateOptions) error {
-		secgroupId, err := cli.CreateSecurityGroup(args.VpcId, args.NAME, args.Desc, args.ResourceGroupId)
+	shellutils.R(&cloudprovider.SecurityGroupCreateInput{}, "security-group-create", "Create details of a security group", func(cli *aliyun.SRegion, args *cloudprovider.SecurityGroupCreateInput) error {
+		secgroupId, err := cli.CreateSecurityGroup(args)
 		if err != nil {
 			return err
 		}

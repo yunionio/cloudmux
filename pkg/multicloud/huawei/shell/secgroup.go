@@ -15,8 +15,6 @@
 package shell
 
 import (
-	"yunion.io/x/pkg/errors"
-	"yunion.io/x/pkg/util/secrules"
 	"yunion.io/x/pkg/util/shellutils"
 
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
@@ -41,11 +39,20 @@ func init() {
 		ID string `help:"ID or name of security group"`
 	}
 	shellutils.R(&SecurityGroupShowOptions{}, "security-group-show", "Show details of a security group", func(cli *huawei.SRegion, args *SecurityGroupShowOptions) error {
-		secgrp, err := cli.GetSecurityGroupDetails(args.ID)
+		secgrp, err := cli.GetSecurityGroup(args.ID)
 		if err != nil {
 			return err
 		}
 		printObject(secgrp)
+		return nil
+	})
+
+	shellutils.R(&SecurityGroupShowOptions{}, "security-group-rule-list", "List of a security group rules", func(cli *huawei.SRegion, args *SecurityGroupShowOptions) error {
+		rules, err := cli.GetSecurityGroupRules(args.ID)
+		if err != nil {
+			return err
+		}
+		printList(rules, 0, 0, 0, nil)
 		return nil
 	})
 
@@ -68,15 +75,16 @@ func init() {
 
 	type SecurityGroupRuleCreateOptions struct {
 		SECGROUP_ID string
-		RULE        string
+		cloudprovider.SecurityGroupRuleCreateOptions
 	}
 
 	shellutils.R(&SecurityGroupRuleCreateOptions{}, "security-group-rule-create", "Create security group rule", func(cli *huawei.SRegion, args *SecurityGroupRuleCreateOptions) error {
-		rule, err := secrules.ParseSecurityRule(args.RULE)
+		rule, err := cli.CreateSecurityGroupRule(args.SECGROUP_ID, &args.SecurityGroupRuleCreateOptions)
 		if err != nil {
-			return errors.Wrapf(err, "invalid rule %s", args.RULE)
+			return err
 		}
-		return cli.CreateSecurityGroupRule(args.SECGROUP_ID, *rule)
+		printObject(rule)
+		return nil
 	})
 
 }
