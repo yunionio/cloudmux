@@ -12,18 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package volcengine
+package shell
 
 import (
-	"time"
+	"yunion.io/x/cloudmux/pkg/multicloud/volcengine"
+	"yunion.io/x/pkg/util/shellutils"
 )
 
-func convertExpiredAt(expired time.Time) time.Time {
-	if !expired.IsZero() {
-		now := time.Now()
-		if expired.Sub(now) < time.Hour*24*365*6 {
-			return expired
-		}
+func init() {
+	type KeypairListOptions struct {
+		MaxResult int
+		NextToken string
+		Finger    string
+		Name      string
 	}
-	return time.Time{}
+	shellutils.R(&KeypairListOptions{}, "keypair-list", "List keypairs", func(cli *volcengine.SRegion, args *KeypairListOptions) error {
+		keypairs, _, err := cli.GetKeypairs(args.Finger, args.Name, args.MaxResult, args.NextToken)
+		if err != nil {
+			return err
+		}
+		printList(keypairs, 0, 0, 0, nil)
+		return nil
+	})
+
 }
