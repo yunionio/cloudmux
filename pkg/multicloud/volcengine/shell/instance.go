@@ -15,7 +15,6 @@
 package shell
 
 import (
-	"context"
 	"fmt"
 
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
@@ -72,6 +71,15 @@ func init() {
 		return nil
 	})
 
+	shellutils.R(&InstanceOperationOptions{}, "instance-vnc", "Start a instance vpcn", func(cli *volcengine.SRegion, args *InstanceOperationOptions) error {
+		url, err := cli.DescribeInstanceVncUrl(args.ID)
+		if err != nil {
+			return err
+		}
+		fmt.Println(url)
+		return nil
+	})
+
 	shellutils.R(&InstanceOperationOptions{}, "instance-delete", "Delete a instance", func(cli *volcengine.SRegion, args *InstanceOperationOptions) error {
 		err := cli.DeleteVM(args.ID)
 		if err != nil {
@@ -122,24 +130,6 @@ func init() {
 		if err != nil {
 			return err
 		}
-		return nil
-	})
-
-	type InstanceRebuildRootOptions struct {
-		ID       string `help:"instance ID"`
-		Image    string `help:"Image ID"`
-		Password string `help:"pasword"`
-		Keypair  string `help:"keypair name"`
-		UserData string `help:"user data"`
-	}
-
-	shellutils.R(&InstanceRebuildRootOptions{}, "instance-rebuild-root", "Reinstall virtual server system image", func(cli *volcengine.SRegion, args *InstanceRebuildRootOptions) error {
-		_, err := cli.ReplaceSystemDisk(context.Background(), args.ID, args.Image, args.Password, args.Keypair, args.UserData)
-		if err != nil {
-			return err
-		}
-		// volcengine does not return diskID
-		fmt.Printf("Instance rebuild root done")
 		return nil
 	})
 
