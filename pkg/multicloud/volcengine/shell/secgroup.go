@@ -51,6 +51,10 @@ func init() {
 		return nil
 	})
 
+	shellutils.R(&SecurityGroupIdOptions{}, "security-group-delete", "Delete security group", func(cli *volcengine.SRegion, args *SecurityGroupIdOptions) error {
+		return cli.DeleteSecurityGroup(args.ID)
+	})
+
 	type SecurityGroupCreateOptions struct {
 		NAME            string `help:"SecurityGroup name"`
 		VpcId           string `help:"VPC ID"`
