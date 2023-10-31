@@ -17,6 +17,8 @@ package shell
 import (
 	"time"
 
+	"github.com/pkg/errors"
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/volcengine"
 	"yunion.io/x/pkg/util/shellutils"
 )
@@ -82,13 +84,17 @@ func init() {
 		if err != nil {
 			return err
 		}
-		// waiting for creating
-		time.Sleep(time.Second * 1)
-		disk, err := cli.GetIDiskById(diskId)
-		if err != nil {
-			return err
-		}
-		printObject(disk)
-		return nil
+		err = cloudprovider.Wait(time.Second, time.Minute, func() (bool, error) {
+			disk, err := cli.GetDisk(diskId)
+			if err != nil {
+				if errors.Cause(err) != cloudprovider.ErrNotFound {
+					return false, err
+				}
+				return false, nil
+			}
+			printObject(disk)
+			return true, nil
+		})
+		return err
 	})
 }
