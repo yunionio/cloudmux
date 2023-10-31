@@ -24,15 +24,13 @@ import (
 
 func init() {
 	type InstanceListOptions struct {
-		Id        []string `help:"IDs of instances to show"`
-		Zone      string   `help:"Zone ID"`
-		Limit     int      `help:"page size"`
-		NextToken string   `help:"next token"`
+		Id   []string `help:"IDs of instances to show"`
+		Zone string   `help:"Zone ID"`
 	}
 	shellutils.R(&InstanceListOptions{}, "instance-list", "List intances", func(cli *volcengine.SRegion, args *InstanceListOptions) error {
-		instances, _, e := cli.GetInstances(args.Zone, args.Id, args.Limit, args.NextToken)
-		if e != nil {
-			return e
+		instances, err := cli.GetInstances(args.Zone, args.Id)
+		if err != nil {
+			return err
 		}
 		printList(instances, 0, 0, 0, nil)
 		return nil
