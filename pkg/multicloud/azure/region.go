@@ -689,23 +689,13 @@ func (self *SRegion) list(resource string, params url.Values, retVal interface{}
 }
 
 func (region *SRegion) GetIVMs() ([]cloudprovider.ICloudVM, error) {
-	zones, err := region.GetIZones()
+	vms, err := region.GetInstances()
 	if err != nil {
 		return nil, err
 	}
-	ret := make([]cloudprovider.ICloudVM, 0)
-	for i := range zones {
-		hosts, err := zones[i].GetIHosts()
-		if err != nil {
-			return nil, err
-		}
-		for j := range hosts {
-			ivms, err := hosts[j].GetIVMs()
-			if err != nil {
-				return nil, err
-			}
-			ret = append(ret, ivms...)
-		}
+	ivms := make([]cloudprovider.ICloudVM, len(vms))
+	for i := 0; i < len(vms); i++ {
+		ivms[i] = &vms[i]
 	}
-	return ret, nil
+	return ivms, nil
 }
