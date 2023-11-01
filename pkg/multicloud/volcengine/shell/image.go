@@ -23,17 +23,14 @@ import (
 
 func init() {
 	type ImageListOptions struct {
-		Status    string   `help:"image status type" choices:"Creating|Available|UnAvailable|CreateFailed"`
-		Owner     string   `help:"Owner type" choices:"system|self|others|marketplace"`
-		Id        []string `help:"Image ID"`
-		Name      string   `help:"image name"`
-		Limit     int      `help:"page size"`
-		NextToken string   `help:"next token"`
+		Visibility string   `chocies:"public|private|shared"`
+		Id         []string `help:"Image ID"`
+		Name       string   `help:"image name"`
 	}
 	shellutils.R(&ImageListOptions{}, "image-list", "List images", func(cli *volcengine.SRegion, args *ImageListOptions) error {
-		images, _, e := cli.GetImages(volcengine.ImageStatusType(args.Status), volcengine.ImageOwnerType(args.Owner), args.Id, args.Name, args.Limit, args.NextToken)
-		if e != nil {
-			return e
+		images, err := cli.GetImages(args.Visibility, args.Id, args.Name)
+		if err != nil {
+			return err
 		}
 		printList(images, 0, 0, 0, nil)
 		return nil
