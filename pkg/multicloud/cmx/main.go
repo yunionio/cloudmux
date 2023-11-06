@@ -21,7 +21,7 @@ import (
 	"yunion.io/x/pkg/errors"
 	"yunion.io/x/structarg"
 
-	"yunion.io/x/cloudmux/cmd/cmx/shell"
+	"yunion.io/x/cloudmux/pkg/multicloud/cmx/shell"
 	_ "yunion.io/x/cloudmux/pkg/multicloud/loader"
 )
 

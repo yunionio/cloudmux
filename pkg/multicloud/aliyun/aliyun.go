@@ -763,6 +763,7 @@ func (self *SAliyunClient) GetRegions() []SRegion {
 
 func (self *SAliyunClient) getSubAccount() ([]cloudprovider.SSubAccount, error) {
 	subAccount := cloudprovider.SSubAccount{}
+	subAccount.Id = self.GetAccountId()
 	subAccount.Name = self.cpcfg.Name
 	subAccount.Account = self.accessKey
 	subAccount.HealthStatus = api.CLOUD_PROVIDER_HEALTH_NORMAL
@@ -797,6 +798,7 @@ func (self *SAliyunClient) GetSubAccounts() ([]cloudprovider.SSubAccount, error)
 		account := cloudprovider.SSubAccount{}
 		account.Name = fmt.Sprintf("%s/%s", accounts[i].DisplayName, self.cpcfg.Name)
 		account.Account = self.accessKey
+		account.Id = accountId
 		account.HealthStatus = api.CLOUD_PROVIDER_HEALTH_SUSPENDED
 		if strings.HasSuffix(accounts[i].Status, "Success") {
 			account.HealthStatus = api.CLOUD_PROVIDER_HEALTH_NORMAL
@@ -804,6 +806,7 @@ func (self *SAliyunClient) GetSubAccounts() ([]cloudprovider.SSubAccount, error)
 		if accounts[i].AccountId != accountId {
 			account.Name = fmt.Sprintf("%s/%s", accounts[i].DisplayName, accounts[i].AccountId)
 			account.Account = fmt.Sprintf("%s/%s", self.accessKey, accounts[i].AccountId)
+			account.Id = accounts[i].AccountId
 		}
 		ret = append(ret, account)
 	}
@@ -816,6 +819,7 @@ func (self *SAliyunClient) GetAccountId() string {
 	}
 	caller, err := self.GetCallerIdentity()
 	if err != nil {
+		log.Errorf("GetCallerIdentity fail %s", err)
 		return ""
 	}
 	self.ownerId = caller.AccountId

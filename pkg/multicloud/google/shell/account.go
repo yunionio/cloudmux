@@ -15,13 +15,20 @@
 package shell
 
 import (
-	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/pkg/util/shellutils"
+
+	"yunion.io/x/cloudmux/pkg/multicloud/google"
 )
 
 func init() {
-	r := EmptyOptionProviderR("region")
-
-	r.List("list", "List regions", func(cli cloudprovider.ICloudProvider) (any, error) {
-		return cli.GetIRegions(), nil
+	type AccountListOptions struct {
+	}
+	shellutils.R(&AccountListOptions{}, "account-list", "List sub account", func(cli *google.SRegion, args *AccountListOptions) error {
+		if accounts, err := cli.GetClient().GetSubAccounts(); err != nil {
+			return err
+		} else {
+			printObject(accounts)
+			return nil
+		}
 	})
 }

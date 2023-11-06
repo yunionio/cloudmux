@@ -16,6 +16,7 @@ package shell
 
 import (
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/pkg/errors"
 )
 
 func init() {
@@ -42,5 +43,13 @@ func init() {
 	r.List("region-list", "List regions of a cloudprovider", func(cli cloudprovider.ICloudProvider) (any, error) {
 		regions := cli.GetIRegions()
 		return regions, nil
+	})
+
+	r.List("subaccount-list", "List subaccounts of a cloudprovider", func(cli cloudprovider.ICloudProvider) (any, error) {
+		accounts, err := cli.GetSubAccounts()
+		if err != nil {
+			return nil, errors.Wrap(err, "GetSubAccounts")
+		}
+		return accounts, nil
 	})
 }
