@@ -79,6 +79,7 @@ const (
 	ALIYUN_K8S_API_VERSION      = "2015-12-15"
 	ALIYUN_OTS_API_VERSION      = "2016-06-20"
 	ALIYUN_RD_API_VERSION       = "2022-04-19"
+	ALIYUN_CAS_API_VERSION      = "2018-07-13"
 
 	ALIYUN_SERVICE_ECS      = "ecs"
 	ALIYUN_SERVICE_VPC      = "vpc"
@@ -982,6 +983,7 @@ func (region *SAliyunClient) GetCapabilities() []string {
 		cloudprovider.CLOUD_CAPABILITY_CDN + cloudprovider.READ_ONLY_SUFFIX,
 		cloudprovider.CLOUD_CAPABILITY_CONTAINER + cloudprovider.READ_ONLY_SUFFIX,
 		cloudprovider.CLOUD_CAPABILITY_TABLESTORE + cloudprovider.READ_ONLY_SUFFIX,
+		cloudprovider.CLOUD_CAPABILITY_CERT,
 	}
 	return caps
 }
