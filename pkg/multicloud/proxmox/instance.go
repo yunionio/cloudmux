@@ -1015,7 +1015,10 @@ type InstanceVnc struct {
 
 func (self *SRegion) GetVNCInfo(node string, vmId int) (*InstanceVnc, error) {
 	res := fmt.Sprintf("/nodes/%s/qemu/%d/vncproxy", node, vmId)
-	resp, err := self.post(res, map[string]interface{}{})
+	resp, err := self.post(res, map[string]interface{}{
+		"websocket":         "1",
+		"generate-password": "0",
+	})
 	if err != nil {
 		return nil, err
 	}
