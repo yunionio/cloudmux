@@ -423,11 +423,10 @@ func (self *SInstance) GetVNCInfo(input *cloudprovider.ServerVncInput) (*cloudpr
 		return nil, err
 	}
 	ret := &cloudprovider.ServerVncOutput{}
-	params := url.Values{}
-	params.Set("port", fmt.Sprintf("%d", vnc.Port))
-	params.Set("vncticket", vnc.Ticket)
-	ret.Url = fmt.Sprintf("wss://%s:%d/api2/json/nodes/%s/qemu/%d/vncwebsocket?%s", self.host.zone.region.client.host, self.host.zone.region.client.port, self.Node, self.VmID, params.Encode())
 	ret.Protocol = "vnc"
+	ret.Host = self.host.zone.region.client.host
+	ret.Port = int64(vnc.Port)
+	ret.Password = vnc.Ticket
 	ret.Hypervisor = api.HYPERVISOR_PROXMOX
 	return ret, nil
 }
