@@ -53,7 +53,6 @@ type projectInfo struct {
 type SCertificate struct {
 	multicloud.SResourceBase
 	QcloudTags
-	region *SRegion
 	client *SQcloudClient
 
 	CertificateID       string      `json:"CertificateId"`
@@ -93,16 +92,9 @@ func (self *SCertificate) GetDetails() (*SCertificate, error) {
 			cert *SCertificate
 			err  error
 		)
-		if self.region != nil {
-			cert, err = self.region.GetCertificate(self.GetId())
-			if err != nil {
-				return nil, err
-			}
-		} else {
-			cert, err = self.client.GetCertificate(self.GetId())
-			if err != nil {
-				return nil, err
-			}
+		cert, err = self.client.GetCertificate(self.GetId())
+		if err != nil {
+			return nil, err
 		}
 		self.detailsInitd = true
 		self.SubjectAltName = cert.SubjectAltName
@@ -139,7 +131,7 @@ func (self *SCertificate) Sync(name, privateKey, publickKey string) error {
 }
 
 func (self *SCertificate) Delete() error {
-	return self.region.DeleteCertificate(self.GetId())
+	return self.client.DeleteCertificate(self.GetId())
 }
 
 func (self *SCertificate) GetId() string {
@@ -167,7 +159,7 @@ func (self *SCertificate) GetStatus() string {
 }
 
 func (self *SCertificate) Refresh() error {
-	cert, err := self.region.GetCertificate(self.GetId())
+	cert, err := self.client.GetCertificate(self.GetId())
 	if err != nil {
 		return errors.Wrap(err, "GetCertificate")
 	}
@@ -254,59 +246,8 @@ func (self *SCertificate) GetIsUpload() bool {
 	return false
 }
 
-// ssl.tencentcloudapi.com
-/*
-状态值 0：审核中，1：已通过，2：审核失败，3：已过期，4：已添加 DNS 解析记录，5：OV/EV 证书，待提交资料，6：订单取消中，7：已取消，8：已提交资料， 待上传确认函。
-*/
-func (self *SRegion) GetCertificates(projectId, certificateStatus, searchKey string) ([]SCertificate, error) {
-	params := map[string]string{}
-	params["Limit"] = "100"
-	if len(projectId) > 0 {
-		params["ProjectId"] = projectId
-	}
-
-	if len(certificateStatus) > 0 {
-		params["CertificateStatus.0"] = certificateStatus
-	}
-
-	if len(searchKey) > 0 {
-		params["SearchKey"] = searchKey
-	}
-
-	certs := []SCertificate{}
-	offset := 0
-	total := 100
-	for total > offset {
-		params["Offset"] = strconv.Itoa(offset)
-		resp, err := self.sslRequest("DescribeCertificates", params)
-		if err != nil {
-			return nil, errors.Wrap(err, "DescribeCertificates")
-		}
-
-		_certs := []SCertificate{}
-		err = resp.Unmarshal(&certs, "Certificates")
-		if err != nil {
-			return nil, errors.Wrap(err, "Unmarshal.Certificates")
-		}
-
-		err = resp.Unmarshal(&total, "TotalCount")
-		if err != nil {
-			return nil, errors.Wrap(err, "Unmarshal.TotalCount")
-		}
-
-		certs = append(certs, _certs...)
-		offset += 100
-	}
-
-	for i := range certs {
-		certs[i].region = self
-	}
-
-	return certs, nil
-}
-
 // https://cloud.tencent.com/document/product/400/41674
-func (self *SRegion) GetCertificate(certId string) (*SCertificate, error) {
+func (self *SQcloudClient) GetCertificate(certId string) (*SCertificate, error) {
 	params := map[string]string{
 		"CertificateId": certId,
 	}
@@ -316,19 +257,18 @@ func (self *SRegion) GetCertificate(certId string) (*SCertificate, error) {
 		return nil, errors.Wrap(err, "DescribeCertificateDetail")
 	}
 
-	cert := &SCertificate{}
+	cert := &SCertificate{client: self}
 	err = resp.Unmarshal(cert)
 	if err != nil {
 		return nil, errors.Wrap(err, "Unmarshal")
 	}
-	cert.region = self
 
 	return cert, nil
 }
 
 // https://cloud.tencent.com/document/product/400/41665
 // 返回证书ID
-func (self *SRegion) CreateCertificate(projectId, publicKey, privateKey, certType, desc string) (string, error) {
+func (self *SQcloudClient) CreateCertificate(projectId, publicKey, privateKey, certType, desc string) (string, error) {
 	params := map[string]string{
 		"CertificatePublicKey": publicKey,
 		"CertificateType":      certType,
@@ -356,7 +296,7 @@ func (self *SRegion) CreateCertificate(projectId, publicKey, privateKey, certTyp
 }
 
 // https://cloud.tencent.com/document/product/400/41675
-func (self *SRegion) DeleteCertificate(id string) error {
+func (self *SQcloudClient) DeleteCertificate(id string) error {
 	if len(id) == 0 {
 		return fmt.Errorf("DelteCertificate certificate id should not be empty")
 	}
@@ -369,13 +309,12 @@ func (self *SRegion) DeleteCertificate(id string) error {
 
 	if deleted, _ := resp.Bool("DeleteResult"); deleted {
 		return nil
-	} else {
-		return fmt.Errorf("DeleteCertificate %s", resp)
 	}
+	return fmt.Errorf("DeleteCertificate %s", resp)
 }
 
 func (self *SRegion) GetILoadBalancerCertificates() ([]cloudprovider.ICloudLoadbalancerCertificate, error) {
-	certs, err := self.GetCertificates("", "", "")
+	certs, err := self.client.GetCertificates("", "", "")
 	if err != nil {
 		return nil, errors.Wrap(err, "GetCertificates")
 	}
@@ -389,7 +328,7 @@ func (self *SRegion) GetILoadBalancerCertificates() ([]cloudprovider.ICloudLoadb
 }
 
 func (self *SRegion) GetILoadBalancerCertificateById(certId string) (cloudprovider.ICloudLoadbalancerCertificate, error) {
-	cert, err := self.GetCertificate(certId)
+	cert, err := self.client.GetCertificate(certId)
 	if err != nil {
 		return nil, errors.Wrap(err, "GetCertificate")
 	}
@@ -401,12 +340,12 @@ func (self *SRegion) GetILoadBalancerCertificateById(certId string) (cloudprovid
 // todo:支持指定Project。
 // todo: 已过期的证书不能上传也不能关联资源
 func (self *SRegion) CreateILoadBalancerCertificate(input *cloudprovider.SLoadbalancerCertificate) (cloudprovider.ICloudLoadbalancerCertificate, error) {
-	certId, err := self.CreateCertificate("", input.Certificate, input.PrivateKey, "SVR", input.Name)
+	certId, err := self.client.CreateCertificate("", input.Certificate, input.PrivateKey, "SVR", input.Name)
 	if err != nil {
 		return nil, err
 	}
 
-	cert, err := self.GetCertificate(certId)
+	cert, err := self.client.GetCertificate(certId)
 	if err != nil {
 		return nil, errors.Wrapf(err, "GetCertificate")
 	}
@@ -449,29 +388,13 @@ func (self *SQcloudClient) GetCertificates(projectId, certificateStatus, searchK
 			return nil, errors.Wrap(err, "Unmarshal.TotalCount")
 		}
 
-		certs = append(certs, _certs...)
+		for i := range _certs {
+			_certs[i].client = self
+			certs = append(certs, _certs[i])
+		}
+
 		offset += 100
 	}
 
 	return certs, nil
-}
-
-func (self *SQcloudClient) GetCertificate(certId string) (*SCertificate, error) {
-	params := map[string]string{
-		"CertificateId": certId,
-	}
-
-	resp, err := self.sslRequest("DescribeCertificateDetail", params)
-	if err != nil {
-		return nil, errors.Wrap(err, "DescribeCertificateDetail")
-	}
-
-	cert := &SCertificate{}
-	err = resp.Unmarshal(cert)
-	if err != nil {
-		return nil, errors.Wrap(err, "Unmarshal")
-	}
-	cert.client = self
-
-	return cert, nil
 }

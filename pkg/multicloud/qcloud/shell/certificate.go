@@ -25,7 +25,7 @@ func init() {
 		Limit  int
 	}
 	shellutils.R(&CertificateListOptions{}, "sslcertificate-list", "List SSLCertificate", func(cli *qcloud.SRegion, args *CertificateListOptions) error {
-		rs, err := cli.GetCertificates("", "", "")
+		rs, err := cli.GetClient().GetCertificates("", "", "")
 		if err != nil {
 			return err
 		}
