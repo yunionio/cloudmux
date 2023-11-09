@@ -16,7 +16,7 @@ func init() {
 		"sslcertificate-list",
 		"List ssl certificates",
 		func(cli *aliyun.SRegion, args *SSlCertificateListOptions) error {
-			certs, _, err := cli.GetSSLCertificates(args.Size, args.Page)
+			certs, _, err := cli.GetClient().GetSSLCertificates(args.Size, args.Page)
 			if err != nil {
 				return err
 			}
