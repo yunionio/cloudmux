@@ -38,7 +38,7 @@ func init() {
 	type LbCertListOptions struct {
 	}
 	shellutils.R(&LbCertListOptions{}, "lbcert-list", "List certs", func(cli *qcloud.SRegion, args *LbCertListOptions) error {
-		certs, err := cli.GetCertificates("", "", "")
+		certs, err := cli.GetClient().GetCertificates("", "", "")
 		if err != nil {
 			return err
 		}
@@ -51,7 +51,7 @@ func init() {
 		ID string `json:"id" help:"certificate id"`
 	}
 	shellutils.R(&LbCertIdOptions{}, "lbcert-show", "Show cert", func(cli *qcloud.SRegion, args *LbCertIdOptions) error {
-		cert, err := cli.GetCertificate(args.ID)
+		cert, err := cli.GetClient().GetCertificate(args.ID)
 		if err != nil {
 			return err
 		}
@@ -61,7 +61,7 @@ func init() {
 	})
 
 	shellutils.R(&LbCertIdOptions{}, "lbcert-delete", "delete cert", func(cli *qcloud.SRegion, args *LbCertIdOptions) error {
-		err := cli.DeleteCertificate(args.ID)
+		err := cli.GetClient().DeleteCertificate(args.ID)
 		if err != nil {
 			return err
 		}
@@ -96,7 +96,7 @@ func init() {
 
 			private = string(_private)
 		}
-		certId, err := cli.CreateCertificate("", public, private, args.CertType, args.Desc)
+		certId, err := cli.GetClient().CreateCertificate("", public, private, args.CertType, args.Desc)
 		if err != nil {
 			return err
 		}
