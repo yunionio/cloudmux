@@ -54,6 +54,7 @@ type SCertificate struct {
 	multicloud.SResourceBase
 	QcloudTags
 	region *SRegion
+	client *SQcloudClient
 
 	CertificateID       string      `json:"CertificateId"`
 	CertificateType     string      `json:"CertificateType"`
@@ -88,9 +89,20 @@ type SCertificate struct {
 
 func (self *SCertificate) GetDetails() (*SCertificate, error) {
 	if !self.detailsInitd {
-		cert, err := self.region.GetCertificate(self.GetId())
-		if err != nil {
-			return nil, err
+		var (
+			cert *SCertificate
+			err  error
+		)
+		if self.region != nil {
+			cert, err = self.region.GetCertificate(self.GetId())
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			cert, err = self.client.GetCertificate(self.GetId())
+			if err != nil {
+				return nil, err
+			}
 		}
 		self.detailsInitd = true
 		self.SubjectAltName = cert.SubjectAltName
@@ -401,16 +413,65 @@ func (self *SRegion) CreateILoadBalancerCertificate(input *cloudprovider.SLoadba
 	return cert, nil
 }
 
-// GetISSLCertificates 获取证书资源列表
-func (self *SRegion) GetISSLCertificates() ([]cloudprovider.ICloudSSLCertificate, error) {
-	rs, err := self.GetCertificates("", "", "")
-	if err != nil {
-		return nil, err
+func (self *SQcloudClient) GetCertificates(projectId, certificateStatus, searchKey string) ([]SCertificate, error) {
+	params := map[string]string{}
+	params["Limit"] = "100"
+	if len(projectId) > 0 {
+		params["ProjectId"] = projectId
 	}
 
-	result := make([]cloudprovider.ICloudSSLCertificate, 0)
-	for i := range rs {
-		result = append(result, &rs[i])
+	if len(certificateStatus) > 0 {
+		params["CertificateStatus.0"] = certificateStatus
 	}
-	return result, nil
+
+	if len(searchKey) > 0 {
+		params["SearchKey"] = searchKey
+	}
+
+	certs := []SCertificate{}
+	offset := 0
+	total := 100
+	for total > offset {
+		params["Offset"] = strconv.Itoa(offset)
+		resp, err := self.sslRequest("DescribeCertificates", params)
+		if err != nil {
+			return nil, errors.Wrap(err, "DescribeCertificates")
+		}
+
+		_certs := []SCertificate{}
+		err = resp.Unmarshal(&certs, "Certificates")
+		if err != nil {
+			return nil, errors.Wrap(err, "Unmarshal.Certificates")
+		}
+
+		err = resp.Unmarshal(&total, "TotalCount")
+		if err != nil {
+			return nil, errors.Wrap(err, "Unmarshal.TotalCount")
+		}
+
+		certs = append(certs, _certs...)
+		offset += 100
+	}
+
+	return certs, nil
+}
+
+func (self *SQcloudClient) GetCertificate(certId string) (*SCertificate, error) {
+	params := map[string]string{
+		"CertificateId": certId,
+	}
+
+	resp, err := self.sslRequest("DescribeCertificateDetail", params)
+	if err != nil {
+		return nil, errors.Wrap(err, "DescribeCertificateDetail")
+	}
+
+	cert := &SCertificate{}
+	err = resp.Unmarshal(cert)
+	if err != nil {
+		return nil, errors.Wrap(err, "Unmarshal")
+	}
+	cert.client = self
+
+	return cert, nil
 }
