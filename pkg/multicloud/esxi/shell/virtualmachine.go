@@ -213,6 +213,24 @@ func init() {
 		return nil
 	})
 
+	type VirtualMachineCreateDiskOptions struct {
+		VirtualMachineShowOptions
+		cloudprovider.GuestDiskCreateOptions
+	}
+
+	shellutils.R(&VirtualMachineCreateDiskOptions{}, "vm-create-disk", "Create vm disk", func(cli *esxi.SESXiClient, args *VirtualMachineCreateDiskOptions) error {
+		vm, err := getVM(cli, &args.VirtualMachineShowOptions)
+		if err != nil {
+			return err
+		}
+		diskId, err := vm.CreateDisk(context.Background(), &args.GuestDiskCreateOptions)
+		if err != nil {
+			return err
+		}
+		fmt.Println(diskId)
+		return nil
+	})
+
 	type VirtualMachineUpdateTagsOptions struct {
 		VirtualMachineShowOptions
 		Tags []string
