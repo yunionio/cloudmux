@@ -17,6 +17,7 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/huaweicloud/huaweicloud-sdk-go v1.0.26
 	github.com/jdcloud-api/jdcloud-sdk-go v1.55.0
+	github.com/oracle/oci-go-sdk v24.3.0+incompatible
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.0
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.413
@@ -32,9 +33,9 @@ require (
 	moul.io/http2curl/v2 v2.3.0
 	yunion.io/x/jsonutils v1.0.1-0.20230613121553-0f3b41e2ef19
 	yunion.io/x/log v1.0.1-0.20230411060016-feb3f46ab361
-	yunion.io/x/pkg v1.0.1-0.20230711090507-0aafe0f0c9db
+	yunion.io/x/pkg v1.0.1-0.20231101105448-abef64cdc142
 	yunion.io/x/s3cli v0.0.0-20190917004522-13ac36d8687e
-	yunion.io/x/structarg v0.0.0-20220312084958-9c6c79c7d1c6
+	yunion.io/x/structarg v0.0.0-20231017124457-df4d5009457c
 )
 
 require (
