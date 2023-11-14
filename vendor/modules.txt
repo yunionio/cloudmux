@@ -262,6 +262,9 @@ github.com/mozillazg/go-httpheader
 # github.com/mozillazg/go-pinyin v0.19.0
 ## explicit; go 1.11
 github.com/mozillazg/go-pinyin
+# github.com/oracle/oci-go-sdk v24.3.0+incompatible
+## explicit
+github.com/oracle/oci-go-sdk/common
 # github.com/pkg/errors v0.9.1
 ## explicit
 github.com/pkg/errors
@@ -573,7 +576,7 @@ yunion.io/x/jsonutils
 ## explicit; go 1.12
 yunion.io/x/log
 yunion.io/x/log/hooks
-# yunion.io/x/pkg v1.0.1-0.20230711090507-0aafe0f0c9db
+# yunion.io/x/pkg v1.0.1-0.20231101105448-abef64cdc142
 ## explicit; go 1.18
 yunion.io/x/pkg/appctx
 yunion.io/x/pkg/errors
@@ -614,6 +617,6 @@ yunion.io/x/pkg/utils
 # yunion.io/x/s3cli v0.0.0-20190917004522-13ac36d8687e
 ## explicit; go 1.12
 yunion.io/x/s3cli
-# yunion.io/x/structarg v0.0.0-20220312084958-9c6c79c7d1c6
+# yunion.io/x/structarg v0.0.0-20231017124457-df4d5009457c
 ## explicit; go 1.12
 yunion.io/x/structarg

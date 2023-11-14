@@ -249,6 +249,8 @@ github.com/mozillazg/go-httpheader v0.2.1 h1:geV7TrjbL8KXSyvghnFm+NyTux/hxwueTSr
 github.com/mozillazg/go-httpheader v0.2.1/go.mod h1:jJ8xECTlalr6ValeXYdOF8fFUISeBAdw6E61aqQma60=
 github.com/mozillazg/go-pinyin v0.19.0 h1:p+J8/kjJ558KPvVGYLvqBhxf8jbZA2exSLCs2uUVN8c=
 github.com/mozillazg/go-pinyin v0.19.0/go.mod h1:iR4EnMMRXkfpFVV5FMi4FNB6wGq9NV6uDWbUuPhP4Yc=
+github.com/oracle/oci-go-sdk v24.3.0+incompatible h1:x4mcfb4agelf1O4/1/auGlZ1lr97jXRSSN5MxTgG/zU=
+github.com/oracle/oci-go-sdk v24.3.0+incompatible/go.mod h1:VQb79nF8Z2cwLkLS35ukwStZIg5F66tcBccjip/j888=
 github.com/pkg/diff v0.0.0-20200914180035-5b29258ca4f7/go.mod h1:zO8QMzTeZd5cpnIkz/Gn6iK0jDfGicM1nynOkkPIl28=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
@@ -626,9 +628,9 @@ yunion.io/x/log v0.0.0-20190514041436-04ce53b17c6b/go.mod h1:+gauLs73omeJAPlsXce
 yunion.io/x/log v1.0.1-0.20230411060016-feb3f46ab361 h1:c5LyNdhbvBe/92pXs9jgXOU/S+RgYh/DHe538LpT/Mo=
 yunion.io/x/log v1.0.1-0.20230411060016-feb3f46ab361/go.mod h1:LC6f/4FozL0iaAbnFt2eDX9jlsyo3WiOUPm03d7+U4U=
 yunion.io/x/pkg v0.0.0-20190620104149-945c25821dbf/go.mod h1:t6rEGG2sQ4J7DhFxSZVOTjNd0YO/KlfWQyK1W4tog+E=
-yunion.io/x/pkg v1.0.1-0.20230711090507-0aafe0f0c9db h1:GyBvo/gYl2MY5Q0SZ6Nso8WJHPonmngOtcpVfyCE0yA=
-yunion.io/x/pkg v1.0.1-0.20230711090507-0aafe0f0c9db/go.mod h1:ksCJVQ+DwKrJ5QBEoU8pzrDFfDaZVAFH/iJ6yQCYxJk=
+yunion.io/x/pkg v1.0.1-0.20231101105448-abef64cdc142 h1:L6LqxfP08eWUx+A6yQdrL6VB3KILU1TbQllPtKZq7PM=
+yunion.io/x/pkg v1.0.1-0.20231101105448-abef64cdc142/go.mod h1:ksCJVQ+DwKrJ5QBEoU8pzrDFfDaZVAFH/iJ6yQCYxJk=
 yunion.io/x/s3cli v0.0.0-20190917004522-13ac36d8687e h1:v+EzIadodSwkdZ/7bremd7J8J50Cise/HCylsOJngmo=
 yunion.io/x/s3cli v0.0.0-20190917004522-13ac36d8687e/go.mod h1:0iFKpOs1y4lbCxeOmq3Xx/0AcQoewVPwj62eRluioEo=
-yunion.io/x/structarg v0.0.0-20220312084958-9c6c79c7d1c6 h1:WuWXhY3DvhdRTzWCJ/kwt3Ss6KIq7+KqJwb+esvNGwU=
-yunion.io/x/structarg v0.0.0-20220312084958-9c6c79c7d1c6/go.mod h1:EP6NSv2C0zzqBDTKumv8hPWLb3XvgMZDHQRfyuOrQng=
+yunion.io/x/structarg v0.0.0-20231017124457-df4d5009457c h1:QuLab2kSRECZRxo4Lo2KcYn6XjQFDGaZ1+x0pYDVVwQ=
+yunion.io/x/structarg v0.0.0-20231017124457-df4d5009457c/go.mod h1:EP6NSv2C0zzqBDTKumv8hPWLb3XvgMZDHQRfyuOrQng=
