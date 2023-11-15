@@ -21,28 +21,28 @@ import (
 )
 
 func init() {
-	type InstanceListOptions struct {
-		ZoneId string
+	type NetworkListOptions struct {
+		VpcId string
 	}
-	shellutils.R(&InstanceListOptions{}, "instance-list", "list instances", func(cli *oracle.SRegion, args *InstanceListOptions) error {
-		vms, err := cli.GetInstances(args.ZoneId)
+	shellutils.R(&NetworkListOptions{}, "network-list", "list networks", func(cli *oracle.SRegion, args *NetworkListOptions) error {
+		networks, err := cli.GetNetworks(args.VpcId)
 		if err != nil {
 			return err
 		}
-		printList(vms, 0, 0, 0, []string{})
+		printList(networks, 0, 0, 0, []string{})
 		return nil
 	})
 
-	type InstanceIdOptions struct {
+	type NetworkIdOptions struct {
 		ID string
 	}
 
-	shellutils.R(&InstanceIdOptions{}, "instance-show", "Show instance", func(cli *oracle.SRegion, args *InstanceIdOptions) error {
-		instance, err := cli.GetInstance(args.ID)
+	shellutils.R(&NetworkIdOptions{}, "network-show", "Show network", func(cli *oracle.SRegion, args *NetworkIdOptions) error {
+		network, err := cli.GetNetwork(args.ID)
 		if err != nil {
 			return err
 		}
-		printObject(instance)
+		printObject(network)
 		return nil
 	})
 

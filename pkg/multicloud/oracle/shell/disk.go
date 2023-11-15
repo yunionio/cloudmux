@@ -21,28 +21,28 @@ import (
 )
 
 func init() {
-	type InstanceListOptions struct {
+	type DiskListOptions struct {
 		ZoneId string
 	}
-	shellutils.R(&InstanceListOptions{}, "instance-list", "list instances", func(cli *oracle.SRegion, args *InstanceListOptions) error {
-		vms, err := cli.GetInstances(args.ZoneId)
+	shellutils.R(&DiskListOptions{}, "disk-list", "list disks", func(cli *oracle.SRegion, args *DiskListOptions) error {
+		disks, err := cli.GetDisks(args.ZoneId)
 		if err != nil {
 			return err
 		}
-		printList(vms, 0, 0, 0, []string{})
+		printList(disks, 0, 0, 0, []string{})
 		return nil
 	})
 
-	type InstanceIdOptions struct {
+	type DiskIdOptions struct {
 		ID string
 	}
 
-	shellutils.R(&InstanceIdOptions{}, "instance-show", "Show instance", func(cli *oracle.SRegion, args *InstanceIdOptions) error {
-		instance, err := cli.GetInstance(args.ID)
+	shellutils.R(&DiskIdOptions{}, "disk-show", "Show disk", func(cli *oracle.SRegion, args *DiskIdOptions) error {
+		disk, err := cli.GetDisk(args.ID)
 		if err != nil {
 			return err
 		}
-		printObject(instance)
+		printObject(disk)
 		return nil
 	})
 
