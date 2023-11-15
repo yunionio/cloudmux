@@ -21,28 +21,27 @@ import (
 )
 
 func init() {
-	type InstanceListOptions struct {
-		ZoneId string
+	type VpcListOptions struct {
 	}
-	shellutils.R(&InstanceListOptions{}, "instance-list", "list instances", func(cli *oracle.SRegion, args *InstanceListOptions) error {
-		vms, err := cli.GetInstances(args.ZoneId)
+	shellutils.R(&VpcListOptions{}, "vpc-list", "list vpcs", func(cli *oracle.SRegion, args *VpcListOptions) error {
+		vpcs, err := cli.GetVpcs()
 		if err != nil {
 			return err
 		}
-		printList(vms, 0, 0, 0, []string{})
+		printList(vpcs, 0, 0, 0, []string{})
 		return nil
 	})
 
-	type InstanceIdOptions struct {
+	type VpcIdOptions struct {
 		ID string
 	}
 
-	shellutils.R(&InstanceIdOptions{}, "instance-show", "Show instance", func(cli *oracle.SRegion, args *InstanceIdOptions) error {
-		instance, err := cli.GetInstance(args.ID)
+	shellutils.R(&VpcIdOptions{}, "vpc-show", "Show vpc", func(cli *oracle.SRegion, args *VpcIdOptions) error {
+		vpc, err := cli.GetVpc(args.ID)
 		if err != nil {
 			return err
 		}
-		printObject(instance)
+		printObject(vpc)
 		return nil
 	})
 

@@ -21,28 +21,28 @@ import (
 )
 
 func init() {
-	type InstanceListOptions struct {
-		ZoneId string
+	type EipListOptions struct {
+		Lifetime string `choices:"RESERVED|EPHEMERAL"`
 	}
-	shellutils.R(&InstanceListOptions{}, "instance-list", "list instances", func(cli *oracle.SRegion, args *InstanceListOptions) error {
-		vms, err := cli.GetInstances(args.ZoneId)
+	shellutils.R(&EipListOptions{}, "eip-list", "list eips", func(cli *oracle.SRegion, args *EipListOptions) error {
+		eips, err := cli.GetEips(args.Lifetime)
 		if err != nil {
 			return err
 		}
-		printList(vms, 0, 0, 0, []string{})
+		printList(eips, 0, 0, 0, []string{})
 		return nil
 	})
 
-	type InstanceIdOptions struct {
+	type EipIdOptions struct {
 		ID string
 	}
 
-	shellutils.R(&InstanceIdOptions{}, "instance-show", "Show instance", func(cli *oracle.SRegion, args *InstanceIdOptions) error {
-		instance, err := cli.GetInstance(args.ID)
+	shellutils.R(&EipIdOptions{}, "eip-show", "Show eip", func(cli *oracle.SRegion, args *EipIdOptions) error {
+		eip, err := cli.GetEip(args.ID)
 		if err != nil {
 			return err
 		}
-		printObject(instance)
+		printObject(eip)
 		return nil
 	})
 
