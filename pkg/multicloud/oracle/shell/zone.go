@@ -21,28 +21,14 @@ import (
 )
 
 func init() {
-	type InstanceListOptions struct {
-		ZoneId string
+	type ZoneListOptions struct {
 	}
-	shellutils.R(&InstanceListOptions{}, "instance-list", "list instances", func(cli *oracle.SRegion, args *InstanceListOptions) error {
-		vms, err := cli.GetInstances(args.ZoneId)
+	shellutils.R(&ZoneListOptions{}, "zone-list", "list zones", func(cli *oracle.SRegion, args *ZoneListOptions) error {
+		zones, err := cli.GetZones()
 		if err != nil {
 			return err
 		}
-		printList(vms, 0, 0, 0, []string{})
-		return nil
-	})
-
-	type InstanceIdOptions struct {
-		ID string
-	}
-
-	shellutils.R(&InstanceIdOptions{}, "instance-show", "Show instance", func(cli *oracle.SRegion, args *InstanceIdOptions) error {
-		instance, err := cli.GetInstance(args.ID)
-		if err != nil {
-			return err
-		}
-		printObject(instance)
+		printList(zones, 0, 0, 0, []string{})
 		return nil
 	})
 
