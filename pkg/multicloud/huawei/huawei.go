@@ -60,28 +60,31 @@ const (
 	HUAWEI_CERT_DEFAULT_REGION = "cn-north-4"
 	HUAWEI_API_VERSION         = "2018-12-25"
 
-	SERVICE_IAM       = "iam"
-	SERVICE_ELB       = "elb"
-	SERVICE_VPC       = "vpc"
-	SERVICE_CES       = "ces"
-	SERVICE_RDS       = "rds"
-	SERVICE_ECS       = "ecs"
-	SERVICE_EPS       = "eps"
-	SERVICE_EVS       = "evs"
-	SERVICE_BSS       = "bss"
-	SERVICE_SFS       = "sfs-turbo"
-	SERVICE_CTS       = "cts"
-	SERVICE_NAT       = "nat"
-	SERVICE_BMS       = "bms"
-	SERVICE_CCI       = "cci"
-	SERVICE_CSBS      = "csbs"
-	SERVICE_IMS       = "ims"
-	SERVICE_AS        = "as"
-	SERVICE_CCE       = "cce"
-	SERVICE_DCS       = "dcs"
-	SERVICE_MODELARTS = "modelarts"
-	SERVICE_SCM       = "scm"
-	SERVICE_CDN       = "cdn"
+	SERVICE_IAM           = "iam"
+	SERVICE_ELB           = "elb"
+	SERVICE_VPC           = "vpc"
+	SERVICE_CES           = "ces"
+	SERVICE_RDS           = "rds"
+	SERVICE_ECS           = "ecs"
+	SERVICE_EPS           = "eps"
+	SERVICE_EVS           = "evs"
+	SERVICE_BSS           = "bss"
+	SERVICE_SFS           = "sfs-turbo"
+	SERVICE_CTS           = "cts"
+	SERVICE_NAT           = "nat"
+	SERVICE_BMS           = "bms"
+	SERVICE_CCI           = "cci"
+	SERVICE_CSBS          = "csbs"
+	SERVICE_IMS           = "ims"
+	SERVICE_AS            = "as"
+	SERVICE_CCE           = "cce"
+	SERVICE_DCS           = "dcs"
+	SERVICE_MODELARTS     = "modelarts"
+	SERVICE_SCM           = "scm"
+	SERVICE_CDN           = "cdn"
+	SERVICE_GAUSSDB       = "gaussdb"
+	SERVICE_GAUSSDB_NOSQL = "gaussdb-nosql"
+	SERVICE_FUNCTIONGRAPH = "functiongraph"
 )
 
 var HUAWEI_REGION_CACHES sync.Map
@@ -940,6 +943,10 @@ func (self *SHuaweiClient) getUrl(service, regionId, resource string, method htt
 		url = fmt.Sprintf("https://scm.%s.myhuaweicloud.com/v3/%s", HUAWEI_DEFAULT_REGION, resource)
 	case SERVICE_CDN:
 		url = fmt.Sprintf("https://cdn.myhuaweicloud.com/v1.0/%s", resource)
+	case SERVICE_GAUSSDB, SERVICE_GAUSSDB_NOSQL:
+		url = fmt.Sprintf("https://%s.%s.myhuaweicloud.com/v3/%s/%s", service, regionId, self.projectId, resource)
+	case SERVICE_FUNCTIONGRAPH:
+		url = fmt.Sprintf("https://%s.%s.myhuaweicloud.com/v2/%s/%s", service, regionId, self.projectId, resource)
 	default:
 		return "", fmt.Errorf("invalid service %s", service)
 	}
