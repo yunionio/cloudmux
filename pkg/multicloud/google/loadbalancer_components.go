@@ -118,6 +118,17 @@ type STargetHttpsProxy struct {
 	Kind                string   `json:"kind"`
 }
 
+type STargetTcpProxy struct {
+	SResourceBase
+
+	Kind              string `json:"kind"`
+	CreationTimestamp string `json:"creationTimestamp"`
+	Description       string `json:"description"`
+	Service           string `json:"service"`
+	Region            string `json:"region"`
+	ProxyBind         bool   `json:"proxyBind"`
+}
+
 type SInstanceGroup struct {
 	SResourceBase
 	region    *SRegion
@@ -394,8 +405,13 @@ func (self *SInstanceGroup) GetInstances() ([]SInstanceGroupInstance, error) {
 	}
 
 	ret := make([]SInstanceGroupInstance, 0)
-	resourceId := strings.Replace(self.GetGlobalId(), fmt.Sprintf("projects/%s/", self.region.GetProjectId()), "", -1)
-	err := self.region.listAll("POST", resourceId+"/listInstances", nil, &ret)
+	resource := strings.TrimPrefix(self.SelfLink, fmt.Sprintf("%s/%s/", GOOGLE_COMPUTE_DOMAIN, GOOGLE_API_VERSION))
+	if self.region.GetIsGlobal() {
+		index := strings.Index(resource, "/zones/")
+		resource = resource[index+1:]
+	}
+	err := self.region.listAll("POST", resource+"/listInstances", nil, &ret)
+
 	if err != nil {
 		if errors.Cause(err) == cloudprovider.ErrNotFound {
 			return nil, nil
@@ -410,6 +426,21 @@ func (self *SInstanceGroup) GetInstances() ([]SInstanceGroupInstance, error) {
 
 	self.instances = ret
 	return ret, nil
+}
+
+func (self *SRegion) getGlobalLoadbalancerComponents(resource string, filter string, result interface{}) error {
+	url := fmt.Sprintf("global/%s", resource)
+	params := map[string]string{}
+	if len(filter) > 0 {
+		params["filter"] = filter
+	}
+
+	err := self.ListAll(url, params, result)
+	if err != nil {
+		return errors.Wrap(err, "ListAll")
+	}
+
+	return nil
 }
 
 func (self *SRegion) getLoadbalancerComponents(resource string, filter string, result interface{}) error {
@@ -428,7 +459,13 @@ func (self *SRegion) getLoadbalancerComponents(resource string, filter string, r
 }
 
 func (self *SRegion) getInstanceGroups(zoneId, resource string, filter string, result interface{}) error {
-	url := fmt.Sprintf("zones/%s/%s", zoneId, resource)
+	var url string
+	if self.GetIsGlobal() && resource != "instanceGroups" {
+		url = fmt.Sprintf("global/%s", resource)
+	} else {
+		url = fmt.Sprintf("regions/%s/%s", self.Name, resource)
+	}
+
 	params := map[string]string{}
 	if len(filter) > 0 {
 		params["filter"] = filter
@@ -457,6 +494,18 @@ func (self *SRegion) GetRegionalUrlMaps(filter string) ([]SUrlMap, error) {
 func (self *SRegion) GetRegionalBackendServices(filter string) ([]SBackendServices, error) {
 	ret := make([]SBackendServices, 0)
 	err := self.getLoadbalancerComponents("backendServices", filter, &ret)
+	return ret, err
+}
+
+func (self *SRegion) GetGlobalUrlMaps(filter string) ([]SUrlMap, error) {
+	ret := make([]SUrlMap, 0)
+	err := self.getGlobalLoadbalancerComponents("urlMaps", filter, &ret)
+	return ret, err
+}
+
+func (self *SRegion) GetGlobalBackendServices(filter string) ([]SBackendServices, error) {
+	ret := make([]SBackendServices, 0)
+	err := self.getGlobalLoadbalancerComponents("backendServices", filter, &ret)
 	return ret, err
 }
 
@@ -534,6 +583,18 @@ func (self *SLoadbalancer) GetTargetHttpProxies() ([]STargetHttpProxy, error) {
 // ForwardingRule 目标是: target proxy or backend service
 // http&https 是由target proxy 转发到后端服务
 func (self *SLoadbalancer) GetForwardingRules() ([]SForwardingRule, error) {
+	if self.region.GetIsGlobal() {
+		ret, err := self.GetGlobalForwardingRules()
+		if err != nil {
+			return nil, errors.Wrap(err, "GetForwardingRules")
+		}
+
+		if len(ret) > 0 {
+			self.forwardRules = ret
+		}
+		return ret, nil
+	}
+
 	if self.forwardRules != nil {
 		return self.forwardRules, nil
 	}
@@ -603,7 +664,12 @@ func (self *SLoadbalancer) GetBackendServices() ([]SBackendServices, error) {
 		if len(filters) == 0 {
 			return []SBackendServices{}, nil
 		}
-		err := self.region.getLoadbalancerComponents("backendServices", strings.Join(filters, " OR "), &ret)
+		var err error
+		if self.region.GetIsGlobal() {
+			err = self.region.getGlobalLoadbalancerComponents("backendServices", strings.Join(filters, " OR "), &ret)
+		} else {
+			err = self.region.getLoadbalancerComponents("backendServices", strings.Join(filters, " OR "), &ret)
+		}
 		self.backendServices = ret
 		return ret, err
 	}

@@ -203,6 +203,8 @@ type ICloudRegion interface {
 	GetIModelartsPoolSku() ([]ICloudModelartsPoolSku, error)
 
 	GetIMiscResources() ([]ICloudMiscResource, error)
+
+	GetIsGlobal() bool
 }
 
 type ICloudZone interface {
