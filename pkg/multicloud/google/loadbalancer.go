@@ -91,7 +91,7 @@ func (self *SLoadbalancer) GetSysTags() map[string]string {
 
 	ips := []string{}
 	for i := range frs {
-		if len(frs[i].IPAddress) > 0 {
+		if len(frs[i].IPAddress) > 0 && !utils.IsInStringArray(frs[i].IPAddress, ips) {
 			ips = append(ips, frs[i].IPAddress)
 		}
 	}
@@ -116,6 +116,69 @@ func (self *SLoadbalancer) GetProjectId() string {
 	return self.region.GetProjectId()
 }
 
+func (self *SLoadbalancer) GetGlobalForwardingRules() ([]SForwardingRule, error) {
+	var ret []SForwardingRule
+	if err := self.region.getGlobalLoadbalancerComponents("forwardingRules", "", &ret); err != nil {
+		return nil, errors.Wrap(err, "getGlobalAddress.forwardingRules")
+	}
+
+	var _ret []SForwardingRule
+	for _, item := range ret {
+		targetResponse, err := _jsonRequest(self.region.client.client, "GET", item.Target, nil, true)
+		if err != nil {
+			return nil, errors.Wrap(err, "getGlobalAddress.GetProxy")
+		}
+
+		var target interface{}
+		switch {
+		case strings.Contains(item.Target, "targetHttpProxies"):
+			target = new(STargetHttpProxy)
+		case strings.Contains(item.Target, "targetHttpsProxies"):
+			target = new(STargetHttpsProxy)
+		case strings.Contains(item.Target, "targetTcpProxies"):
+			target = new(STargetTcpProxy)
+		default:
+			continue
+		}
+
+		if err := targetResponse.Unmarshal(target); err != nil {
+			return nil, errors.Wrap(err, "getGlobalAddress.target.Unmarshal")
+		}
+
+		if self.isNameMatch(target) {
+			_ret = append(_ret, item)
+		}
+	}
+
+	return _ret, nil
+}
+
+func (s *SLoadbalancer) isNameMatch(target interface{}) bool {
+	var name string
+	switch t := target.(type) {
+	case *STargetHttpProxy, *STargetHttpsProxy:
+		var URLMapUrl string
+		switch t.(type) {
+		case *STargetHttpProxy:
+			URLMapUrl = t.(*STargetHttpProxy).URLMap
+		case *STargetHttpsProxy:
+			URLMapUrl = t.(*STargetHttpsProxy).URLMap
+		}
+		urlMapResponse, _ := _jsonRequest(s.region.client.client, "GET", URLMapUrl, nil, true)
+		var urlMap SUrlMap
+		urlMapResponse.Unmarshal(&urlMap)
+		name = urlMap.Name
+		if name != s.GetName() {
+			parts := strings.Split(urlMap.DefaultService, "/")
+			name = parts[len(parts)-1]
+		}
+	case *STargetTcpProxy:
+		parts := strings.Split(t.Service, "/")
+		name = parts[len(parts)-1]
+	}
+	return name == s.GetName()
+}
+
 /*
 对应forwardingRules地址,存在多个前端IP的情况下，只展示按拉丁字母排序最前的一个地址。其他地址需要到详情中查看
 External
@@ -137,7 +200,6 @@ func (self *SLoadbalancer) GetAddress() string {
 			return frs[i].IPAddress
 		}
 	}
-
 	return ""
 }
 
@@ -344,7 +406,8 @@ func (self *SLoadbalancer) GetILoadBalancerListenerById(listenerId string) (clou
 }
 
 // GET https://compute.googleapis.com/compute/v1/projects/{project}/aggregated/targetHttpProxies 前端监听
-//  tcp lb backend type: backend service
+//
+//	tcp lb backend type: backend service
 func (self *SRegion) GetRegionalTcpLoadbalancers() ([]SLoadbalancer, error) {
 	bss, err := self.GetRegionalBackendServices("protocol eq TCP")
 	if err != nil {
@@ -368,7 +431,7 @@ func (self *SRegion) GetRegionalTcpLoadbalancers() ([]SLoadbalancer, error) {
 	return lbs, nil
 }
 
-//  udp lb backend type: backend service
+// udp lb backend type: backend service
 func (self *SRegion) GetRegionalUdpLoadbalancers() ([]SLoadbalancer, error) {
 	bss, err := self.GetRegionalBackendServices("protocol eq UDP")
 	if err != nil {
@@ -392,7 +455,7 @@ func (self *SRegion) GetRegionalUdpLoadbalancers() ([]SLoadbalancer, error) {
 	return lbs, nil
 }
 
-//  http&https lb: urlmaps
+// http&https lb: urlmaps
 func (self *SRegion) GetRegionalHTTPLoadbalancers() ([]SLoadbalancer, error) {
 	ums, err := self.GetRegionalUrlMaps("")
 	if err != nil {
@@ -429,6 +492,96 @@ func (self *SRegion) GetRegionalLoadbalancers() ([]SLoadbalancer, error) {
 	}
 
 	return lbs, nil
+}
+
+func (self *SRegion) GetGlobalTcpLoadbalancers() ([]SLoadbalancer, error) {
+	bss, err := self.GetGlobalBackendServices("protocol eq TCP")
+	if err != nil {
+		return nil, errors.Wrap(err, "GetGlobalBackendServices")
+	}
+
+	lbs := make([]SLoadbalancer, len(bss))
+	for i := range bss {
+		lbs[i] = SLoadbalancer{
+			region: self,
+			SResourceBase: SResourceBase{
+				Name:     bss[i].Name,
+				SelfLink: bss[i].SelfLink,
+			},
+			urlMap:          nil,
+			backendServices: []SBackendServices{bss[i]},
+			forwardRules:    nil,
+		}
+	}
+
+	return lbs, nil
+}
+
+func (self *SRegion) GetGlobalUdpLoadbalancers() ([]SLoadbalancer, error) {
+	bss, err := self.GetGlobalBackendServices("protocol eq UDP")
+	if err != nil {
+		return nil, errors.Wrap(err, "GetGlobalBackendServices")
+	}
+
+	lbs := make([]SLoadbalancer, len(bss))
+	for i := range bss {
+		lbs[i] = SLoadbalancer{
+			region: self,
+			SResourceBase: SResourceBase{
+				Name:     bss[i].Name,
+				SelfLink: bss[i].SelfLink,
+			},
+			urlMap:          nil,
+			backendServices: []SBackendServices{bss[i]},
+			forwardRules:    nil,
+		}
+	}
+
+	return lbs, nil
+}
+
+func (self *SRegion) GetGlobalHTTPLoadbalancers() ([]SLoadbalancer, error) {
+	ums, err := self.GetGlobalUrlMaps("")
+	if err != nil {
+		return nil, errors.Wrap(err, "GetGlobalUrlMaps")
+	}
+
+	lbs := make([]SLoadbalancer, len(ums))
+	for i := range ums {
+		lbs[i] = SLoadbalancer{
+			region: self,
+			SResourceBase: SResourceBase{
+				Name:     ums[i].Name,
+				SelfLink: ums[i].SelfLink,
+			},
+			urlMap:          &ums[i],
+			backendServices: nil,
+			forwardRules:    nil,
+			isHttpLb:        true,
+		}
+	}
+
+	return lbs, nil
+}
+
+func (self *SRegion) GetGlobalLoadbalancers() ([]SLoadbalancer, error) {
+	lbs := make([]SLoadbalancer, 0)
+	funcs := []func() ([]SLoadbalancer, error){self.GetGlobalHTTPLoadbalancers, self.GetGlobalTcpLoadbalancers, self.GetGlobalUdpLoadbalancers}
+	for i := range funcs {
+		_lbs, err := funcs[i]()
+		if err != nil {
+			return nil, errors.Wrap(err, "GetGlobalLoadbalancers")
+		}
+		lbs = append(lbs, _lbs...)
+	}
+
+	return lbs, nil
+}
+
+func (self *SRegion) GetGlobalForwardingRules() ([]SForwardingRule, error) {
+	ret := make([]SForwardingRule, 0)
+	err := self.getGlobalLoadbalancerComponents("forwardingRules", "", &ret)
+	return ret, err
 }
 
 func (self *SRegion) GetLoadbalancer(resourceId string) (SLoadbalancer, error) {
