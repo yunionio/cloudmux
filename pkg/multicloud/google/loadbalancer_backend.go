@@ -182,22 +182,40 @@ func (self *SLoadBalancerBackendGroup) GetLoadbalancerBackends() ([]SLoadbalance
 
 			for m := range frs {
 				fr := frs[m]
-				for p := range fr.Ports {
-					port, _ := strconv.Atoi(fr.Ports[p])
-					if port <= 0 {
-						continue
-					}
+				if fr.Ports == nil || len(fr.Ports) == 0 {
+					ports := strings.Split(fr.PortRange, "-")
+					if len(ports) == 2 && ports[0] == ports[1] {
+						port, _ := strconv.Atoi(ports[0])
+						for n := range bs {
+							backend := SLoadbalancerBackend{
+								lbbg:           self,
+								backendService: self.backendService,
+								instanceGroup:  ig,
+								Backend:        bs[n],
+								Port:           port,
+							}
 
-					for n := range bs {
-						backend := SLoadbalancerBackend{
-							lbbg:           self,
-							backendService: self.backendService,
-							instanceGroup:  ig,
-							Backend:        bs[n],
-							Port:           port,
+							ret = append(ret, backend)
+						}
+					}
+				} else {
+					for p := range fr.Ports {
+						port, _ := strconv.Atoi(fr.Ports[p])
+						if port <= 0 {
+							continue
 						}
 
-						ret = append(ret, backend)
+						for n := range bs {
+							backend := SLoadbalancerBackend{
+								lbbg:           self,
+								backendService: self.backendService,
+								instanceGroup:  ig,
+								Backend:        bs[n],
+								Port:           port,
+							}
+
+							ret = append(ret, backend)
+						}
 					}
 				}
 			}

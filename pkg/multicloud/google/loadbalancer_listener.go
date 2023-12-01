@@ -591,18 +591,35 @@ func (self *SLoadbalancer) GetNetworkLoadbalancerListeners() ([]SLoadbalancerLis
 		fr := frs[i]
 		for j := range bss {
 			bs := bss[j]
-			for n := range fr.Ports {
-				lbl := SLoadbalancerListener{
-					lb:                 self,
-					forwardRule:        fr,
-					backendService:     bs,
-					ForwardRuleName:    fr.GetName(),
-					BackendServiceName: bs.GetName(),
-					Protocol:           strings.ToLower(fr.IPProtocol),
-					Port:               fr.Ports[n],
-				}
+			if fr.Ports == nil || len(fr.Ports) == 0 {
+				ports := strings.Split(fr.PortRange, "-")
+				if len(ports) == 2 && ports[0] == ports[1] {
+					lbl := SLoadbalancerListener{
+						lb:                 self,
+						forwardRule:        fr,
+						backendService:     bs,
+						ForwardRuleName:    fr.GetName(),
+						BackendServiceName: bs.GetName(),
+						Protocol:           strings.ToLower(fr.IPProtocol),
+						Port:               ports[0],
+					}
 
-				lbls = append(lbls, lbl)
+					lbls = append(lbls, lbl)
+				}
+			} else {
+				for n := range fr.Ports {
+					lbl := SLoadbalancerListener{
+						lb:                 self,
+						forwardRule:        fr,
+						backendService:     bs,
+						ForwardRuleName:    fr.GetName(),
+						BackendServiceName: bs.GetName(),
+						Protocol:           strings.ToLower(fr.IPProtocol),
+						Port:               fr.Ports[n],
+					}
+
+					lbls = append(lbls, lbl)
+				}
 			}
 		}
 	}

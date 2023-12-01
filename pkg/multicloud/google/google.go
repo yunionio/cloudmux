@@ -186,6 +186,18 @@ func (self *SGoogleClient) fetchRegions() error {
 		return err
 	}
 
+	//manually add global region
+	regions = append(regions, SRegion{
+		capabilities:      nil,
+		Quotas:            nil,
+		Description:       "global",
+		Kind:              "compute#region",
+		Name:              "global",
+		Status:            "UP",
+		SelfLink:          "",
+		CreationTimestamp: time.Time{},
+	})
+
 	self.iregions = []cloudprovider.ICloudRegion{}
 	for i := 0; i < len(regions); i++ {
 		regions[i].client = self
