@@ -108,4 +108,6 @@ var RegionNames = map[string]string{
 	// Dual-region
 	"nam4": "爱荷华和南卡罗来纳",
 	"eur4": "荷兰和芬兰",
+
+	"global": "全球",
 }

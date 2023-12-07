@@ -412,7 +412,3 @@ func (self *SRegion) GetIMiscResources() ([]cloudprovider.ICloudMiscResource, er
 func (self *SRegion) GetISSLCertificates() ([]cloudprovider.ICloudSSLCertificate, error) {
 	return nil, errors.Wrapf(cloudprovider.ErrNotImplemented, "GetISSLCertificate")
 }
-
-func (self *SRegion) GetIsGlobal() bool {
-	return false
-}

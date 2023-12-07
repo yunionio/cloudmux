@@ -52,12 +52,7 @@ func (region *SRegion) GetEips(address string, maxResults int, pageToken string)
 	if len(address) > 0 {
 		params["filter"] = fmt.Sprintf(`address="%s"`, address)
 	}
-	var resource string
-	if region.GetIsGlobal() {
-		resource = "global/addresses"
-	} else {
-		resource = fmt.Sprintf("regions/%s/addresses", region.Name)
-	}
+	resource := fmt.Sprintf("regions/%s/addresses", region.Name)
 
 	return eips, region.List(resource, params, maxResults, pageToken, &eips)
 }
