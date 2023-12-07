@@ -843,7 +843,3 @@ func (region *SRegion) GetIVMs() ([]cloudprovider.ICloudVM, error) {
 	}
 	return iVMs, nil
 }
-
-func (region *SRegion) GetIsGlobal() bool {
-	return region.Name == "global"
-}
