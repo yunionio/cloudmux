@@ -143,7 +143,6 @@ type SManagedVMCreateConfig struct {
 	OsType              string
 	OsDistribution      string
 	OsVersion           string
-	Bios                string
 	InstanceType        string // InstanceType 不为空时，直接采用InstanceType创建机器。
 	Cpu                 int
 	MemoryMB            int
