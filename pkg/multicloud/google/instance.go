@@ -658,6 +658,13 @@ func (region *SRegion) _createVM(zone string, desc *cloudprovider.SManagedVMCrea
 	resource := fmt.Sprintf("zones/%s/instances", zone)
 	err = region.Insert(resource, jsonutils.Marshal(params), instance)
 	if err != nil {
+		// gcp接收到创建请求后网络异常，重试时会报 Conflict 错误, 这里尝试直接取虚拟机信息并返回
+		if e, ok := err.(*gError); ok && e.Class == "Conflict" && strings.Contains(e.ErrorInfo.Message, "already exists") {
+			res := fmt.Sprintf("projects/%s/zones/%s/instances/%s", region.client.projectId, zone, desc.NameEn)
+			if err := region.GetBySelfId(res, instance); err == nil {
+				return instance, nil
+			}
+		}
 		return nil, err
 	}
 	return instance, nil
