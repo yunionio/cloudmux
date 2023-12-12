@@ -794,6 +794,13 @@ func (region *SRegion) RebuildRoot(instanceId string, imageId string, sysDiskSiz
 			sysDiskSizeGb = disk.SizeGB
 		}
 	}
+	image, err := region.GetImage(imageId)
+	if err != nil {
+		return "", errors.Wrapf(err, "GetImage")
+	}
+	if image.DiskSizeGb > sysDiskSizeGb {
+		sysDiskSizeGb = image.DiskSizeGb
+	}
 
 	zone, err := region.GetZone(instance.Zone)
 	if err != nil {
