@@ -24,17 +24,15 @@ import (
 func init() {
 	type SSnapshotPolicyListOptions struct {
 		PolicyId string `help:"snapshot policy id"`
-		Offset   int    `help:"offset"`
-		Limit    int    `help:"limit"`
 	}
 
 	shellutils.R(&SSnapshotPolicyListOptions{}, "snapshot-policy-list", "list snapshot policy",
 		func(cli *aliyun.SRegion, args *SSnapshotPolicyListOptions) error {
-			snapshotPolicis, num, err := cli.GetSnapshotPolicies(args.PolicyId, args.Offset, args.Limit)
+			snapshotPolicis, err := cli.GetSnapshotPolicies(args.PolicyId)
 			if err != nil {
 				return err
 			}
-			printList(snapshotPolicis, num, args.Offset, args.Limit, []string{})
+			printList(snapshotPolicis, 0, 0, 0, []string{})
 			return nil
 		},
 	)
@@ -62,7 +60,7 @@ func init() {
 				RetentionDays:  args.RetentionDays,
 				RepeatWeekdays: args.RepeatWeekdays,
 				TimePoints:     args.TimePoints,
-				PolicyName:     args.Name,
+				Name:           args.Name,
 			}
 			_, err := cli.CreateSnapshotPolicy(&input)
 			if err != nil {
@@ -73,8 +71,8 @@ func init() {
 	)
 
 	type SSnapshotPolicyApplyOptions struct {
-		SNAPSHOTPOLICYID string `help:"snapshot policy id"`
-		DISKID           string `help:"disk id"`
+		SNAPSHOTPOLICYID string   `help:"snapshot policy id"`
+		DISKID           []string `help:"disk id"`
 	}
 	shellutils.R(&SSnapshotPolicyApplyOptions{}, "snapshot-policy-apply", "apply snapshot policy",
 		func(cli *aliyun.SRegion, args *SSnapshotPolicyApplyOptions) error {
@@ -84,8 +82,8 @@ func init() {
 	)
 
 	type SSnapshotPolicyCancelOptions struct {
-		SNAPSHOTPOLICYID string `help:"snapshot policy id"`
-		DISKID           string `help:"disk id"`
+		SNAPSHOTPOLICYID string   `help:"snapshot policy id"`
+		DISKID           []string `help:"disk id"`
 	}
 	shellutils.R(&SSnapshotPolicyCancelOptions{}, "snapshot-policy-cancel", "cancel snapshot policy",
 		func(cli *aliyun.SRegion, args *SSnapshotPolicyCancelOptions) error {

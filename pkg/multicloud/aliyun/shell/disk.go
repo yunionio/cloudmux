@@ -22,18 +22,17 @@ import (
 
 func init() {
 	type DiskListOptions struct {
-		Instance string `help:"Instance ID"`
-		Zone     string `help:"Zone ID"`
-		Category string `help:"Disk category"`
-		Offset   int    `help:"List offset"`
-		Limit    int    `help:"List limit"`
+		Instance         string `help:"Instance ID"`
+		Zone             string `help:"Zone ID"`
+		Category         string `help:"Disk category"`
+		SnapshotpolicyId string
 	}
 	shellutils.R(&DiskListOptions{}, "disk-list", "List disks", func(cli *aliyun.SRegion, args *DiskListOptions) error {
-		disks, total, e := cli.GetDisks(args.Instance, args.Zone, args.Category, nil, args.Offset, args.Limit)
-		if e != nil {
-			return e
+		disks, err := cli.GetDisks(args.Instance, args.Zone, args.Category, nil, args.SnapshotpolicyId)
+		if err != nil {
+			return err
 		}
-		printList(disks, total, args.Offset, args.Limit, []string{})
+		printList(disks, 0, 0, 0, []string{})
 		return nil
 	})
 
