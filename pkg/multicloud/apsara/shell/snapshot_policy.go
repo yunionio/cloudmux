@@ -62,7 +62,7 @@ func init() {
 				RetentionDays:  args.RetentionDays,
 				RepeatWeekdays: args.RepeatWeekdays,
 				TimePoints:     args.TimePoints,
-				PolicyName:     args.Name,
+				Name:           args.Name,
 			}
 			_, err := cli.CreateSnapshotPolicy(&input)
 			if err != nil {
@@ -73,8 +73,8 @@ func init() {
 	)
 
 	type SSnapshotPolicyApplyOptions struct {
-		SNAPSHOTPOLICYID string `help:"snapshot policy id"`
-		DISKID           string `help:"disk id"`
+		SNAPSHOTPOLICYID string   `help:"snapshot policy id"`
+		DISKID           []string `help:"disk id"`
 	}
 	shellutils.R(&SSnapshotPolicyApplyOptions{}, "snapshot-policy-apply", "apply snapshot policy",
 		func(cli *apsara.SRegion, args *SSnapshotPolicyApplyOptions) error {
@@ -84,8 +84,8 @@ func init() {
 	)
 
 	type SSnapshotPolicyCancelOptions struct {
-		SNAPSHOTPOLICYID string `help:"snapshot policy id"`
-		DISKID           string `help:"disk id"`
+		SNAPSHOTPOLICYID string   `help:"snapshot policy id"`
+		DISKID           []string `help:"disk id"`
 	}
 	shellutils.R(&SSnapshotPolicyCancelOptions{}, "snapshot-policy-cancel", "cancel snapshot policy",
 		func(cli *apsara.SRegion, args *SSnapshotPolicyCancelOptions) error {
