@@ -741,19 +741,11 @@ func (self *SHuaweiClient) GetIStorageById(id string) (cloudprovider.ICloudStora
 	return nil, cloudprovider.ErrNotFound
 }
 
-// 总账户余额
-type SAccountBalance struct {
-	AvailableAmount  float64
-	CreditAmount     float64
-	DesignatedAmount float64
-}
-
-// 账户余额
-// https://support.huaweicloud.com/api-oce/zh-cn_topic_0109685133.html
+// https://console.huaweicloud.com/apiexplorer/#/openapi/BSS/debug?api=ShowCustomerAccountBalances
 type SBalance struct {
 	Amount           float64 `json:"amount"`
 	Currency         string  `json:"currency"`
-	AccountID        string  `json:"account_id"`
+	AccountId        string  `json:"account_id"`
 	AccountType      int64   `json:"account_type"`
 	DesignatedAmount float64 `json:"designated_amount,omitempty"`
 	CreditAmount     float64 `json:"credit_amount,omitempty"`
@@ -761,39 +753,22 @@ type SBalance struct {
 }
 
 // 这里的余额指的是所有租户的总余额
-func (self *SHuaweiClient) QueryAccountBalance() (*SAccountBalance, error) {
-	domains, err := self.getEnabledDomains()
+func (self *SHuaweiClient) QueryAccountBalance() (*SBalance, error) {
+	resp, err := self.list(SERVICE_BSS, "", "accounts/customer-accounts/balances", nil)
 	if err != nil {
 		return nil, err
 	}
-
-	result := &SAccountBalance{}
-	for _, domain := range domains {
-		balances, err := self.queryDomainBalances(domain.ID)
-		if err != nil {
-			return nil, err
-		}
-		for _, balance := range balances {
-			result.AvailableAmount += balance.Amount
-			result.CreditAmount += balance.CreditAmount
-			result.DesignatedAmount += balance.DesignatedAmount
-		}
-	}
-
-	return result, nil
-}
-
-// https://support.huaweicloud.com/api-bpconsole/zh-cn_topic_0075213309.html
-func (self *SHuaweiClient) queryDomainBalances(domainId string) ([]SBalance, error) {
-	huawei, _ := self.newGeneralAPIClient()
-	huawei.Balances.SetDomainId(domainId)
-	balances := make([]SBalance, 0)
-	err := doListAll(huawei.Balances.List, nil, &balances)
+	ret := []SBalance{}
+	err = resp.Unmarshal(&ret, "account_balances")
 	if err != nil {
 		return nil, err
 	}
-
-	return balances, nil
+	for i := range ret {
+		if ret[i].AccountType == 1 {
+			return &ret[i], nil
+		}
+	}
+	return &SBalance{Currency: "CYN"}, nil
 }
 
 func (self *SHuaweiClient) GetVersion() string {
