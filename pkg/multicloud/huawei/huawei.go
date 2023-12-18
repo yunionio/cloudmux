@@ -60,8 +60,10 @@ const (
 	HUAWEI_CERT_DEFAULT_REGION = "cn-north-4"
 	HUAWEI_API_VERSION         = "2018-12-25"
 
-	SERVICE_IAM           = "iam"
-	SERVICE_ELB           = "elb"
+	SERVICE_IAM = "iam"
+	SERVICE_ELB = "elb"
+	// 独享型elb
+	SERVICE_ELB_V3        = "elb_v3"
 	SERVICE_VPC           = "vpc"
 	SERVICE_CES           = "ces"
 	SERVICE_RDS           = "rds"
@@ -243,63 +245,6 @@ type sPageInfo struct {
 
 func (self *SHuaweiClient) newGeneralAPIClient() (*client.Client, error) {
 	return self.newRegionAPIClient("")
-}
-
-func (self *SHuaweiClient) lbList(regionId, resource string, query url.Values) (jsonutils.JSONObject, error) {
-	return self.list(SERVICE_ELB, regionId, resource, query)
-}
-
-func (self *SHuaweiClient) monitorList(resource string, query url.Values) (jsonutils.JSONObject, error) {
-	return self.list(SERVICE_CES, self.clientRegion, resource, query)
-}
-
-func (self *SHuaweiClient) monitorPost(resource string, params map[string]interface{}) (jsonutils.JSONObject, error) {
-	return self.post(SERVICE_CES, self.clientRegion, resource, params)
-}
-
-func (self *SHuaweiClient) lbGet(regionId, resource string) (jsonutils.JSONObject, error) {
-	return self.list(SERVICE_ELB, regionId, resource, nil)
-}
-
-func (self *SHuaweiClient) lbCreate(regionId, resource string, params map[string]interface{}) (jsonutils.JSONObject, error) {
-	return self.post(SERVICE_ELB, regionId, resource, params)
-}
-
-func (self *SHuaweiClient) lbUpdate(regionId, resource string, params map[string]interface{}) (jsonutils.JSONObject, error) {
-	return self.put(SERVICE_ELB, regionId, resource, params)
-}
-
-func (self *SHuaweiClient) lbDelete(regionId, resource string) (jsonutils.JSONObject, error) {
-	return self.delete(SERVICE_ELB, regionId, resource)
-}
-
-func (self *SHuaweiClient) vpcList(regionId, resource string, query url.Values) (jsonutils.JSONObject, error) {
-	return self.list(SERVICE_VPC, regionId, resource, query)
-}
-
-func (self *SHuaweiClient) vpcCreate(regionId, resource string, params map[string]interface{}) (jsonutils.JSONObject, error) {
-	return self.post(SERVICE_VPC, regionId, resource, params)
-}
-
-func (self *SHuaweiClient) vpcPost(regionId, resource string, params map[string]interface{}) (jsonutils.JSONObject, error) {
-	return self.post(SERVICE_VPC, regionId, resource, params)
-}
-
-func (self *SHuaweiClient) vpcGet(regionId, resource string) (jsonutils.JSONObject, error) {
-	return self.list(SERVICE_VPC, regionId, resource, nil)
-}
-
-func (self *SHuaweiClient) vpcDelete(regionId, resource string) (jsonutils.JSONObject, error) {
-	return self.delete(SERVICE_VPC, regionId, resource)
-}
-
-func (self *SHuaweiClient) vpcUpdate(regionId, resource string, params map[string]interface{}) (jsonutils.JSONObject, error) {
-	return self.put(SERVICE_VPC, regionId, resource, params)
-}
-
-func (self *SHuaweiClient) cdnDelete(resource string) (jsonutils.JSONObject, error) {
-	uri := fmt.Sprintf("https://cdn.myhuaweicloud.com/v1.0/%s", resource)
-	return self.request(httputils.DELETE, uri, url.Values{}, nil)
 }
 
 type akClient struct {
