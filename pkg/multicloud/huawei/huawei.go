@@ -61,10 +61,8 @@ const (
 	HUAWEI_CERT_DEFAULT_REGION = "cn-north-4"
 	HUAWEI_API_VERSION         = "2018-12-25"
 
-	SERVICE_IAM = "iam"
-	SERVICE_ELB = "elb"
-	// 独享型elb
-	SERVICE_ELB_V3        = "elb_v3"
+	SERVICE_IAM           = "iam"
+	SERVICE_ELB           = "elb"
 	SERVICE_VPC           = "vpc"
 	SERVICE_CES           = "ces"
 	SERVICE_RDS           = "rds"
@@ -812,10 +810,10 @@ func (self *SHuaweiClient) getUrl(service, regionId, resource string, method htt
 			url = fmt.Sprintf("https://iam.myhuaweicloud.com/v3/%s", resource)
 		}
 	case SERVICE_ELB:
-		url = fmt.Sprintf("https://elb.%s.myhuaweicloud.com/v2/%s/%s", regionId, self.projectId, resource)
+		url = fmt.Sprintf("https://elb.%s.myhuaweicloud.com/v3/%s/%s", regionId, self.projectId, resource)
 	case SERVICE_VPC:
 		version := "v1"
-		if strings.HasPrefix(resource, "vpc/") {
+		if strings.HasPrefix(resource, "vpc/") || strings.HasPrefix(resource, "eip/") {
 			version = "v3"
 		}
 		url = fmt.Sprintf("https://vpc.%s.myhuaweicloud.com/%s/%s/%s", regionId, version, self.projectId, resource)
