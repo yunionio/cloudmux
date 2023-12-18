@@ -56,6 +56,15 @@ func init() {
 		return cli.DeleteVpc(args.ID)
 	})
 
+	shellutils.R(&VpcIdOption{}, "vpc-show", "Show vpc", func(cli *huawei.SRegion, args *VpcIdOption) error {
+		vpc, err := cli.GetVpc(args.ID)
+		if err != nil {
+			return err
+		}
+		printObject(vpc)
+		return nil
+	})
+
 	type VpcPeeringListOPtion struct {
 		VPCID string
 	}
