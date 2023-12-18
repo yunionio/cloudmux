@@ -7,15 +7,13 @@ import (
 
 func init() {
 	type SSlCertificateListOptions struct {
-		Page int
-		Size int
 	}
 	shellutils.R(
 		&SSlCertificateListOptions{},
-		"sslcertificate-list",
+		"ssl-certificate-list",
 		"List ssl certificates",
 		func(cli *huawei.SRegion, args *SSlCertificateListOptions) error {
-			certs, _, err := cli.GetSSLCertificates(args.Size, args.Page)
+			certs, err := cli.GetClient().GetSSLCertificates()
 			if err != nil {
 				return err
 			}
