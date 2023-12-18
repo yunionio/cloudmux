@@ -7,19 +7,35 @@ import (
 
 func init() {
 	type SSlCertificateListOptions struct {
-		Page int
-		Size int
 	}
 	shellutils.R(
 		&SSlCertificateListOptions{},
-		"sslcertificate-list",
+		"ssl-certificate-list",
 		"List ssl certificates",
 		func(cli *huawei.SRegion, args *SSlCertificateListOptions) error {
-			certs, _, err := cli.GetClient().GetSSLCertificates(args.Size, args.Page)
+			certs, err := cli.GetClient().GetSSLCertificates()
 			if err != nil {
 				return err
 			}
 			printList(certs, 0, 0, 0, nil)
 			return nil
 		})
+
+	type SSlCertificateIdOptions struct {
+		ID string
+	}
+
+	shellutils.R(
+		&SSlCertificateIdOptions{},
+		"ssl-certificate-show",
+		"List ssl certificates",
+		func(cli *huawei.SRegion, args *SSlCertificateIdOptions) error {
+			cert, err := cli.GetClient().GetSSLCertificate(args.ID)
+			if err != nil {
+				return err
+			}
+			printObject(cert)
+			return nil
+		})
+
 }
