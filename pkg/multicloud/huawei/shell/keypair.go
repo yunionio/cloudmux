@@ -25,11 +25,11 @@ func init() {
 	type KeyPairListOptions struct {
 	}
 	shellutils.R(&KeyPairListOptions{}, "keypair-list", "List keypairs", func(cli *huawei.SRegion, args *KeyPairListOptions) error {
-		keypairs, total, e := cli.GetKeypairs()
+		keypairs, e := cli.GetKeypairs()
 		if e != nil {
 			return e
 		}
-		printList(keypairs, total, 0, 0, []string{})
+		printList(keypairs, 0, 0, 0, []string{})
 		return nil
 	})
 
