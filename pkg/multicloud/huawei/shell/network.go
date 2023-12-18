@@ -21,15 +21,29 @@ import (
 )
 
 func init() {
-	type VSwitchListOptions struct {
+	type NetworkListOptions struct {
 		Vpc string `help:"Vpc ID"`
 	}
-	shellutils.R(&VSwitchListOptions{}, "subnet-list", "List subnets", func(cli *huawei.SRegion, args *VSwitchListOptions) error {
-		vswitches, e := cli.GetNetwroks(args.Vpc)
+	shellutils.R(&NetworkListOptions{}, "subnet-list", "List subnets", func(cli *huawei.SRegion, args *NetworkListOptions) error {
+		subnets, e := cli.GetNetworks(args.Vpc)
 		if e != nil {
 			return e
 		}
-		printList(vswitches, 0, 0, 0, nil)
+		printList(subnets, 0, 0, 0, nil)
 		return nil
 	})
+
+	type NetworkIdOptions struct {
+		ID string
+	}
+
+	shellutils.R(&NetworkIdOptions{}, "subnet-show", "Show subnet", func(cli *huawei.SRegion, args *NetworkIdOptions) error {
+		net, e := cli.GetNetwork(args.ID)
+		if e != nil {
+			return e
+		}
+		printObject(net)
+		return nil
+	})
+
 }

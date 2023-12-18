@@ -15,23 +15,19 @@
 package shell
 
 import (
-	"yunion.io/x/pkg/util/shellutils"
-
 	"yunion.io/x/cloudmux/pkg/multicloud/huawei"
+	"yunion.io/x/pkg/util/shellutils"
 )
 
 func init() {
 	type OrderListOptions struct {
-		OrderId      string   `help:"Order Id"`
-		ResourceIds  []string `help:"ResourceIds"`
-		MainResource bool     `help:"Main resource"`
 	}
 	shellutils.R(&OrderListOptions{}, "order-list", "List order", func(cli *huawei.SRegion, args *OrderListOptions) error {
-		orders, err := cli.GetOrderResources(args.OrderId, args.ResourceIds, args.MainResource)
+		orders, err := cli.GetClient().GetOrderResources()
 		if err != nil {
 			return err
 		}
-		printList(orders, 0, 0, 0, nil)
+		printObject(orders)
 		return nil
 	})
 }
