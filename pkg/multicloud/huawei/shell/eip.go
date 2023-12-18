@@ -53,11 +53,12 @@ func init() {
 	})
 
 	type EipAssociateOptions struct {
-		ID       string `help:"EIP allocation ID"`
-		INSTANCE string `help:"Instance ID"`
+		ID            string `help:"EIP allocation ID"`
+		INSTANCE      string `help:"Instance ID"`
+		AssociateType string `default:"PORT" choices:"PORT|NATGW|VPN|ELB"`
 	}
 	shellutils.R(&EipAssociateOptions{}, "eip-associate", "Associate an EIP", func(cli *huawei.SRegion, args *EipAssociateOptions) error {
-		return cli.AssociateEip(args.ID, args.INSTANCE)
+		return cli.AssociateEip(args.ID, args.INSTANCE, args.AssociateType)
 	})
 
 	type EipDissociateOptions struct {
