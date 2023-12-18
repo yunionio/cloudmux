@@ -344,7 +344,7 @@ func (self *SRegion) AllocateEIP(opts *cloudprovider.SEip) (*SEipAddress, error)
 	if len(opts.ProjectId) > 0 {
 		params["enterprise_project_id"] = opts.ProjectId
 	}
-	resp, err := self.vpcCreate("publicips", params)
+	resp, err := self.post(SERVICE_VPC, "publicips", params)
 	if err != nil {
 		return nil, err
 	}
@@ -353,7 +353,7 @@ func (self *SRegion) AllocateEIP(opts *cloudprovider.SEip) (*SEipAddress, error)
 }
 
 func (self *SRegion) GetEip(eipId string) (*SEipAddress, error) {
-	resp, err := self.vpcGet("publicips/" + eipId)
+	resp, err := self.list(SERVICE_VPC, "publicips/"+eipId, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -362,7 +362,7 @@ func (self *SRegion) GetEip(eipId string) (*SEipAddress, error) {
 }
 
 func (self *SRegion) DeallocateEIP(eipId string) error {
-	_, err := self.vpcDelete("publicips/" + eipId)
+	_, err := self.delete(SERVICE_VPC, "publicips/"+eipId)
 	return err
 }
 
@@ -380,7 +380,7 @@ func (self *SRegion) AssociateEipWithPortId(eipId string, portId string) error {
 			"port_id": portId,
 		},
 	}
-	_, err := self.vpcUpdate("publicips/"+eipId, params)
+	_, err := self.put(SERVICE_VPC, "publicips/"+eipId, params)
 	return err
 }
 
@@ -394,12 +394,12 @@ func (self *SRegion) UpdateEipBandwidth(bandwidthId string, bw int) error {
 			"size": bw,
 		},
 	}
-	_, err := self.vpcUpdate("bandwidths/"+bandwidthId, params)
+	_, err := self.put(SERVICE_VPC, "bandwidths/"+bandwidthId, params)
 	return err
 }
 
 func (self *SRegion) GetEipBandwidth(id string) (*Bandwidth, error) {
-	resp, err := self.vpcGet("bandwidths/" + id)
+	resp, err := self.list(SERVICE_VPC, "bandwidths/"+id, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -419,7 +419,7 @@ func (self *SRegion) GetEips(portId string, addrs []string) ([]SEipAddress, erro
 	if len(portId) > 0 {
 		query.Set("port_id", portId)
 	}
-	resp, err := self.vpcList("publicips", query)
+	resp, err := self.list(SERVICE_VPC, "publicips", query)
 	if err != nil {
 		return nil, err
 	}
