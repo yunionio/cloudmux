@@ -15,8 +15,6 @@
 package shell
 
 import (
-	"context"
-	"fmt"
 	"strings"
 
 	"yunion.io/x/pkg/util/shellutils"
@@ -27,9 +25,10 @@ import (
 
 func init() {
 	type InstanceListOptions struct {
+		Ip string
 	}
 	shellutils.R(&InstanceListOptions{}, "instance-list", "List intances", func(cli *huawei.SRegion, args *InstanceListOptions) error {
-		instances, e := cli.GetInstances()
+		instances, e := cli.GetInstances(args.Ip)
 		if e != nil {
 			return e
 		}
@@ -72,6 +71,15 @@ func init() {
 		if err != nil {
 			return err
 		}
+		return nil
+	})
+
+	shellutils.R(&InstanceOperationOptions{}, "instance-vnc", "Show instance vnc", func(cli *huawei.SRegion, args *InstanceOperationOptions) error {
+		info, err := cli.GetInstanceVNCUrl(args.ID)
+		if err != nil {
+			return err
+		}
+		printObject(info)
 		return nil
 	})
 
@@ -118,21 +126,19 @@ func init() {
 	})
 
 	type InstanceRebuildRootOptions struct {
-		ID            string `help:"instance ID"`
-		UserId        string `help:"instance user ID"`
-		Image         string `help:"Image ID"`
-		Password      string `help:"admin password"`
-		PublicKeyName string `help:"public key name"`
-		UserData      string `help:"cloud-init user data"`
+		ID        string `help:"instance ID"`
+		UserId    string `help:"instance user ID"`
+		Image     string `help:"Image ID"`
+		Password  string `help:"admin password"`
+		PublicKey string `help:"public key"`
 	}
 
 	shellutils.R(&InstanceRebuildRootOptions{}, "instance-rebuild-root", "Reinstall virtual server system image", func(cli *huawei.SRegion, args *InstanceRebuildRootOptions) error {
-		ctx := context.Background()
-		jobId, err := cli.ChangeRoot(ctx, args.UserId, args.ID, args.Image, args.Password, args.PublicKeyName, args.UserData)
+		ret, err := cli.RebuildRoot(args.ID, &cloudprovider.SManagedVMRebuildRootConfig{ImageId: args.Image, Password: args.Password, PublicKey: args.PublicKey})
 		if err != nil {
 			return err
 		}
-		fmt.Printf("ChangeRoot jobID is %s", jobId)
+		printObject(ret)
 		return nil
 	})
 
@@ -143,24 +149,6 @@ func init() {
 
 	shellutils.R(&InstanceChangeConfigOptions{}, "instance-change-config", "Deploy keypair/password to a stopped virtual server", func(cli *huawei.SRegion, args *InstanceChangeConfigOptions) error {
 		err := cli.ChangeVMConfig(args.ID, args.InstanceType)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-
-	type InstanceOrderUnsubscribeOptions struct {
-		ID     string `help:"instance ID"`
-		DOMAIN string `help:"domain ID"`
-	}
-
-	shellutils.R(&InstanceOrderUnsubscribeOptions{}, "instance-order-unsubscribe", "Unsubscribe a prepaid server", func(cli *huawei.SRegion, args *InstanceOrderUnsubscribeOptions) error {
-		instance, e := cli.GetInstanceByID(args.ID)
-		if e != nil {
-			return e
-		}
-
-		_, err := cli.UnsubscribeInstance(instance.GetId(), args.DOMAIN)
 		if err != nil {
 			return err
 		}

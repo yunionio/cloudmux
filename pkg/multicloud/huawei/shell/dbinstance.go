@@ -23,9 +23,10 @@ import (
 
 func init() {
 	type DBInstanceListOptions struct {
+		Id string
 	}
 	shellutils.R(&DBInstanceListOptions{}, "dbinstance-list", "List dbinstances", func(cli *huawei.SRegion, args *DBInstanceListOptions) error {
-		dbinstances, err := cli.GetDBInstances()
+		dbinstances, err := cli.GetDBInstances(args.Id)
 		if err != nil {
 			return err
 		}

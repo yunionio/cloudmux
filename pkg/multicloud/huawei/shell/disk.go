@@ -52,4 +52,24 @@ func init() {
 		printList(ret, 0, 0, 0, nil)
 		return nil
 	})
+
+	type DiskCreateOptions struct {
+		ZoneId     string
+		Category   string
+		NAME       string
+		SizeGb     int `default:"10"`
+		Desc       string
+		SnapshotId string
+		ProjectId  string
+	}
+
+	shellutils.R(&DiskCreateOptions{}, "disk-create", "Create disk", func(cli *huawei.SRegion, args *DiskCreateOptions) error {
+		ret, e := cli.CreateDisk(args.ZoneId, args.Category, args.NAME, args.SizeGb, args.SnapshotId, args.Desc, args.ProjectId)
+		if e != nil {
+			return e
+		}
+		printList(ret, 0, 0, 0, nil)
+		return nil
+	})
+
 }
