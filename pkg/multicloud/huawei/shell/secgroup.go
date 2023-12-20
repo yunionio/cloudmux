@@ -23,11 +23,10 @@ import (
 
 func init() {
 	type SecurityGroupListOptions struct {
-		VpcId string `help:"VPC ID"`
-		Name  string `help:"Secgroup name"`
+		Name string `help:"Secgroup name"`
 	}
 	shellutils.R(&SecurityGroupListOptions{}, "security-group-list", "List security group", func(cli *huawei.SRegion, args *SecurityGroupListOptions) error {
-		secgrps, e := cli.GetSecurityGroups(args.VpcId, args.Name)
+		secgrps, e := cli.GetSecurityGroups(args.Name)
 		if e != nil {
 			return e
 		}

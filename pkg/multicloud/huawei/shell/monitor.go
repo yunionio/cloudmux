@@ -17,7 +17,6 @@ package shell
 import (
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/util/shellutils"
-	"yunion.io/x/pkg/util/timeutils"
 
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/huawei"
@@ -36,30 +35,4 @@ func init() {
 		return nil
 	})
 
-	type MetricDataOptions struct {
-		START int    `help:"Start metrics"`
-		Count int    `help:"Metric count" default:"1"`
-		SINCE string `help:"since"`
-		UNTIL string `help:"until"`
-	}
-	shellutils.R(&MetricDataOptions{}, "metrics-data-list", "List metrics", func(cli *huawei.SRegion, args *MetricDataOptions) error {
-		metrics, err := cli.GetMetrics()
-		if err != nil {
-			return err
-		}
-		since, err := timeutils.ParseTimeStr(args.SINCE)
-		if err != nil {
-			return err
-		}
-		until, err := timeutils.ParseTimeStr(args.UNTIL)
-		if err != nil {
-			return err
-		}
-		data, err := cli.GetMetricsData(metrics[args.START:args.START+args.Count], since, until)
-		if err != nil {
-			return err
-		}
-		printList(data, 0, 0, 0, nil)
-		return nil
-	})
 }
