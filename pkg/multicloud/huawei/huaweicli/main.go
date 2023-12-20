@@ -35,7 +35,6 @@ type BaseOptions struct {
 	AccessKey  string `help:"Access key" default:"$HUAWEI_ACCESS_KEY" metavar:"HUAWEI_ACCESS_KEY"`
 	Secret     string `help:"Secret" default:"$HUAWEI_SECRET" metavar:"HUAWEI_SECRET"`
 	RegionId   string `help:"RegionId" default:"$HUAWEI_REGION" metavar:"HUAWEI_REGION"`
-	ProjectId  string `help:"RegionId" default:"$HUAWEI_PROJECT" metavar:"HUAWEI_PROJECT"`
 	SUBCOMMAND string `help:"huaweicli subcommand" subcommand:"true"`
 }
 
@@ -91,7 +90,6 @@ func newClient(options *BaseOptions) (*huawei.SRegion, error) {
 		huawei.NewHuaweiClientConfig(
 			options.AccessKey,
 			options.Secret,
-			options.ProjectId,
 		).Debug(options.Debug).
 			CloudproviderConfig(
 				cloudprovider.ProviderConfig{

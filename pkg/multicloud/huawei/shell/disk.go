@@ -22,10 +22,11 @@ import (
 
 func init() {
 	type DiskListOptions struct {
-		Zone string `help:"Zone ID"`
+		Zone         string `help:"Zone ID"`
+		VolumeTypeId string
 	}
 	shellutils.R(&DiskListOptions{}, "disk-list", "List disks", func(cli *huawei.SRegion, args *DiskListOptions) error {
-		disks, e := cli.GetDisks(args.Zone)
+		disks, e := cli.GetDisks(args.Zone, args.VolumeTypeId)
 		if e != nil {
 			return e
 		}
