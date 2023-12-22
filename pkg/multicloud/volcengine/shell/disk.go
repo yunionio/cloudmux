@@ -29,15 +29,13 @@ func init() {
 		Zone     string   `help:"Zone ID"`
 		DiskType string   `help:"Disk category"`
 		DiskId   []string `help:"Disk IDs"`
-		Offset   int      `help:"List offset"`
-		Limit    int      `help:"List limit"`
 	}
 	shellutils.R(&DiskListOptions{}, "disk-list", "List disks", func(cli *volcengine.SRegion, args *DiskListOptions) error {
-		disks, total, e := cli.GetDisks(args.Instance, args.Zone, args.DiskType, args.DiskId, args.Offset, args.Limit)
+		disks, e := cli.GetDisks(args.Instance, args.Zone, args.DiskType, args.DiskId)
 		if e != nil {
 			return e
 		}
-		printList(disks, total, args.Offset, args.Limit, nil)
+		printList(disks, 0, 0, 0, nil)
 		return nil
 	})
 
