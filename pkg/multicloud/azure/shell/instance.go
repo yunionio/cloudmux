@@ -166,7 +166,7 @@ func init() {
 	}
 
 	shellutils.R(&InstanceDeployOptions{}, "instance-reset-password", "Reset intance password", func(cli *azure.SRegion, args *InstanceDeployOptions) error {
-		return cli.DeployVM(context.Background(), args.ID, args.OsType, "", args.Password, args.PublicKey, false, "")
+		return cli.DeployVM(context.Background(), args.ID, args.OsType, &cloudprovider.SInstanceDeployOptions{Password: args.Password, PublicKey: args.PublicKey})
 	})
 
 	type InstanceSecurityGroupOptions struct {
