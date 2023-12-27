@@ -17,6 +17,7 @@ package shell
 import (
 	"yunion.io/x/pkg/util/shellutils"
 
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/openstack"
 )
 
@@ -79,11 +80,10 @@ func init() {
 	type InstanceDeployOptions struct {
 		ID       string `help:"Instance ID"`
 		Password string `help:"Instance password"`
-		Name     string `help:"Instance name"`
 	}
 
 	shellutils.R(&InstanceDeployOptions{}, "instance-deploy", "Deploy instance", func(cli *openstack.SRegion, args *InstanceDeployOptions) error {
-		return cli.DeployVM(args.ID, args.Name, args.Password, "", false, "")
+		return cli.DeployVM(args.ID, &cloudprovider.SInstanceDeployOptions{Password: args.Password})
 	})
 
 	type InstanceChangeConfigOptions struct {
