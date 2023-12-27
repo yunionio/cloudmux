@@ -102,16 +102,13 @@ func init() {
 
 	type InstanceDeployOptions struct {
 		ID            string `help:"instance ID"`
-		Name          string `help:"new instance name"`
-		Hostname      string `help:"new hostname"`
-		Keypair       string `help:"Keypair Name"`
+		PublicKey     string `help:"Keypair Name"`
 		DeleteKeypair bool   `help:"Remove SSH keypair"`
 		Password      string `help:"new password"`
-		Description   string `help:"new instances description"`
 	}
 
 	shellutils.R(&InstanceDeployOptions{}, "instance-deploy", "Deploy keypair/password to a stopped virtual server", func(cli *volcengine.SRegion, args *InstanceDeployOptions) error {
-		err := cli.DeployVM(args.ID, args.Name, args.Password, args.Keypair, args.DeleteKeypair, args.Description)
+		err := cli.DeployVM(args.ID, &cloudprovider.SInstanceDeployOptions{PublicKey: args.PublicKey, DeleteKeypair: args.DeleteKeypair, Password: args.Password})
 		if err != nil {
 			return err
 		}

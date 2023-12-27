@@ -107,18 +107,12 @@ func init() {
 		server-reset
 	*/
 	type InstanceDeployOptions struct {
-		ID            string `help:"instance ID"`
-		Name          string `help:"new instance name"`
-		Hostname      string `help:"new hostname"`
-		Keypair       string `help:"Keypair Name"`
-		DeleteKeypair bool   `help:"Remove SSH keypair"`
-		Password      string `help:"new password"`
-		// ResetPassword bool   `help:"Force reset password"`
-		Description string `help:"new instances description"`
+		ID       string `help:"instance ID"`
+		Password string `help:"new password"`
 	}
 
 	shellutils.R(&InstanceDeployOptions{}, "instance-deploy", "Deploy keypair/password to a stopped virtual server", func(cli *huawei.SRegion, args *InstanceDeployOptions) error {
-		err := cli.DeployVM(args.ID, args.Name, args.Password, args.Keypair, args.DeleteKeypair, args.Description)
+		err := cli.DeployVM(args.ID, &cloudprovider.SInstanceDeployOptions{Password: args.Password})
 		if err != nil {
 			return err
 		}
