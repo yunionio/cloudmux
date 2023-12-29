@@ -32,4 +32,13 @@ func init() {
 		return nil
 	})
 
+	shellutils.R(&GaussDBNoSQLListOptions{}, "gaussdb-nosql-flavor-list", "List gaussdb nosql flavors", func(cli *huawei.SRegion, args *GaussDBNoSQLListOptions) error {
+		ret, err := cli.ListGaussNoSQLFlavors()
+		if err != nil {
+			return err
+		}
+		printList(ret, 0, 0, 0, []string{})
+		return nil
+	})
+
 }
