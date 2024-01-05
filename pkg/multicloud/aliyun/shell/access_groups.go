@@ -15,6 +15,8 @@
 package shell
 
 import (
+	"fmt"
+
 	"yunion.io/x/pkg/util/shellutils"
 
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
@@ -48,13 +50,11 @@ func init() {
 	})
 
 	type NasAccessGroupRuleListOptions struct {
-		GROUP    string
-		PageSize int `help:"page size"`
-		PageNum  int `help:"page num"`
+		GROUP string
 	}
 
 	shellutils.R(&NasAccessGroupRuleListOptions{}, "access-group-rule-list", "List Nas AccessGroup Rules", func(cli *aliyun.SRegion, args *NasAccessGroupRuleListOptions) error {
-		rules, _, err := cli.GetAccessGroupRules(args.GROUP, args.PageSize, args.PageNum)
+		rules, err := cli.GetAccessGroupRules(args.GROUP)
 		if err != nil {
 			return err
 		}
@@ -63,13 +63,12 @@ func init() {
 	})
 
 	type AccessRuleDeleteOptions struct {
-		FileSystemType string
-		GROUP          string
-		RULE_ID        string
+		GROUP   string
+		RULE_ID string
 	}
 
 	shellutils.R(&AccessRuleDeleteOptions{}, "access-group-rule-delete", "Delete AccessGroup Rule", func(cli *aliyun.SRegion, args *AccessRuleDeleteOptions) error {
-		return cli.DeleteAccessGroupRule(args.FileSystemType, args.GROUP, args.RULE_ID)
+		return cli.DeleteAccessGroupRule(args.GROUP, args.RULE_ID)
 	})
 
 	type AccessRuleCreateOptions struct {
@@ -82,7 +81,12 @@ func init() {
 	}
 
 	shellutils.R(&AccessRuleCreateOptions{}, "access-group-rule-create", "Delete AccessGroup Rule", func(cli *aliyun.SRegion, args *AccessRuleCreateOptions) error {
-		return cli.CreateAccessGroupRule(args.SOURCE, args.FileSystemType, args.GroupName, args.RwType, args.UserType, args.Priority)
+		ruleId, err := cli.CreateAccessGroupRule(args.SOURCE, args.FileSystemType, args.GroupName, args.RwType, args.UserType, args.Priority)
+		if err != nil {
+			return err
+		}
+		fmt.Println(ruleId)
+		return nil
 	})
 
 }
