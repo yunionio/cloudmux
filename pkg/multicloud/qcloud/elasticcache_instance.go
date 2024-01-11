@@ -449,7 +449,13 @@ func (self *SElasticcache) GetPrivateConnectPort() int {
 }
 
 func (self *SElasticcache) GetPublicDNS() string {
-	return self.WanAddress
+	if len(self.WanAddress) > 0 {
+		if idx := strings.Index(self.WanAddress, ":"); idx > 0 {
+			return self.WanAddress[:idx]
+		}
+		return self.WanAddress
+	}
+	return ""
 }
 
 func (self *SElasticcache) GetPublicIpAddr() string {
@@ -457,6 +463,12 @@ func (self *SElasticcache) GetPublicIpAddr() string {
 }
 
 func (self *SElasticcache) GetPublicConnectPort() int {
+	if idx := strings.Index(self.WanAddress, ":"); idx > 0 {
+		port, _ := strconv.Atoi(self.WanAddress[idx+1:])
+		if port > 0 {
+			return port
+		}
+	}
 	return self.Port
 }
 
