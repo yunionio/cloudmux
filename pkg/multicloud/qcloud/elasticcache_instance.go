@@ -76,6 +76,7 @@ type SElasticcache struct {
 	VpcID            int64            `json:"VpcId"`
 	WANIP            string           `json:"WanIp"`
 	ZoneID           int              `json:"ZoneId"`
+	WanAddress       string
 }
 
 func (self *SElasticcache) SetTags(tags map[string]string, replace bool) error {
@@ -448,7 +449,7 @@ func (self *SElasticcache) GetPrivateConnectPort() int {
 }
 
 func (self *SElasticcache) GetPublicDNS() string {
-	return ""
+	return self.WanAddress
 }
 
 func (self *SElasticcache) GetPublicIpAddr() string {
