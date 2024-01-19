@@ -54,16 +54,16 @@ func init() {
 		return cli.DeleteImage(args.ID)
 	})
 
-	type ImageExportTaskOptions struct {
-		ID string
+	type ImageTaskOptions struct {
+		Ids []string
 	}
 
-	shellutils.R(&ImageExportTaskOptions{}, "image-export-task-show", "show image export task", func(cli *aws.SRegion, args *ImageExportTaskOptions) error {
-		task, err := cli.GetImportImageTask(args.ID)
+	shellutils.R(&ImageTaskOptions{}, "image-import-task-list", "list image export task", func(cli *aws.SRegion, args *ImageTaskOptions) error {
+		tasks, err := cli.GetImportImageTasks(args.Ids)
 		if err != nil {
 			return err
 		}
-		printObject(task)
+		printList(tasks, 0, 0, 0, nil)
 		return nil
 	})
 
