@@ -33,7 +33,7 @@ type SNetwork struct {
 
 	Ip6Start string
 	Ip6End   string
-	Ip6Mask  int8
+	Ip6Mask  uint8
 	Gatway6  string
 }
 
@@ -65,7 +65,7 @@ func (self *SNetwork) GetIp6End() string {
 	return self.Ip6End
 }
 
-func (self *SNetwork) GetIp6Mask() int8 {
+func (self *SNetwork) GetIp6Mask() uint8 {
 	return self.Ip6Mask
 }
 
