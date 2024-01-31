@@ -403,6 +403,7 @@ type ICloudVM interface {
 type ICloudNic interface {
 	GetId() string
 	GetIP() string
+	GetIP6() string
 	GetMAC() string
 	InClassicNetwork() bool
 	GetDriver() string
@@ -429,6 +430,7 @@ var _ ICloudNic = DummyICloudNic{}
 
 func (d DummyICloudNic) GetId() string          { panic(errors.ErrNotImplemented) }
 func (d DummyICloudNic) GetIP() string          { panic(errors.ErrNotImplemented) }
+func (d DummyICloudNic) GetIP6() string         { panic(errors.ErrNotImplemented) }
 func (d DummyICloudNic) GetMAC() string         { panic(errors.ErrNotImplemented) }
 func (d DummyICloudNic) InClassicNetwork() bool { panic(errors.ErrNotImplemented) }
 func (d DummyICloudNic) GetDriver() string      { panic(errors.ErrNotImplemented) }
@@ -660,7 +662,7 @@ type ICloudNetwork interface {
 	// IPv6
 	GetIp6Start() string
 	GetIp6End() string
-	GetIp6Mask() int8
+	GetIp6Mask() uint8
 	GetGateway6() string
 
 	GetServerType() string
