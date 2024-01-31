@@ -26,7 +26,7 @@ func (net *SNetworkBase) GetIp6End() string {
 	return ""
 }
 
-func (self *SNetworkBase) GetIp6Mask() int8 {
+func (self *SNetworkBase) GetIp6Mask() uint8 {
 	return 0
 }
 
