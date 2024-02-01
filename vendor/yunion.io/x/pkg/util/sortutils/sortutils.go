@@ -12,24 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package multicloud
+package sortutils
 
-type SNetworkBase struct {
-	SResourceBase
-}
+import "strings"
 
-func (net *SNetworkBase) GetIp6Start() string {
-	return ""
-}
+type CompareResult int
 
-func (net *SNetworkBase) GetIp6End() string {
-	return ""
-}
+const (
+	Equal = CompareResult(0)
+	Less  = CompareResult(-1)
+	More  = CompareResult(1)
+)
 
-func (net *SNetworkBase) GetIp6Mask() uint8 {
-	return 0
-}
-
-func (net *SNetworkBase) GetGateway6() string {
-	return ""
+func CompareString(str1, str2 string) CompareResult {
+	return CompareResult(strings.Compare(str1, str2))
 }
