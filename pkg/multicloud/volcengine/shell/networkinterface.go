@@ -21,12 +21,11 @@ import (
 
 func init() {
 	type NetworkInterfaceListOptions struct {
+		NicId      string
 		InstanceId string `help:"Id or instance"`
-		PageSize   int
-		PageNumber int
 	}
 	shellutils.R(&NetworkInterfaceListOptions{}, "network-interface-list", "List networkinterfaces", func(cli *volcengine.SRegion, args *NetworkInterfaceListOptions) error {
-		interfaces, _, err := cli.GetNetworkInterfaces(args.InstanceId, args.PageNumber, args.PageSize)
+		interfaces, err := cli.GetNetworkInterfaces(args.NicId, args.InstanceId)
 		if err != nil {
 			return err
 		}
