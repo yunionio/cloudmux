@@ -24,7 +24,7 @@ import (
 
 func init() {
 	type ProductListOptions struct {
-		ServiceCode string `default:"AmazonEC2"`
+		ServiceCode string `default:"AmazonEC2" choices:"AmazonEC2|AmazonElastiCache"`
 		NextToken   string
 		Filters     []string
 	}
