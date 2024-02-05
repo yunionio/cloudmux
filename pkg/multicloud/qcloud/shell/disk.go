@@ -44,7 +44,7 @@ func init() {
 		ID string `help:"Disk ID"`
 	}
 	shellutils.R(&DiskOptions{}, "disk-delete", "Delete disks", func(cli *qcloud.SRegion, args *DiskOptions) error {
-		e := cli.DeleteDisk(args.ID)
+		e := cli.DeleteDisk([]string{args.ID})
 		if e != nil {
 			return e
 		}
