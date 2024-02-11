@@ -118,6 +118,17 @@ type STargetHttpsProxy struct {
 	Kind                string   `json:"kind"`
 }
 
+type STargetTcpProxy struct {
+	SResourceBase
+
+	Kind              string `json:"kind"`
+	CreationTimestamp string `json:"creationTimestamp"`
+	Description       string `json:"description"`
+	Service           string `json:"service"`
+	Region            string `json:"region"`
+	ProxyBind         bool   `json:"proxyBind"`
+}
+
 type SInstanceGroup struct {
 	SResourceBase
 	region    *SRegion
@@ -429,6 +440,7 @@ func (self *SRegion) getLoadbalancerComponents(resource string, filter string, r
 
 func (self *SRegion) getInstanceGroups(zoneId, resource string, filter string, result interface{}) error {
 	url := fmt.Sprintf("zones/%s/%s", zoneId, resource)
+
 	params := map[string]string{}
 	if len(filter) > 0 {
 		params["filter"] = filter

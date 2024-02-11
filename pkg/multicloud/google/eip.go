@@ -53,6 +53,7 @@ func (region *SRegion) GetEips(address string, maxResults int, pageToken string)
 		params["filter"] = fmt.Sprintf(`address="%s"`, address)
 	}
 	resource := fmt.Sprintf("regions/%s/addresses", region.Name)
+
 	return eips, region.List(resource, params, maxResults, pageToken, &eips)
 }
 

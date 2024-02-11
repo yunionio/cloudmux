@@ -191,6 +191,18 @@ func (self *SGoogleClient) fetchRegions() error {
 		regions[i].client = self
 		self.iregions = append(self.iregions, &regions[i])
 	}
+	// add global region
+	self.iregions = append(self.iregions, &SGlobalRegion{
+		client:            self,
+		capabilities:      nil,
+		Quotas:            nil,
+		Description:       "global",
+		Kind:              "compute#region",
+		Name:              "global",
+		Status:            "UP",
+		SelfLink:          "",
+		CreationTimestamp: time.Time{},
+	})
 
 	objectstoreCapability := []string{
 		cloudprovider.CLOUD_CAPABILITY_OBJECTSTORE,
@@ -953,7 +965,12 @@ func (client *SGoogleClient) GetSubAccounts() ([]cloudprovider.SSubAccount, erro
 func (self *SGoogleClient) GetIRegionById(id string) (cloudprovider.ICloudRegion, error) {
 	for i := 0; i < len(self.iregions); i++ {
 		if self.iregions[i].GetGlobalId() == id {
-			return self.iregions[i].(*SRegion), nil
+			switch r := self.iregions[i].(type) {
+			case *SRegion:
+				return r, nil
+			case *SGlobalRegion:
+				return r, nil
+			}
 		}
 	}
 	return nil, cloudprovider.ErrNotFound
