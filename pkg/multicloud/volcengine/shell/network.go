@@ -15,7 +15,7 @@
 package shell
 
 import (
-	"time"
+	"fmt"
 
 	"yunion.io/x/cloudmux/pkg/multicloud/volcengine"
 	"yunion.io/x/pkg/util/shellutils"
@@ -23,15 +23,16 @@ import (
 
 func init() {
 	type NetworkListOptions struct {
-		Limit  int `help:"page size"`
-		Offset int `help:"page offset"`
+		Ids    []string
+		VpcId  string
+		ZoneId string
 	}
 	shellutils.R(&NetworkListOptions{}, "network-list", "List networkes", func(cli *volcengine.SRegion, args *NetworkListOptions) error {
-		networks, total, err := cli.GetSubnets(nil, "", "", args.Offset, args.Limit)
+		networks, err := cli.GetSubnets(args.Ids, args.ZoneId, args.VpcId)
 		if err != nil {
 			return err
 		}
-		printList(networks, total, args.Offset, args.Limit, nil)
+		printList(networks, 0, 0, 0, nil)
 		return nil
 	})
 
@@ -68,12 +69,7 @@ func init() {
 		if err != nil {
 			return err
 		}
-		time.Sleep(time.Second * 1)
-		network, _, err := cli.GetSubnets([]string{networkId}, "", "", 1, 1)
-		if err != nil {
-			return err
-		}
-		printObject(network)
+		fmt.Println(networkId)
 		return nil
 	})
 }
