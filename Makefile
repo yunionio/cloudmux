@@ -47,7 +47,7 @@ fmt:
 GOPROXY ?= direct
 
 mod:
-	GOPROXY=$(GOPROXY) GOSUMDB=off go get -d $(patsubst %,%@master,$(shell GO111MODULE=on go mod edit -print  | sed -n -e 's|.*\(yunion.io/x/[a-z].*\) v.*|\1|p'))
+	GOPROXY=$(GOPROXY) GOSUMDB=off go get -d $(patsubst %,%@master,$(shell GO111MODULE=on go mod edit -print  | sed -n -e 's|.*\(yunion.io/x/[a-z].*\) v.*|\1|p' | grep -v '/pkg$$'))
 	go mod tidy
 
 
