@@ -12,9 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package multicloud
+package main
 
-type SNasBase struct {
-	SVirtualResourceBase
-	SBillingBase
+import (
+	"yunion.io/x/cloudmux/pkg/multicloud/cephfs/cephfscli"
+)
+
+func main() {
+	cephfscli.Main()
 }
