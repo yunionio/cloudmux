@@ -23,11 +23,20 @@ import (
 
 func init() {
 	type NatGatewayOptions struct {
-		NatGatewayID string `help:"Nat Gateway ID"`
-		VpcID        string `help:"Vpc ID"`
+		NatGatewayId string `help:"Nat Gateway Id"`
+		VpcId        string `help:"Vpc Id"`
 	}
+	shellutils.R(&NatGatewayOptions{}, "private-nat-list", "List nat gateway", func(region *huawei.SRegion, args *NatGatewayOptions) error {
+		natGateways, err := region.GetNatGateways(args.VpcId, args.NatGatewayId)
+		if err != nil {
+			return err
+		}
+		printList(natGateways, 0, 0, 0, nil)
+		return nil
+	})
+
 	shellutils.R(&NatGatewayOptions{}, "nat-list", "List nat gateway", func(region *huawei.SRegion, args *NatGatewayOptions) error {
-		natGateways, err := region.GetNatGateways(args.VpcID, args.NatGatewayID)
+		natGateways, err := region.GetNatgateways(args.VpcId, args.NatGatewayId)
 		if err != nil {
 			return err
 		}
