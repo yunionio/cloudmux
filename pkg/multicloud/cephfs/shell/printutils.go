@@ -12,9 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package multicloud
+package shell
 
-type SNasBase struct {
-	SVirtualResourceBase
-	SBillingBase
+import (
+	"yunion.io/x/pkg/util/printutils"
+)
+
+func printList(data interface{}) {
+	printutils.PrintInterfaceList(data, 0, 0, 0, nil)
+}
+
+func printObject(obj interface{}) {
+	printutils.PrintInterfaceObject(obj)
 }

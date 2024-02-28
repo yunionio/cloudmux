@@ -1394,7 +1394,7 @@ type ICloudInterVpcNetworkRoute interface {
 }
 
 type ICloudFileSystem interface {
-	ICloudResource
+	IVirtualResource
 	IBillingResource
 
 	GetFileSystemType() string
