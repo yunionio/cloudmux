@@ -997,9 +997,24 @@ func (self *SHost) DoCreateVM(ctx context.Context, ds *SDatastore, params SCreat
 		guestId = "windows7Server64Guest"
 	}
 
-	version := "vmx-10"
-	if self.isVersion50() {
+	version := ""
+	switch self.getShortVersion() {
+	case "5.0":
 		version = "vmx-08"
+	case "5.1":
+		version = "vmx-09"
+	case "5.5":
+		version = "vmx-10"
+	case "6.0":
+		version = "vmx-11"
+	case "6.5":
+		version = "vmx-13"
+	case "6.7":
+		version = "vmx-14"
+	case "7.0":
+		version = "vmx-17"
+	default:
+		version = "vmx-10"
 	}
 
 	spec := types.VirtualMachineConfigSpec{
@@ -1344,6 +1359,14 @@ func (host *SHost) isVersion50() bool {
 		return true
 	}
 	return false
+}
+
+func (host *SHost) getShortVersion() string {
+	version := host.GetVersion()
+	if len(version) >= 3 {
+		return version[:3]
+	}
+	return version
 }
 
 func (host *SHost) GetIHostNics() ([]cloudprovider.ICloudHostNetInterface, error) {
