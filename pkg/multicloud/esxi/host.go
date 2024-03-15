@@ -769,7 +769,7 @@ func (host *SHost) CreateVM(desc *cloudprovider.SManagedVMCreateConfig) (cloudpr
 
 type SCreateVMParam struct {
 	Name                 string
-	Desc                 string
+	Desc                 string `json:"description"`
 	Uuid                 string
 	OsName               string
 	CpuSockets           int
