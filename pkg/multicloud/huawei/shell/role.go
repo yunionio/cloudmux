@@ -33,4 +33,18 @@ func init() {
 		printList(roles, 0, 0, 0, nil)
 		return nil
 	})
+
+	type RoleIdOptions struct {
+		ID string
+	}
+
+	shellutils.R(&RoleIdOptions{}, "cloud-policy-show", "Show cloudpolicy", func(cli *huawei.SRegion, args *RoleIdOptions) error {
+		role, err := cli.GetClient().GetRole(args.ID)
+		if err != nil {
+			return err
+		}
+		printObject(role)
+		return nil
+	})
+
 }
