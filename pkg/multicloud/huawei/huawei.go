@@ -235,6 +235,8 @@ func (self *SHuaweiClient) request(method httputils.THttpMethod, regionId, url s
 	if (strings.Contains(url, "/OS-CREDENTIAL/") ||
 		strings.Contains(url, "/users") ||
 		strings.Contains(url, "/roles") ||
+		strings.Contains(url, "/mappings") ||
+		strings.Contains(url, "/identity_providers") ||
 		strings.Contains(url, "/groups") ||
 		strings.Contains(url, "eps.myhuaweicloud.com")) && len(self.ownerId) > 0 {
 		header.Set("X-Domain-Id", self.ownerId)
