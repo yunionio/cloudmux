@@ -22,7 +22,6 @@ import (
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/util/shellutils"
 
-	cloudid_api "yunion.io/x/cloudmux/pkg/apis/cloudid"
 	api "yunion.io/x/cloudmux/pkg/apis/compute"
 	huawei "yunion.io/x/cloudmux/pkg/multicloud/hcso"
 )
@@ -82,8 +81,6 @@ func init() {
 				Provider:    api.CLOUD_PROVIDER_HCSO,
 				Description: roles[i].DescriptionCn,
 				Document:    roles[i].Policy,
-				PolicyType:  cloudid_api.CLOUD_POLICY_TYPE_SYSTEM,
-				Status:      cloudid_api.CLOUD_POLICY_STATUS_AVAILABLE,
 			})
 		}
 		return ioutil.WriteFile(fmt.Sprintf("%s.json", api.CLOUD_PROVIDER_HCSO), []byte(jsonutils.Marshal(ret).PrettyString()), 0644)
