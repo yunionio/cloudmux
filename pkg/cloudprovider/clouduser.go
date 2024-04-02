@@ -21,14 +21,13 @@ import (
 )
 
 type SClouduserCreateConfig struct {
-	Name              string
-	Desc              string
-	Password          string
-	IsConsoleLogin    bool
-	Email             string
-	MobilePhone       string
-	ExternalPolicyIds []string
-	UserType          string
+	Name           string
+	Desc           string
+	Password       string
+	IsConsoleLogin bool
+	Email          string
+	MobilePhone    string
+	UserType       string
 }
 
 type SCloudpolicyPermission struct {
