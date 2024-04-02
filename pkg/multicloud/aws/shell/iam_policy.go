@@ -22,8 +22,8 @@ import (
 
 func init() {
 	type PolicyListOptions struct {
-		Limit             int
-		Offset            string
+		MaxResult         int
+		Marker            string
 		OnlyAttached      bool
 		PathPrefix        string
 		PolicyUsageFilter string `choices:"PermissionsPolicy|PermissionsBoundary"`
@@ -31,7 +31,7 @@ func init() {
 	}
 
 	shellutils.R(&PolicyListOptions{}, "cloud-policy-list", "List policies", func(cli *aws.SRegion, args *PolicyListOptions) error {
-		policies, err := cli.GetClient().ListPolicies(args.Offset, args.Limit, args.OnlyAttached, args.PathPrefix, args.PolicyUsageFilter, args.Scope)
+		policies, err := cli.GetClient().ListPolicies(args.Marker, args.MaxResult, args.OnlyAttached, args.PathPrefix, args.PolicyUsageFilter, args.Scope)
 		if err != nil {
 			return err
 		}
