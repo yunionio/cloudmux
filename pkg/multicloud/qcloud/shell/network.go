@@ -24,15 +24,16 @@ import (
 
 func init() {
 	type NetworkListOptions struct {
-		Limit  int `help:"page size"`
-		Offset int `help:"page offset"`
+		Ids   []string
+		VpcId string
+		Zone  string
 	}
 	shellutils.R(&NetworkListOptions{}, "network-list", "List networks", func(cli *qcloud.SRegion, args *NetworkListOptions) error {
-		networks, total, e := cli.GetNetworks(nil, "", args.Offset, args.Limit)
-		if e != nil {
-			return e
+		networks, err := cli.GetNetworks(args.Ids, args.VpcId, args.Zone)
+		if err != nil {
+			return err
 		}
-		printList(networks, total, args.Offset, args.Limit, []string{})
+		printList(networks, 0, 0, 0, []string{})
 		return nil
 	})
 
