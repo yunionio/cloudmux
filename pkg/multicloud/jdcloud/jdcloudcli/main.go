@@ -139,10 +139,9 @@ func Main() {
 	if err != nil {
 		showErrorAndExit(err)
 	}
-	region := client.GetRegion(options.RegionId)
-	if region == nil {
-		fmt.Printf("not found region: %s", options.RegionId)
-		return
+	region, err := client.GetRegion(options.RegionId)
+	if err != nil {
+		showErrorAndExit(err)
 	}
 	err = subcmd.Invoke(region, suboptions)
 	if err != nil {
