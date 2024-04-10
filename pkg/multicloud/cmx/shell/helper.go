@@ -89,14 +89,17 @@ func NewCloudProvider(opt *GlobalOptions) (ICloudProvider, error) {
 	var dr cloudprovider.ICloudRegion = nil
 
 	if opt.Region != "" {
-		dr, _ = generic.GetResourceByIdOrName(p.GetIRegions(), opt.Region)
+		regions, err := p.GetIRegions()
+		if err != nil {
+			return nil, err
+		}
+		dr, _ = generic.GetResourceByIdOrName(regions, opt.Region)
 		if dr == nil {
-			rs := p.GetIRegions()
-			regions := make([]string, len(rs))
-			for i := range rs {
-				regions[i] = rs[i].GetId()
+			regionIds := make([]string, len(regions))
+			for i := range regions {
+				regionIds[i] = regions[i].GetId()
 			}
-			return nil, errors.Errorf("Not found region by %q of %q, choose one of:\n%s", opt.Region, opt.Provider, jsonutils.Marshal(regions).PrettyString())
+			return nil, errors.Errorf("Not found region by %q of %q, choose one of:\n%s", opt.Region, opt.Provider, jsonutils.Marshal(regionIds).PrettyString())
 		}
 	}
 
