@@ -41,8 +41,7 @@ func init() {
 	})
 
 	r.List("region-list", "List regions of a cloudprovider", func(cli cloudprovider.ICloudProvider) (any, error) {
-		regions := cli.GetIRegions()
-		return regions, nil
+		return cli.GetIRegions()
 	})
 
 	r.List("subaccount-list", "List subaccounts of a cloudprovider", func(cli cloudprovider.ICloudProvider) (any, error) {

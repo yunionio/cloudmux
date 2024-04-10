@@ -24,7 +24,10 @@ func init() {
 	type RegionListOptions struct {
 	}
 	shellutils.R(&RegionListOptions{}, "region-list", "List regions", func(cli *ecloud.SRegion, args *RegionListOptions) error {
-		regions := cli.GetClient().GetIRegions()
+		regions, err := cli.GetClient().GetIRegions()
+		if err != nil {
+			return err
+		}
 		printList(regions, 0, 0, 0, nil)
 		return nil
 	})
