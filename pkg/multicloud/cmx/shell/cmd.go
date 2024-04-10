@@ -117,7 +117,7 @@ func (co *CommandOption[OPT]) RunByRegion(
 		return iterResources(
 			"region",
 			func() ([]cloudprovider.ICloudRegion, error) {
-				return cli.GetProvider().GetIRegions(), nil
+				return cli.GetProvider().GetIRegions()
 			},
 			cli.GetDefaultRegionId(),
 			co.requireRegion,
