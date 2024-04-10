@@ -22,6 +22,6 @@ func init() {
 	r := EmptyOptionProviderR("region")
 
 	r.List("list", "List regions", func(cli cloudprovider.ICloudProvider) (any, error) {
-		return cli.GetIRegions(), nil
+		return cli.GetIRegions()
 	})
 }
