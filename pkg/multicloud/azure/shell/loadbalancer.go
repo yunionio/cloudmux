@@ -26,7 +26,7 @@ func init() {
 	type LoadbalancerListOptions struct {
 	}
 	shellutils.R(&LoadbalancerListOptions{}, "lb-list", "List loadbalancers", func(cli *azure.SRegion, args *LoadbalancerListOptions) error {
-		lbs, err := cli.GetILoadBalancers()
+		lbs, err := cli.GetLoadbalancers()
 		if err != nil {
 			return err
 		}
@@ -38,7 +38,7 @@ func init() {
 		ID string `help:"ID of loadbalancer"`
 	}
 	shellutils.R(&LoadbalancerOptions{}, "lb-show", "Show loadbalancer", func(cli *azure.SRegion, args *LoadbalancerOptions) error {
-		lb, err := cli.GetILoadBalancerById(args.ID)
+		lb, err := cli.GetLoadbalancer(args.ID)
 		if err != nil {
 			return err
 		}
@@ -47,7 +47,7 @@ func init() {
 	})
 
 	shellutils.R(&LoadbalancerListOptions{}, "lbcert-list", "List loadbalancers certs", func(cli *azure.SRegion, args *LoadbalancerListOptions) error {
-		certs, err := cli.GetILoadBalancerCertificates()
+		certs, err := cli.GetLoadbalancerCertificates()
 		if err != nil {
 			return err
 		}
