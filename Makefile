@@ -47,8 +47,10 @@ fmt:
 GOPROXY ?= direct
 
 mod:
-	GOPROXY=$(GOPROXY) GOSUMDB=off go get -d $(patsubst %,%@master,$(shell GO111MODULE=on go mod edit -print  | sed -n -e 's|.*\(yunion.io/x/[a-z].*\) v.*|\1|p' | grep -v '/pkg$$'))
-	go mod tidy
+	GOPROXY=$(GOPROXY) GONOSUMDB=yunion.io/x go get -d yunion.io/x/pkg@v1.10.0
+	GOPROXY=$(GOPROXY) GONOSUMDB=yunion.io/x go get -d $(patsubst %,%@master,$(shell GO111MODULE=on go mod edit -print  | sed -n -e 's|.*\(yunion.io/x/[a-z].*\) v.*|\1|p' | grep -v '/pkg$$'))
+	GOPROXY=$(GOPROXY) GONOSUMDB=yunion.io/x go mod tidy
+	GOPROXY=$(GOPROXY) GONOSUMDB=yunion.io/x go mod vendor -v
 
 
 REGISTRY ?= "registry.cn-beijing.aliyuncs.com/yunionio"
