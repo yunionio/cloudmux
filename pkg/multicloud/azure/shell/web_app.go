@@ -42,18 +42,6 @@ func init() {
 		printObject(as)
 		return nil
 	})
-	shellutils.R(&AppSiteShowOptions{}, "web-app-deployment-list", "List sku usable in app service plan", func(cli *azure.SRegion, args *AppSiteShowOptions) error {
-		//as, err := cli.GetAppSite(args.ID)
-		//if err != nil {
-		//	return err
-		//}
-		//deployments, err := as.GetDeployments()
-		//if err != nil {
-		//	return err
-		//}
-		//printList(deployments, len(deployments), 0, 0, []string{})
-		return nil
-	})
 
 	shellutils.R(&AppSiteShowOptions{}, "web-app-backup-list", "List web app backups", func(cli *azure.SRegion, args *AppSiteShowOptions) error {
 		backups, err := cli.GetAppBackups(args.ID)
