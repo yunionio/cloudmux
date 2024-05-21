@@ -53,7 +53,7 @@ func init() {
 	})
 
 	shellutils.R(&NasDirCreateOption{}, "cephfs-dir-delete", "Delete cephfs dir", func(cli *cephfs.SCephFSClient, args *NasDirCreateOption) error {
-		return cli.CreateDir(args.FS_ID, args.PATH)
+		return cli.DeleteDir(args.FS_ID, args.PATH)
 	})
 
 	type NasDirSetQuotaOption struct {
