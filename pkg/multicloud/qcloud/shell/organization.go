@@ -15,29 +15,33 @@
 package shell
 
 import (
-	"fmt"
-
 	"yunion.io/x/pkg/util/shellutils"
 
 	"yunion.io/x/cloudmux/pkg/multicloud/qcloud"
 )
 
 func init() {
-	type CallerShowOptions struct {
+	type OrganizationListOptions struct {
 	}
-	shellutils.R(&CallerShowOptions{}, "caller-show", "Show caller", func(cli *qcloud.SRegion, args *CallerShowOptions) error {
-		caller, err := cli.GetClient().GetCallerIdentity()
+	shellutils.R(&OrganizationListOptions{}, "organization-member-list", "List organization members", func(cli *qcloud.SRegion, args *OrganizationListOptions) error {
+		ret, err := cli.GetClient().DescribeOrganizationMembers()
 		if err != nil {
 			return err
 		}
-		printObject(caller)
+		printList(ret, 0, 0, 0, []string{})
 		return nil
 	})
 
-	shellutils.R(&CallerShowOptions{}, "app-id-show", "Show app id", func(cli *qcloud.SRegion, args *CallerShowOptions) error {
-		appId := cli.GetClient().GetAppId()
-		fmt.Println(appId)
+	type OrganizationIdOptions struct {
+		ID string
+	}
+
+	shellutils.R(&OrganizationIdOptions{}, "organization-member-show", "Show organization member", func(cli *qcloud.SRegion, args *OrganizationIdOptions) error {
+		ret, err := cli.GetClient().DescribeOrganizationMember(args.ID)
+		if err != nil {
+			return err
+		}
+		printObject(ret)
 		return nil
 	})
-
 }
