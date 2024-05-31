@@ -21,15 +21,33 @@ import (
 )
 
 func init() {
-	type RegionListOptions struct {
+	type ImageListOptions struct {
+		ImageType string
 	}
-	shellutils.R(&RegionListOptions{}, "region-list", "list regions", func(cli *baidu.SRegion, args *RegionListOptions) error {
-		regions, err := cli.GetClient().GetRegions()
+	shellutils.R(&ImageListOptions{}, "image-list", "list images", func(cli *baidu.SRegion, args *ImageListOptions) error {
+		images, err := cli.GetImages(args.ImageType)
 		if err != nil {
 			return err
 		}
-		printList(regions)
+		printList(images)
 		return nil
+	})
+
+	type ImageIdOptions struct {
+		ID string
+	}
+
+	shellutils.R(&ImageIdOptions{}, "image-show", "show image", func(cli *baidu.SRegion, args *ImageIdOptions) error {
+		image, err := cli.GetImage(args.ID)
+		if err != nil {
+			return err
+		}
+		printObject(image)
+		return nil
+	})
+
+	shellutils.R(&ImageIdOptions{}, "image-delete", "delete image", func(cli *baidu.SRegion, args *ImageIdOptions) error {
+		return cli.DeleteImage(args.ID)
 	})
 
 }
