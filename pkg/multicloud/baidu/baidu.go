@@ -65,14 +65,14 @@ func NewBaiduClientConfig(accessKeyId, accessKeySecret string) *BaiduClientConfi
 	return cfg
 }
 
-func (self *BaiduClientConfig) Debug(debug bool) *BaiduClientConfig {
-	self.debug = debug
-	return self
+func (cfg *BaiduClientConfig) Debug(debug bool) *BaiduClientConfig {
+	cfg.debug = debug
+	return cfg
 }
 
-func (self *BaiduClientConfig) CloudproviderConfig(cpcfg cloudprovider.ProviderConfig) *BaiduClientConfig {
-	self.cpcfg = cpcfg
-	return self
+func (cfg *BaiduClientConfig) CloudproviderConfig(cpcfg cloudprovider.ProviderConfig) *BaiduClientConfig {
+	cfg.cpcfg = cpcfg
+	return cfg
 }
 
 func NewBaiduClient(cfg *BaiduClientConfig) (*SBaiduClient, error) {
@@ -85,11 +85,11 @@ func NewBaiduClient(cfg *BaiduClientConfig) (*SBaiduClient, error) {
 	return client, err
 }
 
-func (self *SBaiduClient) GetRegions() []SRegion {
+func (cli *SBaiduClient) GetRegions() []SRegion {
 	ret := []SRegion{}
 	for k, v := range regions {
 		ret = append(ret, SRegion{
-			client:     self,
+			client:     cli,
 			Region:     k,
 			RegionName: v,
 		})
@@ -97,24 +97,26 @@ func (self *SBaiduClient) GetRegions() []SRegion {
 	return ret
 }
 
-func (self *SBaiduClient) GetRegion(id string) (*SRegion, error) {
-	regions := self.GetRegions()
+func (cli *SBaiduClient) GetRegion(id string) (*SRegion, error) {
+	regions := cli.GetRegions()
 	for i := range regions {
 		if regions[i].Region == id {
-			regions[i].client = self
+			regions[i].client = cli
 			return &regions[i], nil
 		}
 	}
 	return nil, cloudprovider.ErrNotFound
 }
 
-func (self *SBaiduClient) getUrl(service, regionId, resource string) (string, error) {
+func (cli *SBaiduClient) getUrl(service, regionId, resource string) (string, error) {
 	if len(regionId) == 0 {
 		regionId = BAIDU_DEFAULT_REGION
 	}
 	switch service {
 	case "bbc":
 		return fmt.Sprintf("https://bbc.%s.baidubce.com/%s", regionId, strings.TrimPrefix(resource, "/")), nil
+	case "bcc":
+		return fmt.Sprintf("https://bcc.%s.baidubce.com/%s", regionId, strings.TrimPrefix(resource, "/")), nil
 	case "bos":
 		return fmt.Sprintf("https://%s.bcebos.com", regionId), nil
 	case "billing":
@@ -153,26 +155,26 @@ type sBaiduError struct {
 	Message    string
 }
 
-func (self *sBaiduError) Error() string {
-	return jsonutils.Marshal(self).String()
+func (e *sBaiduError) Error() string {
+	return jsonutils.Marshal(e).String()
 }
 
-func (self *sBaiduError) ParseErrorFromJsonResponse(statusCode int, status string, body jsonutils.JSONObject) error {
+func (e *sBaiduError) ParseErrorFromJsonResponse(statusCode int, status string, body jsonutils.JSONObject) error {
 	if body != nil {
-		body.Unmarshal(self)
+		body.Unmarshal(e)
 	}
-	self.StatusCode = statusCode
-	return self
+	e.StatusCode = statusCode
+	return e
 }
 
-func (self *SBaiduClient) Do(req *http.Request) (*http.Response, error) {
-	client := self.getDefaultClient()
+func (cli *SBaiduClient) Do(req *http.Request) (*http.Response, error) {
+	client := cli.getDefaultClient()
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	req.Header.Set("x-bce-date", time.Now().UTC().Format(ISO8601))
 	req.Header.Set("host", req.Host)
 
-	signature, err := self.sign(req)
+	signature, err := cli.sign(req)
 	if err != nil {
 		return nil, errors.Wrapf(err, "sign")
 	}
@@ -181,16 +183,20 @@ func (self *SBaiduClient) Do(req *http.Request) (*http.Response, error) {
 	return client.Do(req)
 }
 
-func (self *SBaiduClient) list(service, regionId, resource string, params map[string]interface{}) (jsonutils.JSONObject, error) {
-	return self.request(httputils.GET, service, regionId, resource, params)
+func (cli *SBaiduClient) bccList(regionId, resource string, params map[string]interface{}) (jsonutils.JSONObject, error) {
+	return cli.list("bcc", regionId, resource, params)
 }
 
-func (self *SBaiduClient) post(service, regionId, resource string, params map[string]interface{}) (jsonutils.JSONObject, error) {
-	return self.request(httputils.POST, service, regionId, resource, params)
+func (cli *SBaiduClient) list(service, regionId, resource string, params map[string]interface{}) (jsonutils.JSONObject, error) {
+	return cli.request(httputils.GET, service, regionId, resource, params)
 }
 
-func (self *SBaiduClient) request(method httputils.THttpMethod, service, regionId, resource string, params map[string]interface{}) (jsonutils.JSONObject, error) {
-	uri, err := self.getUrl(service, regionId, resource)
+func (cli *SBaiduClient) post(service, regionId, resource string, params map[string]interface{}) (jsonutils.JSONObject, error) {
+	return cli.request(httputils.POST, service, regionId, resource, params)
+}
+
+func (cli *SBaiduClient) request(method httputils.THttpMethod, service, regionId, resource string, params map[string]interface{}) (jsonutils.JSONObject, error) {
+	uri, err := cli.getUrl(service, regionId, resource)
 	if err != nil {
 		return nil, err
 	}
@@ -206,34 +212,34 @@ func (self *SBaiduClient) request(method httputils.THttpMethod, service, regionI
 	}
 	req := httputils.NewJsonRequest(method, uri, params)
 	bErr := &sBaiduError{}
-	client := httputils.NewJsonClient(self)
-	_, resp, err := client.Send(self.ctx, req, bErr, self.debug)
+	client := httputils.NewJsonClient(cli)
+	_, resp, err := client.Send(cli.ctx, req, bErr, cli.debug)
 	return resp, err
 }
 
-func (self *SBaiduClient) GetSubAccounts() ([]cloudprovider.SSubAccount, error) {
+func (cli *SBaiduClient) GetSubAccounts() ([]cloudprovider.SSubAccount, error) {
 	subAccount := cloudprovider.SSubAccount{}
-	subAccount.Id = self.GetAccountId()
-	subAccount.Name = self.cpcfg.Name
-	subAccount.Account = self.accessKeyId
+	subAccount.Id = cli.GetAccountId()
+	subAccount.Name = cli.cpcfg.Name
+	subAccount.Account = cli.accessKeyId
 	subAccount.HealthStatus = api.CLOUD_PROVIDER_HEALTH_NORMAL
 	return []cloudprovider.SSubAccount{subAccount}, nil
 }
 
-func (self *SBaiduClient) getOwnerId() (string, error) {
-	if len(self.ownerId) > 0 {
-		return self.ownerId, nil
+func (cli *SBaiduClient) getOwnerId() (string, error) {
+	if len(cli.ownerId) > 0 {
+		return cli.ownerId, nil
 	}
-	resp, err := self.list("bos", "bj", "/", nil)
+	resp, err := cli.list("bos", "bj", "/", nil)
 	if err != nil {
 		return "", err
 	}
-	self.ownerId, err = resp.GetString("owner", "id")
-	return self.ownerId, err
+	cli.ownerId, err = resp.GetString("owner", "id")
+	return cli.ownerId, err
 }
 
-func (self *SBaiduClient) GetAccountId() string {
-	ownerId, _ := self.getOwnerId()
+func (cli *SBaiduClient) GetAccountId() string {
+	ownerId, _ := cli.getOwnerId()
 	return ownerId
 }
 
@@ -241,8 +247,8 @@ type CashBalance struct {
 	CashBalance float64
 }
 
-func (self *SBaiduClient) QueryBalance() (*CashBalance, error) {
-	resp, err := self.post("billing", "", "/v1/finance/cash/balance", nil)
+func (cli *SBaiduClient) QueryBalance() (*CashBalance, error) {
+	resp, err := cli.post("billing", "", "/v1/finance/cash/balance", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -254,7 +260,7 @@ func (self *SBaiduClient) QueryBalance() (*CashBalance, error) {
 	return ret, nil
 }
 
-func (self *SBaiduClient) GetCapabilities() []string {
+func (cli *SBaiduClient) GetCapabilities() []string {
 	caps := []string{
 		cloudprovider.CLOUD_CAPABILITY_COMPUTE + cloudprovider.READ_ONLY_SUFFIX,
 	}
