@@ -15,13 +15,23 @@
 package shell
 
 import (
-	"yunion.io/x/pkg/util/printutils"
+	"yunion.io/x/log"
+	"yunion.io/x/pkg/util/shellutils"
+
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud/baidu"
 )
 
-func printList(data interface{}) {
-	printutils.PrintInterfaceList(data, 0, 0, 0, nil)
-}
-
-func printObject(obj interface{}) {
-	printutils.PrintInterfaceObject(obj)
+func init() {
+	shellutils.R(&cloudprovider.MetricListOptions{}, "metric-list", "List metrics", func(cli *baidu.SRegion, args *cloudprovider.MetricListOptions) error {
+		metrics, err := cli.GetClient().GetMetrics(args)
+		if err != nil {
+			return err
+		}
+		for i := range metrics {
+			log.Infof("metric: %s %s %s", metrics[i].Id, metrics[i].MetricType, metrics[i].Unit)
+			printList(metrics[i].Values)
+		}
+		return nil
+	})
 }

@@ -12,16 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package shell
+package baidu
 
-import (
-	"yunion.io/x/pkg/util/printutils"
-)
-
-func printList(data interface{}) {
-	printutils.PrintInterfaceList(data, 0, 0, 0, nil)
+type BaiduTag struct {
+	TagKey   string `json:"tagKey"`
+	TagValue string `json:"tagValue"`
 }
 
-func printObject(obj interface{}) {
-	printutils.PrintInterfaceObject(obj)
+type SBaiduTag struct {
+	Tags []BaiduTag
+}
+
+func (tag *SBaiduTag) GetTags() (map[string]string, error) {
+	res := map[string]string{}
+	for _, tagDetaoils := range tag.Tags {
+		res[tagDetaoils.TagKey] = tagDetaoils.TagValue
+	}
+	return res, nil
+}
+
+func (tag *SBaiduTag) GetSysTags() map[string]string {
+	return nil
+}
+
+func (tag *SBaiduTag) SetTags(tags map[string]string, replace bool) error {
+	return nil
 }
