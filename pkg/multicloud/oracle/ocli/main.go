@@ -106,6 +106,7 @@ func newClient(options *BaseOptions) (*oracle.SRegion, error) {
 			CloudproviderConfig(
 				cloudprovider.ProviderConfig{
 					ProxyFunc: proxyFunc,
+					RegionId:  options.RegionId,
 				},
 			),
 	)
