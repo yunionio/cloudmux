@@ -96,9 +96,9 @@ func newClient(options *BaseOptions) (*apsara.SRegion, error) {
 		).Debug(options.Debug).
 			CloudproviderConfig(
 				cloudprovider.ProviderConfig{
-					ProxyFunc:     proxyFunc,
-					URL:           options.Endpoint,
-					DefaultRegion: options.DEFAULT_REGION,
+					ProxyFunc: proxyFunc,
+					URL:       options.Endpoint,
+					RegionId:  options.DEFAULT_REGION,
 				},
 			),
 	)

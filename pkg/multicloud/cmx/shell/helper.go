@@ -74,12 +74,12 @@ func NewCloudProvider(opt *GlobalOptions) (ICloudProvider, error) {
 	}
 
 	p, err := factory.GetProvider(cloudprovider.ProviderConfig{
-		URL:           opt.CloudEnv,
-		Account:       opt.AccessKey,
-		Secret:        opt.Secret,
-		ProxyFunc:     proxyFunc,
-		DefaultRegion: opt.Region,
-		Debug:         opt.Debug,
+		URL:       opt.CloudEnv,
+		Account:   opt.AccessKey,
+		Secret:    opt.Secret,
+		ProxyFunc: proxyFunc,
+		RegionId:  opt.Region,
+		Debug:     opt.Debug,
 	})
 
 	if err != nil {

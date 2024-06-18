@@ -98,8 +98,8 @@ func newClient(options *BaseOptions) (*huawei.SRegion, error) {
 		).Debug(options.Debug).
 			CloudproviderConfig(
 				cloudprovider.ProviderConfig{
-					ProxyFunc:     proxyFunc,
-					DefaultRegion: options.DEFAULT_REGION,
+					ProxyFunc: proxyFunc,
+					RegionId:  options.DEFAULT_REGION,
 				},
 			),
 	)
