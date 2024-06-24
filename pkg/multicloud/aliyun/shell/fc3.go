@@ -17,14 +17,14 @@ package shell
 import (
 	"yunion.io/x/pkg/util/shellutils"
 
-	"yunion.io/x/cloudmux/pkg/multicloud/huawei"
+	"yunion.io/x/cloudmux/pkg/multicloud/aliyun"
 )
 
 func init() {
 	type FunctionListOptions struct {
 	}
-	shellutils.R(&FunctionListOptions{}, "function-list", "List functions", func(cli *huawei.SRegion, args *FunctionListOptions) error {
-		ret, err := cli.ListFunctions()
+	shellutils.R(&FunctionListOptions{}, "fc3-function-list", "List Function", func(cli *aliyun.SRegion, args *FunctionListOptions) error {
+		ret, err := cli.GetFunctions()
 		if err != nil {
 			return err
 		}
@@ -32,10 +32,11 @@ func init() {
 		return nil
 	})
 
-	type WorkerflowListOptions struct {
+	type InstanceListOptions struct {
+		FUNCTION string
 	}
-	shellutils.R(&WorkerflowListOptions{}, "workerflow-list", "List workerflows", func(cli *huawei.SRegion, args *WorkerflowListOptions) error {
-		ret, err := cli.ListWorkerflows()
+	shellutils.R(&InstanceListOptions{}, "fc3-instance-list", "List Instance", func(cli *aliyun.SRegion, args *InstanceListOptions) error {
+		ret, err := cli.GetFunctionInstances(args.FUNCTION)
 		if err != nil {
 			return err
 		}

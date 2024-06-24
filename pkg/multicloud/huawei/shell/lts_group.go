@@ -21,10 +21,10 @@ import (
 )
 
 func init() {
-	type FunctionListOptions struct {
+	type LtsGroupListOptions struct {
 	}
-	shellutils.R(&FunctionListOptions{}, "function-list", "List functions", func(cli *huawei.SRegion, args *FunctionListOptions) error {
-		ret, err := cli.ListFunctions()
+	shellutils.R(&LtsGroupListOptions{}, "lts-group-list", "List lts groups", func(cli *huawei.SRegion, args *LtsGroupListOptions) error {
+		ret, err := cli.ListLtsGroups()
 		if err != nil {
 			return err
 		}
@@ -32,10 +32,10 @@ func init() {
 		return nil
 	})
 
-	type WorkerflowListOptions struct {
+	type LtsStreamListOptions struct {
 	}
-	shellutils.R(&WorkerflowListOptions{}, "workerflow-list", "List workerflows", func(cli *huawei.SRegion, args *WorkerflowListOptions) error {
-		ret, err := cli.ListWorkerflows()
+	shellutils.R(&LtsStreamListOptions{}, "lts-stream-list", "List lts streams", func(cli *huawei.SRegion, args *LtsStreamListOptions) error {
+		ret, err := cli.ListLtsStreams()
 		if err != nil {
 			return err
 		}

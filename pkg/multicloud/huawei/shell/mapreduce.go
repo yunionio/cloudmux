@@ -21,21 +21,10 @@ import (
 )
 
 func init() {
-	type FunctionListOptions struct {
+	type MapReduceListOptions struct {
 	}
-	shellutils.R(&FunctionListOptions{}, "function-list", "List functions", func(cli *huawei.SRegion, args *FunctionListOptions) error {
-		ret, err := cli.ListFunctions()
-		if err != nil {
-			return err
-		}
-		printList(ret, 0, 0, 0, []string{})
-		return nil
-	})
-
-	type WorkerflowListOptions struct {
-	}
-	shellutils.R(&WorkerflowListOptions{}, "workerflow-list", "List workerflows", func(cli *huawei.SRegion, args *WorkerflowListOptions) error {
-		ret, err := cli.ListWorkerflows()
+	shellutils.R(&MapReduceListOptions{}, "mapreduce-cluster-list", "List mapreduce", func(cli *huawei.SRegion, args *MapReduceListOptions) error {
+		ret, err := cli.ListMapReduceCluster()
 		if err != nil {
 			return err
 		}

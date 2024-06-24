@@ -17,14 +17,14 @@ package shell
 import (
 	"yunion.io/x/pkg/util/shellutils"
 
-	"yunion.io/x/cloudmux/pkg/multicloud/huawei"
+	"yunion.io/x/cloudmux/pkg/multicloud/aliyun"
 )
 
 func init() {
-	type FunctionListOptions struct {
+	type ServiceListOptions struct {
 	}
-	shellutils.R(&FunctionListOptions{}, "function-list", "List functions", func(cli *huawei.SRegion, args *FunctionListOptions) error {
-		ret, err := cli.ListFunctions()
+	shellutils.R(&ServiceListOptions{}, "fc-service-list", "List Service", func(cli *aliyun.SRegion, args *ServiceListOptions) error {
+		ret, err := cli.GetFcServices()
 		if err != nil {
 			return err
 		}
@@ -32,10 +32,26 @@ func init() {
 		return nil
 	})
 
-	type WorkerflowListOptions struct {
+	type FunctionListOptions struct {
+		SERVICE string
 	}
-	shellutils.R(&WorkerflowListOptions{}, "workerflow-list", "List workerflows", func(cli *huawei.SRegion, args *WorkerflowListOptions) error {
-		ret, err := cli.ListWorkerflows()
+
+	shellutils.R(&FunctionListOptions{}, "fc-function-list", "List Function", func(cli *aliyun.SRegion, args *FunctionListOptions) error {
+		ret, err := cli.GetFcFunctions(args.SERVICE)
+		if err != nil {
+			return err
+		}
+		printList(ret, 0, 0, 0, []string{})
+		return nil
+	})
+
+	type InstanceListOptions struct {
+		SERVICE  string
+		FUNCTION string
+	}
+
+	shellutils.R(&InstanceListOptions{}, "fc-instance-list", "List Instance", func(cli *aliyun.SRegion, args *InstanceListOptions) error {
+		ret, err := cli.GetFcInstances(args.SERVICE, args.FUNCTION)
 		if err != nil {
 			return err
 		}

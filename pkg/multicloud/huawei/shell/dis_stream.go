@@ -21,21 +21,10 @@ import (
 )
 
 func init() {
-	type FunctionListOptions struct {
+	type StreamListOptions struct {
 	}
-	shellutils.R(&FunctionListOptions{}, "function-list", "List functions", func(cli *huawei.SRegion, args *FunctionListOptions) error {
-		ret, err := cli.ListFunctions()
-		if err != nil {
-			return err
-		}
-		printList(ret, 0, 0, 0, []string{})
-		return nil
-	})
-
-	type WorkerflowListOptions struct {
-	}
-	shellutils.R(&WorkerflowListOptions{}, "workerflow-list", "List workerflows", func(cli *huawei.SRegion, args *WorkerflowListOptions) error {
-		ret, err := cli.ListWorkerflows()
+	shellutils.R(&StreamListOptions{}, "dis-stream-list", "List dis stream", func(cli *huawei.SRegion, args *StreamListOptions) error {
+		ret, err := cli.ListDisStreams()
 		if err != nil {
 			return err
 		}
