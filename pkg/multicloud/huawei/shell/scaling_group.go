@@ -21,10 +21,10 @@ import (
 )
 
 func init() {
-	type FunctionListOptions struct {
+	type ScalingGroupListOptions struct {
 	}
-	shellutils.R(&FunctionListOptions{}, "function-list", "List functions", func(cli *huawei.SRegion, args *FunctionListOptions) error {
-		ret, err := cli.ListFunctions()
+	shellutils.R(&ScalingGroupListOptions{}, "scaling-group-list", "List scaling groups", func(cli *huawei.SRegion, args *ScalingGroupListOptions) error {
+		ret, err := cli.ListScalingGroups()
 		if err != nil {
 			return err
 		}
@@ -32,10 +32,11 @@ func init() {
 		return nil
 	})
 
-	type WorkerflowListOptions struct {
+	type ScalingInstanceListOptions struct {
+		GROUP string
 	}
-	shellutils.R(&WorkerflowListOptions{}, "workerflow-list", "List workerflows", func(cli *huawei.SRegion, args *WorkerflowListOptions) error {
-		ret, err := cli.ListWorkerflows()
+	shellutils.R(&ScalingInstanceListOptions{}, "scaling-instance-list", "List scaling instances", func(cli *huawei.SRegion, args *ScalingInstanceListOptions) error {
+		ret, err := cli.ListScalingInstances(args.GROUP)
 		if err != nil {
 			return err
 		}

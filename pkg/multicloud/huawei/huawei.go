@@ -30,6 +30,7 @@ import (
 	"yunion.io/x/pkg/gotypes"
 	"yunion.io/x/pkg/util/httputils"
 	"yunion.io/x/pkg/util/timeutils"
+	"yunion.io/x/pkg/utils"
 
 	api "yunion.io/x/cloudmux/pkg/apis/compute"
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
@@ -81,6 +82,10 @@ const (
 	SERVICE_GAUSSDB_NOSQL      = "gaussdb-nosql"
 	SERVICE_GAUSSDB_NOSQL_V3_1 = "gaussdb-nosql_v3.1"
 	SERVICE_FUNCTIONGRAPH      = "functiongraph"
+	SERVICE_APIG               = "apig"
+	SERVICE_MRS                = "mrs"
+	SERVICE_DIS                = "dis"
+	SERVICE_LTS                = "lts"
 )
 
 type HuaweiClientConfig struct {
@@ -218,7 +223,7 @@ func (self *SHuaweiClient) getAkClient() *akClient {
 	}
 }
 
-func (self *SHuaweiClient) request(method httputils.THttpMethod, regionId, url string, query url.Values, params map[string]interface{}) (jsonutils.JSONObject, error) {
+func (self *SHuaweiClient) request(method httputils.THttpMethod, regionId, service, url string, query url.Values, params map[string]interface{}) (jsonutils.JSONObject, error) {
 	client := self.getAkClient()
 	if len(query) > 0 {
 		url = fmt.Sprintf("%s?%s", url, query.Encode())
@@ -230,17 +235,17 @@ func (self *SHuaweiClient) request(method httputils.THttpMethod, regionId, url s
 	header := http.Header{}
 
 	if project, ok := self.projects[regionId]; ok {
-		if len(project.Id) > 0 && !strings.Contains(url, "eps") {
+		if len(project.Id) > 0 && service != SERVICE_EPS {
 			header.Set("X-Project-Id", project.Id)
 		}
 	}
-	if (strings.Contains(url, "/OS-CREDENTIAL/") ||
+	if ((strings.Contains(url, "/OS-CREDENTIAL/") ||
 		strings.Contains(url, "/users") ||
 		strings.Contains(url, "/roles") ||
 		strings.Contains(url, "/mappings") ||
 		strings.Contains(url, "/identity_providers") ||
-		strings.Contains(url, "/groups") ||
-		strings.Contains(url, "eps.myhuaweicloud.com")) && len(self.ownerId) > 0 {
+		strings.Contains(url, "/groups") && (utils.IsInStringArray(service, []string{SERVICE_IAM, SERVICE_IAM_V3, SERVICE_IAM_V3_EXT}))) ||
+		service == SERVICE_EPS) && len(self.ownerId) > 0 {
 		header.Set("X-Domain-Id", self.ownerId)
 	}
 	_, resp, err := httputils.JSONRequest(client, context.Background(), method, url, header, body, self.debug)
@@ -585,7 +590,7 @@ func (self *SHuaweiClient) list(service, regionId, resource string, query url.Va
 	if err != nil {
 		return nil, err
 	}
-	return self.request(httputils.GET, regionId, url, query, nil)
+	return self.request(httputils.GET, regionId, service, url, query, nil)
 }
 
 func (self *SHuaweiClient) delete(service, regionId, resource string) (jsonutils.JSONObject, error) {
@@ -593,7 +598,7 @@ func (self *SHuaweiClient) delete(service, regionId, resource string) (jsonutils
 	if err != nil {
 		return nil, err
 	}
-	return self.request(httputils.DELETE, regionId, url, nil, nil)
+	return self.request(httputils.DELETE, regionId, service, url, nil, nil)
 }
 
 func (self *SHuaweiClient) getUrl(service, regionId, resource string, method httputils.THttpMethod, params map[string]interface{}) (string, error) {
@@ -674,6 +679,18 @@ func (self *SHuaweiClient) getUrl(service, regionId, resource string, method htt
 		url = fmt.Sprintf("https://gaussdb-nosql.%s.myhuaweicloud.com/v3.1/%s/%s", regionId, projectId, resource)
 	case SERVICE_FUNCTIONGRAPH:
 		url = fmt.Sprintf("https://%s.%s.myhuaweicloud.com/v2/%s/%s", service, regionId, projectId, resource)
+	case SERVICE_APIG:
+		url = fmt.Sprintf("https://%s.%s.myhuaweicloud.com/v2/%s/%s", service, regionId, projectId, resource)
+	case SERVICE_MRS:
+		url = fmt.Sprintf("https://%s.%s.myhuaweicloud.com/v1.1/%s/%s", service, regionId, projectId, resource)
+	case SERVICE_DIS:
+		url = fmt.Sprintf("https://%s.%s.myhuaweicloud.com/v2/%s/%s", service, regionId, projectId, resource)
+	case SERVICE_LTS:
+		url = fmt.Sprintf("https://%s.%s.myhuaweicloud.com/v2/%s/%s", service, regionId, projectId, resource)
+	case SERVICE_CCE:
+		url = fmt.Sprintf("https://%s.%s.myhuaweicloud.com/api/v3/projects/%s/%s", service, regionId, projectId, resource)
+	case SERVICE_AS:
+		url = fmt.Sprintf("https://%s.%s.myhuaweicloud.com/autoscaling-api/v1/%s/%s", service, regionId, projectId, resource)
 	default:
 		return "", fmt.Errorf("invalid service %s", service)
 	}
@@ -685,7 +702,7 @@ func (self *SHuaweiClient) post(service, regionId, resource string, params map[s
 	if err != nil {
 		return nil, err
 	}
-	return self.request(httputils.POST, regionId, url, nil, params)
+	return self.request(httputils.POST, regionId, service, url, nil, params)
 }
 
 func (self *SHuaweiClient) patch(service, regionId, resource string, query url.Values, params map[string]interface{}) (jsonutils.JSONObject, error) {
@@ -693,7 +710,7 @@ func (self *SHuaweiClient) patch(service, regionId, resource string, query url.V
 	if err != nil {
 		return nil, err
 	}
-	return self.request(httputils.PATCH, regionId, url, query, params)
+	return self.request(httputils.PATCH, regionId, service, url, query, params)
 }
 
 func (self *SHuaweiClient) put(service, regionId, resource string, params map[string]interface{}) (jsonutils.JSONObject, error) {
@@ -701,5 +718,5 @@ func (self *SHuaweiClient) put(service, regionId, resource string, params map[st
 	if err != nil {
 		return nil, err
 	}
-	return self.request(httputils.PUT, regionId, url, nil, params)
+	return self.request(httputils.PUT, regionId, service, url, nil, params)
 }

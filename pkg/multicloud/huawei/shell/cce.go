@@ -21,10 +21,10 @@ import (
 )
 
 func init() {
-	type FunctionListOptions struct {
+	type ClusterListOptions struct {
 	}
-	shellutils.R(&FunctionListOptions{}, "function-list", "List functions", func(cli *huawei.SRegion, args *FunctionListOptions) error {
-		ret, err := cli.ListFunctions()
+	shellutils.R(&ClusterListOptions{}, "cce-cluster-list", "List cce cluster", func(cli *huawei.SRegion, args *ClusterListOptions) error {
+		ret, err := cli.ListCceClusters()
 		if err != nil {
 			return err
 		}
@@ -32,10 +32,11 @@ func init() {
 		return nil
 	})
 
-	type WorkerflowListOptions struct {
+	type NodeListOptions struct {
+		CLUSTER string
 	}
-	shellutils.R(&WorkerflowListOptions{}, "workerflow-list", "List workerflows", func(cli *huawei.SRegion, args *WorkerflowListOptions) error {
-		ret, err := cli.ListWorkerflows()
+	shellutils.R(&NodeListOptions{}, "cce-node-list", "List cce node", func(cli *huawei.SRegion, args *NodeListOptions) error {
+		ret, err := cli.ListCceNodes(args.CLUSTER)
 		if err != nil {
 			return err
 		}

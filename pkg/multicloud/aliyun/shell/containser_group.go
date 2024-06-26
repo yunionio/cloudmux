@@ -17,25 +17,14 @@ package shell
 import (
 	"yunion.io/x/pkg/util/shellutils"
 
-	"yunion.io/x/cloudmux/pkg/multicloud/huawei"
+	"yunion.io/x/cloudmux/pkg/multicloud/aliyun"
 )
 
 func init() {
-	type FunctionListOptions struct {
+	type ContainerGroupListOptions struct {
 	}
-	shellutils.R(&FunctionListOptions{}, "function-list", "List functions", func(cli *huawei.SRegion, args *FunctionListOptions) error {
-		ret, err := cli.ListFunctions()
-		if err != nil {
-			return err
-		}
-		printList(ret, 0, 0, 0, []string{})
-		return nil
-	})
-
-	type WorkerflowListOptions struct {
-	}
-	shellutils.R(&WorkerflowListOptions{}, "workerflow-list", "List workerflows", func(cli *huawei.SRegion, args *WorkerflowListOptions) error {
-		ret, err := cli.ListWorkerflows()
+	shellutils.R(&ContainerGroupListOptions{}, "container-group-list", "list container groups", func(cli *aliyun.SRegion, args *ContainerGroupListOptions) error {
+		ret, err := cli.GetContainerGroups()
 		if err != nil {
 			return err
 		}

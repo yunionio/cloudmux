@@ -60,4 +60,18 @@ func init() {
 		return nil
 	})
 
+	type ResourceListOptions struct {
+		Service      string
+		ResourceType string
+	}
+
+	shellutils.R(&ResourceListOptions{}, "resource-list", "List resources", func(cli *aliyun.SRegion, args *ResourceListOptions) error {
+		ret, err := cli.GetClient().ListResources(args.Service, args.ResourceType)
+		if err != nil {
+			return err
+		}
+		printList(ret, 0, 0, 0, nil)
+		return nil
+	})
+
 }

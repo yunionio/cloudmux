@@ -17,30 +17,18 @@ package shell
 import (
 	"yunion.io/x/pkg/util/shellutils"
 
-	"yunion.io/x/cloudmux/pkg/multicloud/huawei"
+	"yunion.io/x/cloudmux/pkg/multicloud/aliyun"
 )
 
 func init() {
-	type FunctionListOptions struct {
+	type RocketmqListOptions struct {
 	}
-	shellutils.R(&FunctionListOptions{}, "function-list", "List functions", func(cli *huawei.SRegion, args *FunctionListOptions) error {
-		ret, err := cli.ListFunctions()
+	shellutils.R(&RocketmqListOptions{}, "rocketmq4-list", "List rocketmq", func(cli *aliyun.SRegion, args *RocketmqListOptions) error {
+		ret, err := cli.GetRocketmq4Instances()
 		if err != nil {
 			return err
 		}
 		printList(ret, 0, 0, 0, []string{})
 		return nil
 	})
-
-	type WorkerflowListOptions struct {
-	}
-	shellutils.R(&WorkerflowListOptions{}, "workerflow-list", "List workerflows", func(cli *huawei.SRegion, args *WorkerflowListOptions) error {
-		ret, err := cli.ListWorkerflows()
-		if err != nil {
-			return err
-		}
-		printList(ret, 0, 0, 0, []string{})
-		return nil
-	})
-
 }
