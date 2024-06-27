@@ -22,8 +22,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/huaweicloud/huaweicloud-sdk-go/auth/aksk"
-
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/errors"
@@ -193,32 +191,28 @@ type sPageInfo struct {
 
 type akClient struct {
 	client *http.Client
-	aksk   aksk.SignOptions
+	aksk   Signer
 }
 
 func (self *akClient) Do(req *http.Request) (*http.Response, error) {
 	req.Header.Del("Accept")
 	length := req.Header.Get("Content-Length")
-	if req.Method == string(httputils.GET) ||
-		req.Method == string(httputils.DELETE) ||
-		(req.Method == string(httputils.PUT) && length == "0") ||
-		req.Method == string(httputils.PATCH) && !strings.HasPrefix(req.Host, "modelarts") ||
-		strings.HasSuffix(req.URL.Path, "disassociate-instance") {
+	if length == "0" {
 		req.Header.Del("Content-Length")
 	}
 	if strings.HasPrefix(req.Host, "modelarts") && req.Method == string(httputils.PATCH) {
 		req.Header.Set("Content-Type", "application/merge-patch+json")
 	}
-	aksk.Sign(req, self.aksk)
+	self.aksk.Sign(req)
 	return self.client.Do(req)
 }
 
 func (self *SHuaweiClient) getAkClient() *akClient {
 	return &akClient{
 		client: self.getDefaultClient(),
-		aksk: aksk.SignOptions{
-			AccessKey: self.accessKey,
-			SecretKey: self.accessSecret,
+		aksk: Signer{
+			Key:    self.accessKey,
+			Secret: self.accessSecret,
 		},
 	}
 }

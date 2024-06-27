@@ -114,6 +114,8 @@ func normalizeOsDistribution(osDist string, imageName string) string {
 		return "Amazon Linux"
 	} else if strings.Contains(osDist, "kylin") {
 		return "Kylin"
+	} else if strings.Contains(osDist, "uos") {
+		return "UOS"
 	} else if strings.Contains(osDist, "windows") {
 		for _, ver := range []string{"2003", "2008", "2012", "2016", "2019", "2022"} {
 			if strings.Contains(osDist, ver) {
@@ -145,7 +147,7 @@ var imageVersions = map[string][]string{
 
 	"Alibaba Cloud Linux": {"2.1903", "3.2104"},
 	"Anolis OS":           {"7.9", "8.2", "8.4"},
-	"Rocky Linux":         {"8.5", "8.6", "8.7", "8.8", "8.9", "9.0", "9.1", "9.2"},
+	"Rocky Linux":         {"8.5", "8.6", "8.7", "8.8", "8.9", "8.10", "9.0", "9.1", "9.2", "9.3", "9.4"},
 	"Fedora":              {"33", "34", "35"},
 	"AlmaLinux":           {"8.5"},
 	"Amazon Linux":        {"2023", "2"},
@@ -154,6 +156,7 @@ var imageVersions = map[string][]string{
 	"Windows":        {"XP", "7", "8", "Vista", "10", "11"},
 
 	"Kylin": {"V10"},
+	"UOS":   {"V20", "20 1050", "1050", "1060", "1070"},
 }
 
 func normalizeOsVersion(imageName string, osDist string, osVersion string) string {

@@ -64,3 +64,14 @@ func (self *SRegion) ListLtsStreams() ([]SLtsStream, error) {
 	return ret, nil
 
 }
+
+func (self *SRegion) ListLtsStreamsByGroup(groupId string) ([]SLtsStream, error) {
+	query := url.Values{}
+	res := fmt.Sprintf("groups/%s/streams", groupId)
+	resp, err := self.list(SERVICE_LTS, res, query)
+	if err != nil {
+		return nil, err
+	}
+	ret := []SLtsStream{}
+	return ret, resp.Unmarshal(&ret, "log_streams")
+}
