@@ -295,6 +295,12 @@ github.com/texttheater/golang-levenshtein/levenshtein
 github.com/tredoe/osutil/v2/userutil/crypt
 github.com/tredoe/osutil/v2/userutil/crypt/common
 github.com/tredoe/osutil/v2/userutil/crypt/sha512_crypt
+# github.com/ulikunitz/xz v0.5.12
+## explicit; go 1.12
+github.com/ulikunitz/xz
+github.com/ulikunitz/xz/internal/hash
+github.com/ulikunitz/xz/internal/xlog
+github.com/ulikunitz/xz/lzma
 # github.com/vmware/govmomi v0.37.1
 ## explicit; go 1.19
 github.com/vmware/govmomi
@@ -583,7 +589,7 @@ yunion.io/x/jsonutils
 ## explicit; go 1.12
 yunion.io/x/log
 yunion.io/x/log/hooks
-# yunion.io/x/pkg v1.10.1-0.20240508102846-e4ad08e1f410
+# yunion.io/x/pkg v1.10.1-0.20240627035901-5608be5905f9
 ## explicit; go 1.18
 yunion.io/x/pkg/appctx
 yunion.io/x/pkg/errors
