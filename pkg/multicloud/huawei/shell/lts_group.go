@@ -33,8 +33,17 @@ func init() {
 	})
 
 	type LtsStreamListOptions struct {
+		Group string
 	}
 	shellutils.R(&LtsStreamListOptions{}, "lts-stream-list", "List lts streams", func(cli *huawei.SRegion, args *LtsStreamListOptions) error {
+		if len(args.Group) > 0 {
+			ret, err := cli.ListLtsStreamsByGroup(args.Group)
+			if err != nil {
+				return err
+			}
+			printList(ret, 0, 0, 0, []string{})
+			return nil
+		}
 		ret, err := cli.ListLtsStreams()
 		if err != nil {
 			return err
