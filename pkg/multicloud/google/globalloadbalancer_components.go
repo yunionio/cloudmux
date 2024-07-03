@@ -59,7 +59,7 @@ func (self *SGlobalLoadbalancer) isNameMatch(target interface{}) bool {
 		case *STargetHttpsProxy:
 			URLMapUrl = t.(*STargetHttpsProxy).URLMap
 		}
-		urlMapResponse, _ := _jsonRequest(self.region.client.client, "GET", URLMapUrl, nil, true)
+		urlMapResponse, _ := _jsonRequest(self.region.client.client, "GET", URLMapUrl, nil, false)
 		var urlMap SUrlMap
 		urlMapResponse.Unmarshal(&urlMap)
 		name = urlMap.Name
@@ -82,7 +82,7 @@ func (self *SGlobalLoadbalancer) GetForwardingRules() ([]SForwardingRule, error)
 
 	var _ret []SForwardingRule
 	for _, item := range ret {
-		targetResponse, err := _jsonRequest(self.region.client.client, "GET", item.Target, nil, true)
+		targetResponse, err := _jsonRequest(self.region.client.client, "GET", item.Target, nil, false)
 		if err != nil {
 			return nil, errors.Wrap(err, "getGlobalAddress.GetProxy")
 		}
@@ -273,7 +273,7 @@ func (self *SGlobalInstanceGroup) GetInstances() ([]SGlobalInstanceGroupInstance
 	}
 
 	ret := make([]SGlobalInstanceGroupInstance, 0)
-	resourceId := strings.Replace(self.GetGlobalId(), fmt.Sprintf("projects/%s/", self.region.GetProjectId()), "", -1)
+	resourceId := strings.TrimPrefix(getGlobalId(self.SelfLink), fmt.Sprintf("projects/%s/", self.region.GetProjectId()))
 	err := self.region.listAll("POST", resourceId+"/listInstances", nil, &ret)
 	if err != nil {
 		if errors.Cause(err) == cloudprovider.ErrNotFound {
@@ -323,7 +323,6 @@ func (self *SGlobalLoadbalancer) GetHealthChecks() ([]HealthChecks, error) {
 	self.healthChecks = append(self.healthChecks, hcs...)
 	return self.healthChecks, err
 }
-
 
 func (self *SGlobalRegion) GetRegionalHealthChecks(filter string) ([]HealthChecks, error) {
 	ret := make([]HealthChecks, 0)

@@ -21,7 +21,6 @@ import (
 
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/pkg/errors"
-	"yunion.io/x/pkg/utils"
 
 	api "yunion.io/x/cloudmux/pkg/apis/compute"
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
@@ -30,11 +29,9 @@ import (
 
 type SGlobalRegion struct {
 	cloudprovider.SFakeOnPremiseRegion
+	multicloud.SNoObjectStorageRegion
 	multicloud.SRegion
 	client *SGoogleClient
-
-	capabilities []string
-	Quotas       []SQuota
 
 	Description       string
 	ID                string
@@ -87,55 +84,14 @@ func (region *SGlobalRegion) GetProvider() string {
 }
 
 func (region *SGlobalRegion) GetStatus() string {
-	if region.Status == "UP" || utils.IsInStringArray(region.Name, MultiRegions) || utils.IsInStringArray(region.Name, DualRegions) {
-		return api.CLOUD_REGION_STATUS_INSERVER
-	}
-	return api.CLOUD_REGION_STATUS_OUTOFSERVICE
-}
-
-func (self *SGlobalRegion) GetIBuckets() ([]cloudprovider.ICloudBucket, error) {
-	iBuckets, err := self.client.getIBuckets()
-	if err != nil {
-		return nil, errors.Wrap(err, "getIBuckets")
-	}
-	ret := []cloudprovider.ICloudBucket{}
-	for i := range iBuckets {
-		if iBuckets[i].GetLocation() != self.GetId() {
-			continue
-		}
-		ret = append(ret, iBuckets[i])
-	}
-	return ret, nil
-}
-
-func (self *SGlobalRegion) CreateIBucket(name string, storageClassStr string, acl string) error {
-	return cloudprovider.ErrNotImplemented
-}
-
-func (self *SGlobalRegion) DeleteIBucket(name string) error {
-	return cloudprovider.ErrNotImplemented
-}
-
-func (self *SGlobalRegion) IBucketExist(name string) (bool, error) {
-	return false, cloudprovider.ErrNotImplemented
-}
-
-func (self *SGlobalRegion) GetIBucketById(id string) (cloudprovider.ICloudBucket, error) {
-	return cloudprovider.GetIBucketById(self, id)
-}
-
-func (self *SGlobalRegion) GetIBucketByName(name string) (cloudprovider.ICloudBucket, error) {
-	return self.GetIBucketById(name)
+	return api.CLOUD_REGION_STATUS_INSERVER
 }
 
 func (self *SGlobalRegion) GetCapabilities() []string {
-	if utils.IsInStringArray(self.Name, MultiRegions) || utils.IsInStringArray(self.Name, DualRegions) {
-		return []string{cloudprovider.CLOUD_CAPABILITY_OBJECTSTORE}
+	return []string{
+		cloudprovider.CLOUD_CAPABILITY_EIP + cloudprovider.READ_ONLY_SUFFIX,
+		cloudprovider.CLOUD_CAPABILITY_LOADBALANCER + cloudprovider.READ_ONLY_SUFFIX,
 	}
-	if self.capabilities == nil {
-		return self.client.GetCapabilities()
-	}
-	return self.capabilities
 }
 
 func (self *SGlobalRegion) GetILoadBalancers() ([]cloudprovider.ICloudLoadbalancer, error) {
@@ -145,6 +101,7 @@ func (self *SGlobalRegion) GetILoadBalancers() ([]cloudprovider.ICloudLoadbalanc
 	}
 	ilbs := []cloudprovider.ICloudLoadbalancer{}
 	for i := range lbs {
+		lbs[i].region = self
 		ilbs = append(ilbs, &lbs[i])
 	}
 	return ilbs, nil
@@ -183,21 +140,12 @@ func (region *SGlobalRegion) Do(id string, action string, params map[string]stri
 	return nil
 }
 
-func (region *SGlobalRegion) GetInstance(id string) (*SInstance, error) {
-	instance := &SInstance{}
-	return instance, region.Get("instances", id, instance)
-}
-
 func (region *SGlobalRegion) Get(resourceType, id string, retval interface{}) error {
 	return region.client.ecsGet(resourceType, id, retval)
 }
 
-func (self *SGlobalRegion) GetVpc(id string) (*SVpc, error) {
-	return nil, cloudprovider.ErrNotImplemented
-}
-
 func (self *SGlobalRegion) getLoadbalancerComponents(resource string, filter string, result interface{}) error {
-	url := fmt.Sprintf("regions/%s/%s", self.Name, resource)
+	url := fmt.Sprintf("%s/%s", self.Name, resource)
 	params := map[string]string{}
 	if len(filter) > 0 {
 		params["filter"] = filter

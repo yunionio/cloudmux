@@ -18,7 +18,6 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"time"
 
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/errors"
@@ -26,9 +25,12 @@ import (
 
 	api "yunion.io/x/cloudmux/pkg/apis/compute"
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud"
 )
 
 type SGlobalLoadbalancer struct {
+	multicloud.SLoadbalancerBase
+	GoogleTags
 	SResourceBase
 	region          *SGlobalRegion
 	urlMap          *SUrlMap           // http & https LB
@@ -40,29 +42,12 @@ type SGlobalLoadbalancer struct {
 	isHttpLb     bool              // 标记是否为http/https lb
 }
 
-func (self *SGlobalLoadbalancer) GetCreatedAt() time.Time {
-	return time.Time{}
-}
-
 func (self *SGlobalLoadbalancer) GetStatus() string {
 	return api.LB_STATUS_ENABLED
 }
 
 func (self *SGlobalLoadbalancer) Refresh() error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (self *SGlobalLoadbalancer) IsEmulated() bool {
-	return true
-}
-
-func (self *SGlobalLoadbalancer) GetTags() (map[string]string, error) {
-	return map[string]string{}, nil
-}
-
-func (self *SGlobalLoadbalancer) SetTags(tags map[string]string, replace bool) error {
-	return cloudprovider.ErrNotSupported
+	return cloudprovider.ErrNotImplemented
 }
 
 func (self *SGlobalLoadbalancer) GetNetworkType() string {
@@ -70,37 +55,10 @@ func (self *SGlobalLoadbalancer) GetNetworkType() string {
 }
 
 func (self *SGlobalLoadbalancer) GetVpcId() string {
-	networkIds := self.GetNetworkIds()
-	if len(networkIds) == 0 {
-		return ""
-	}
-	if len(networkIds) >= 1 {
-		vpc, err := self.region.GetVpc(networkIds[0])
-		if err == nil && vpc != nil {
-			return vpc.GetGlobalId()
-		}
-	}
 	return ""
 }
 
 func (self *SGlobalLoadbalancer) GetZoneId() string {
-	igs, err := self.GetInstanceGroups()
-	if err != nil {
-		log.Errorf("GetInstanceGroups %s", err)
-		return ""
-	}
-
-	for i := range igs {
-		if len(igs[i].Zone) > 0 {
-			zone := SResourceBase{
-				Name:     "",
-				SelfLink: igs[i].Zone,
-			}
-
-			return zone.GetGlobalId()
-		}
-	}
-
 	return ""
 }
 
@@ -146,7 +104,7 @@ func (self *SGlobalLoadbalancer) GetSysTags() map[string]string {
 }
 
 func (self *SGlobalLoadbalancer) GetProjectId() string {
-	return self.region.GetProjectId()
+	return ""
 }
 
 func (self *SGlobalLoadbalancer) GetIEIP() (cloudprovider.ICloudEIP, error) {
@@ -157,7 +115,7 @@ func (self *SGlobalLoadbalancer) GetIEIP() (cloudprovider.ICloudEIP, error) {
 
 	for i := range frs {
 		if strings.ToLower(frs[i].LoadBalancingScheme) == "external" {
-			eips, err := self.region.GetEips(frs[i].IPAddress, 0, "")
+			eips, err := self.region.GetEips(frs[i].IPAddress)
 			if err != nil {
 				log.Errorf("GetEips %s", err)
 			}
@@ -178,7 +136,7 @@ func (self *SGlobalLoadbalancer) GetAddress() string {
 	}
 
 	for _, item := range ret {
-		targetResponse, err := _jsonRequest(self.region.client.client, "GET", item.Target, nil, true)
+		targetResponse, err := _jsonRequest(self.region.client.client, "GET", item.Target, nil, false)
 		if err != nil {
 			return ""
 		}

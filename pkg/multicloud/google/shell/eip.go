@@ -35,6 +35,15 @@ func init() {
 		return nil
 	})
 
+	shellutils.R(&EipListOptions{}, "global-eip-list", "List global eips", func(cli *google.SRegion, args *EipListOptions) error {
+		eips, err := cli.GetClient().GetGlobalRegion().GetEips(args.Address)
+		if err != nil {
+			return err
+		}
+		printList(eips, 0, 0, 0, nil)
+		return nil
+	})
+
 	type EipIdOptions struct {
 		ID string
 	}
