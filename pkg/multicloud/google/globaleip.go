@@ -16,11 +16,10 @@ package google
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
-	"yunion.io/x/jsonutils"
 	"yunion.io/x/log"
-	"yunion.io/x/pkg/errors"
 
 	api "yunion.io/x/cloudmux/pkg/apis/compute"
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
@@ -32,7 +31,6 @@ type SGlobalAddress struct {
 	SResourceBase
 	multicloud.SEipBase
 	GoogleTags
-	instanceId string
 
 	CreationTimestamp time.Time
 	Description       string
@@ -83,14 +81,11 @@ func (addr *SGlobalAddress) Delete() error {
 }
 
 func (addr *SGlobalAddress) Associate(conf *cloudprovider.AssociateConfig) error {
-	return addr.region.AssociateInstanceEip(conf.InstanceId, addr.Address)
+	return cloudprovider.ErrNotImplemented
 }
 
 func (addr *SGlobalAddress) Dissociate() error {
-	if len(addr.Users) > 0 {
-		return addr.region.DissociateInstanceEip(addr.Users[0], addr.Address)
-	}
-	return nil
+	return cloudprovider.ErrNotImplemented
 }
 
 func (addr *SGlobalAddress) ChangeBandwidth(bw int) error {
@@ -98,10 +93,10 @@ func (addr *SGlobalAddress) ChangeBandwidth(bw int) error {
 }
 
 func (addr *SGlobalAddress) GetProjectId() string {
-	return addr.region.GetProjectId()
+	return ""
 }
 
-func (region *SGlobalRegion) GetEips(address string, maxResults int, pageToken string) ([]SGlobalAddress, error) {
+func (region *SGlobalRegion) GetEips(address string) ([]SGlobalAddress, error) {
 	eips := []SGlobalAddress{}
 	params := map[string]string{}
 	if len(address) > 0 {
@@ -109,7 +104,7 @@ func (region *SGlobalRegion) GetEips(address string, maxResults int, pageToken s
 	}
 	resource := "global/addresses"
 
-	err := region.List(resource, params, maxResults, pageToken, &eips)
+	err := region.ListAll(resource, params, &eips)
 	if err != nil {
 		return nil, err
 	}
@@ -120,64 +115,64 @@ func (region *SGlobalRegion) GetEips(address string, maxResults int, pageToken s
 	return eips, nil
 }
 
-func (addr *SGlobalAddress) GetAssociationExternalId() string {
-	if len(addr.instanceId) > 0 {
-		return addr.instanceId
+func (region *SGlobalRegion) GetIEips() ([]cloudprovider.ICloudEIP, error) {
+	eips, err := region.GetEips("")
+	if err != nil {
+		return nil, err
 	}
-	if len(addr.Users) > 0 {
-		res := &SResourceBase{}
-		err := addr.region.GetBySelfId(addr.Users[0], res)
-		if err != nil {
-			return ""
+	ret := []cloudprovider.ICloudEIP{}
+	for i := range eips {
+		eips[i].region = region
+		ret = append(ret, &eips[i])
+	}
+	return ret, nil
+}
+
+func (region *SGlobalRegion) GetEip(id string) (*SGlobalAddress, error) {
+	eip := &SGlobalAddress{region: region}
+	return eip, region.Get("addresses", id, eip)
+}
+
+func (region *SGlobalRegion) GetIEipById(id string) (cloudprovider.ICloudEIP, error) {
+	eip, err := region.GetEip(id)
+	if err != nil {
+		return nil, err
+	}
+	return eip, nil
+}
+
+func (region *SGlobalRegion) CreateEIP(args *cloudprovider.SEip) (cloudprovider.ICloudEIP, error) {
+	return nil, cloudprovider.ErrNotImplemented
+}
+
+func (addr *SGlobalAddress) GetAssociationExternalId() string {
+	associateType := addr.GetAssociationType()
+	for _, user := range addr.Users {
+		if associateType == api.EIP_ASSOCIATE_TYPE_LOADBALANCER {
+			forword := &SForwardingRule{}
+			err := addr.region.GetBySelfId(user, forword)
+			if err != nil {
+				return ""
+			}
+			proxy := &STargetHttpProxy{}
+			err = addr.region.GetBySelfId(forword.Target, proxy)
+			if err != nil {
+				return ""
+			}
+			return getGlobalId(proxy.URLMap)
 		}
-		return res.GetGlobalId()
 	}
 	return ""
 }
 
 func (addr *SGlobalAddress) GetAssociationType() string {
-	if len(addr.GetAssociationExternalId()) > 0 {
+	for _, user := range addr.Users {
+		if strings.Contains(user, "global/forwardingRules") {
+			return api.EIP_ASSOCIATE_TYPE_LOADBALANCER
+		}
 		return api.EIP_ASSOCIATE_TYPE_SERVER
 	}
 	return ""
-}
-
-func (self *SGlobalRegion) AssociateInstanceEip(instanceId string, eip string) error {
-	instance, err := self.GetInstance(instanceId)
-	if err != nil {
-		return errors.Wrap(err, "region.GetInstance")
-	}
-	for _, networkInterface := range instance.NetworkInterfaces {
-		body := map[string]interface{}{
-			"type":  "ONE_TO_ONE_NAT",
-			"name":  "External NAT",
-			"natIP": eip,
-		}
-		params := map[string]string{"networkInterface": networkInterface.Name}
-		return self.Do(instance.SelfLink, "addAccessConfig", params, jsonutils.Marshal(body))
-	}
-	return fmt.Errorf("no valid networkinterface to associate")
-}
-
-func (self *SGlobalRegion) DissociateInstanceEip(instanceId string, eip string) error {
-	instance := SInstance{}
-	err := self.GetBySelfId(instanceId, &instance)
-	if err != nil {
-		return errors.Wrap(err, "region.GetInstance")
-	}
-	for _, networkInterface := range instance.NetworkInterfaces {
-		for _, accessConfig := range networkInterface.AccessConfigs {
-			if accessConfig.NatIP == eip {
-				body := map[string]string{}
-				params := map[string]string{
-					"networkInterface": networkInterface.Name,
-					"accessConfig":     accessConfig.Name,
-				}
-				return self.Do(instance.SelfLink, "deleteAccessConfig", params, jsonutils.Marshal(body))
-			}
-		}
-	}
-	return nil
 }
 
 func (region *SGlobalRegion) listAll(method string, resource string, params map[string]string, retval interface{}) error {
@@ -186,26 +181,4 @@ func (region *SGlobalRegion) listAll(method string, resource string, params map[
 
 func (region *SGlobalRegion) ListAll(resource string, params map[string]string, retval interface{}) error {
 	return region.listAll("GET", resource, params, retval)
-}
-
-func (region *SGlobalRegion) List(resource string, params map[string]string, maxResults int, pageToken string, retval interface{}) error {
-	if maxResults == 0 && len(pageToken) == 0 {
-		return region.ListAll(resource, params, retval)
-	}
-	if params == nil {
-		params = map[string]string{}
-	}
-	params["maxResults"] = fmt.Sprintf("%d", maxResults)
-	params["pageToken"] = pageToken
-	resp, err := region.client.ecsList(resource, params)
-	if err != nil {
-		return errors.Wrap(err, "ecsList")
-	}
-	if resp.Contains("items") && retval != nil {
-		err = resp.Unmarshal(retval, "items")
-		if err != nil {
-			return errors.Wrap(err, "resp.Unmarshal")
-		}
-	}
-	return nil
 }

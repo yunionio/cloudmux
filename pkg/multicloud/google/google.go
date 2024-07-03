@@ -18,7 +18,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -179,6 +178,18 @@ func (self *SGoogleClient) GetAccountId() string {
 	return self.clientEmail
 }
 
+func (self *SGoogleClient) GetGlobalRegion() *SGlobalRegion {
+	return &SGlobalRegion{
+		client:            self,
+		Description:       "global",
+		Kind:              "compute#region",
+		Name:              "global",
+		Status:            "UP",
+		SelfLink:          "",
+		CreationTimestamp: time.Time{},
+	}
+}
+
 func (self *SGoogleClient) fetchRegions() error {
 	regions := []SRegion{}
 	err := self.ecsListAll("regions", nil, &regions)
@@ -192,17 +203,7 @@ func (self *SGoogleClient) fetchRegions() error {
 		self.iregions = append(self.iregions, &regions[i])
 	}
 	// add global region
-	self.iregions = append(self.iregions, &SGlobalRegion{
-		client:            self,
-		capabilities:      nil,
-		Quotas:            nil,
-		Description:       "global",
-		Kind:              "compute#region",
-		Name:              "global",
-		Status:            "UP",
-		SelfLink:          "",
-		CreationTimestamp: time.Time{},
-	})
+	self.iregions = append(self.iregions, self.GetGlobalRegion())
 
 	objectstoreCapability := []string{
 		cloudprovider.CLOUD_CAPABILITY_OBJECTSTORE,
@@ -559,7 +560,7 @@ func (self *SGoogleClient) storageUpload(resource string, header http.Header, bo
 		return nil, errors.Wrap(err, "rawRequest")
 	}
 	if resp.StatusCode >= 400 {
-		msg, _ := ioutil.ReadAll(resp.Body)
+		msg, _ := io.ReadAll(resp.Body)
 		defer resp.Body.Close()
 		return nil, fmt.Errorf("StatusCode: %d %s", resp.StatusCode, string(msg))
 	}
@@ -572,7 +573,7 @@ func (self *SGoogleClient) storageUploadPart(resource string, header http.Header
 		return nil, errors.Wrap(err, "rawRequest")
 	}
 	if resp.StatusCode >= 400 {
-		msg, _ := ioutil.ReadAll(resp.Body)
+		msg, _ := io.ReadAll(resp.Body)
 		defer resp.Body.Close()
 		return nil, fmt.Errorf("StatusCode: %d %s", resp.StatusCode, string(msg))
 	}
@@ -586,7 +587,7 @@ func (self *SGoogleClient) storageAbortUpload(resource string) error {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode >= 400 {
-		msg, _ := ioutil.ReadAll(resp.Body)
+		msg, _ := io.ReadAll(resp.Body)
 		return fmt.Errorf("StatusCode: %d %s", resp.StatusCode, string(msg))
 	}
 	return nil
@@ -599,7 +600,7 @@ func (self *SGoogleClient) storageDownload(resource string, header http.Header) 
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode >= 400 {
-		msg, _ := ioutil.ReadAll(resp.Body)
+		msg, _ := io.ReadAll(resp.Body)
 		return nil, fmt.Errorf("StatusCode: %d %s", resp.StatusCode, string(msg))
 	}
 	return resp.Body, err
@@ -965,12 +966,7 @@ func (client *SGoogleClient) GetSubAccounts() ([]cloudprovider.SSubAccount, erro
 func (self *SGoogleClient) GetIRegionById(id string) (cloudprovider.ICloudRegion, error) {
 	for i := 0; i < len(self.iregions); i++ {
 		if self.iregions[i].GetGlobalId() == id {
-			switch r := self.iregions[i].(type) {
-			case *SRegion:
-				return r, nil
-			case *SGlobalRegion:
-				return r, nil
-			}
+			return self.iregions[i], nil
 		}
 	}
 	return nil, cloudprovider.ErrNotFound

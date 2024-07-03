@@ -103,11 +103,12 @@ func (self SGlobalLoadbalancerBackend) GetBackendRole() string {
 }
 
 func (self SGlobalLoadbalancerBackend) GetBackendId() string {
-	r := SResourceBase{
-		Name:     "",
-		SelfLink: self.Backend.Instance,
+	vm := &SInstance{}
+	err := self.lbbg.lb.region.client.GetBySelfId(self.Backend.Instance, vm)
+	if err != nil {
+		return getGlobalId(self.Backend.Instance)
 	}
-	return r.GetGlobalId()
+	return vm.GetGlobalId()
 }
 
 func (self SGlobalLoadbalancerBackend) GetIpAddress() string {
