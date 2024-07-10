@@ -16,6 +16,7 @@ package huawei
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"net/url"
 	"sort"
@@ -843,7 +844,7 @@ func (self *SRegion) CreateInstance(keypair, zoneId string, opts *cloudprovider.
 	}
 
 	if len(opts.UserData) > 0 {
-		params["user_data"] = opts.UserData
+		params["user_data"] = base64.StdEncoding.EncodeToString([]byte(opts.UserData))
 	}
 
 	if len(opts.Tags) > 0 {
