@@ -32,4 +32,25 @@ func init() {
 		return nil
 	})
 
+	type ApigatewayIdOptions struct {
+		ID string
+	}
+	shellutils.R(&ApigatewayIdOptions{}, "apigateway-api-list", "List apigateway apis", func(cli *huawei.SRegion, args *ApigatewayIdOptions) error {
+		ret, err := cli.ListApigatewayApis(args.ID)
+		if err != nil {
+			return err
+		}
+		printList(ret, 0, 0, 0, []string{})
+		return nil
+	})
+
+	shellutils.R(&ApigatewayListOptions{}, "apigateway-shared-api-list", "List apigateways", func(cli *huawei.SRegion, args *ApigatewayListOptions) error {
+		ret, err := cli.ListSharedApigatewayApis()
+		if err != nil {
+			return err
+		}
+		printList(ret, 0, 0, 0, []string{})
+		return nil
+	})
+
 }
