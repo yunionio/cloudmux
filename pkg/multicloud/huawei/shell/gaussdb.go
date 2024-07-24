@@ -21,26 +21,14 @@ import (
 )
 
 func init() {
-	type GaussDBMySQLListOptions struct {
+	type GaussDBListOptions struct {
 	}
-	shellutils.R(&GaussDBMySQLListOptions{}, "gaussdb-mysql-list", "List gaussdb mysql", func(cli *huawei.SRegion, args *GaussDBMySQLListOptions) error {
-		ret, err := cli.ListGaussMySqlInstances()
+	shellutils.R(&GaussDBListOptions{}, "gaussdb-list", "List gaussdb", func(cli *huawei.SRegion, args *GaussDBListOptions) error {
+		ret, err := cli.GetGaussDBs()
 		if err != nil {
 			return err
 		}
 		printList(ret, 0, 0, 0, []string{})
-		return nil
-	})
-
-	type GaussDBMySQLIdOptions struct {
-		ID string
-	}
-	shellutils.R(&GaussDBMySQLIdOptions{}, "gaussdb-mysql-show", "Show gaussdb mysql", func(cli *huawei.SRegion, args *GaussDBMySQLIdOptions) error {
-		ret, err := cli.GetGaussMySqlInstance(args.ID)
-		if err != nil {
-			return err
-		}
-		printObject(ret)
 		return nil
 	})
 
