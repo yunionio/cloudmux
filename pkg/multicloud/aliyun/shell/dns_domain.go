@@ -29,6 +29,8 @@
 package shell
 
 import (
+	"fmt"
+
 	"yunion.io/x/pkg/util/shellutils"
 
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
@@ -110,6 +112,19 @@ func init() {
 			return e
 		}
 		printList(srecords.DomainRecords.Record, srecords.TotalCount, args.PageNumber, args.PageSize, []string{})
+		return nil
+	})
+
+	type DnsExtraAddressList struct {
+		DNS_VALUE string
+	}
+
+	shellutils.R(&DnsExtraAddressList{}, "dns-extra-address-list", "List extra address", func(cli *aliyun.SRegion, args *DnsExtraAddressList) error {
+		ret, e := cli.GetClient().GetDnsExtraAddresses(args.DNS_VALUE)
+		if e != nil {
+			return e
+		}
+		fmt.Println(ret)
 		return nil
 	})
 
