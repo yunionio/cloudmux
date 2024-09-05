@@ -43,6 +43,21 @@ func init() {
 		return cli.GetClient().DeleteGroup(args.ID)
 	})
 
+	type CloudgroupPolicyListOptions struct {
+		ID     int
+		Limit  int
+		Offset int
+	}
+
+	shellutils.R(&CloudgroupPolicyListOptions{}, "cloud-group-policy-list", "List cloudgroup policy", func(cli *qcloud.SRegion, args *CloudgroupPolicyListOptions) error {
+		ret, _, err := cli.GetClient().ListAttachedGroupPolicies(args.ID, args.Offset, args.Limit)
+		if err != nil {
+			return err
+		}
+		printList(ret, 0, 0, 0, nil)
+		return nil
+	})
+
 	shellutils.R(&CloudgroupIdOptions{}, "cloud-group-show", "Show cloudgroup", func(cli *qcloud.SRegion, args *CloudgroupIdOptions) error {
 		group, err := cli.GetClient().GetGroup(args.ID)
 		if err != nil {
