@@ -202,6 +202,7 @@ func (self *SAwsClient) CreateGroup(name string, path string) (*SGroup, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "iamRequest.CreateGroup")
 	}
+	group.Group.client = self
 	return &group.Group, nil
 }
 
