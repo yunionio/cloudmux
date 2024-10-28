@@ -59,10 +59,11 @@ func init() {
 	type NasDirSetQuotaOption struct {
 		FS_ID    string
 		PATH     string
-		MaxBytes int64
+		MaxMb    int64
+		MaxFiles int64
 	}
 	shellutils.R(&NasDirSetQuotaOption{}, "cephfs-dir-set-quota", "Set cephfs dir quota", func(cli *cephfs.SCephFSClient, args *NasDirSetQuotaOption) error {
-		return cli.SetDirQuota(args.FS_ID, args.PATH, args.MaxBytes)
+		return cli.SetQuota(args.FS_ID, args.PATH, args.MaxMb, args.MaxFiles)
 	})
 
 }
