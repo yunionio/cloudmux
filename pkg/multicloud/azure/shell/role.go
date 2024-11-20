@@ -22,11 +22,10 @@ import (
 
 func init() {
 	type CloudpolicyListOptions struct {
-		Name       string
-		PolicyType string `choices:"CustomRole|BuiltInRole"`
+		Name string
 	}
 	shellutils.R(&CloudpolicyListOptions{}, "cloud-policy-list", "List cloudpolicies", func(cli *azure.SRegion, args *CloudpolicyListOptions) error {
-		roles, err := cli.GetClient().GetRoles(args.Name, args.PolicyType)
+		roles, err := cli.GetClient().GetRoles(args.Name)
 		if err != nil {
 			return err
 		}
@@ -35,38 +34,37 @@ func init() {
 	})
 
 	type CloudpolicyAssignOption struct {
-		OBJECT         string
-		ROLE           string
-		SubscriptionId string
+		OBJECT string
+		ROLE   string
 	}
 
 	shellutils.R(&CloudpolicyAssignOption{}, "cloud-policy-assign-object", "Assign cloudpolicy for object", func(cli *azure.SRegion, args *CloudpolicyAssignOption) error {
-		return cli.GetClient().AssignPolicy(args.OBJECT, args.ROLE, args.SubscriptionId)
+		return cli.GetClient().AssignPolicy(args.OBJECT, args.ROLE)
 	})
 
 	type AssignmentListOption struct {
 		ObjectId string
 	}
 
-	shellutils.R(&AssignmentListOption{}, "assignment-list", "List role assignments", func(cli *azure.SRegion, args *AssignmentListOption) error {
-		assignments, err := cli.GetClient().GetAssignments(args.ObjectId)
+	type CloudpolicyAssignListOptions struct {
+		ID string
+	}
+
+	shellutils.R(&CloudpolicyAssignListOptions{}, "cloud-user-policy-list", "Assign cloudpolicy for object", func(cli *azure.SRegion, args *CloudpolicyAssignListOptions) error {
+		ret, err := cli.GetClient().GetPrincipalPolicy(args.ID)
 		if err != nil {
 			return err
 		}
-		printList(assignments, 0, 0, 0, nil)
+		printList(ret, 0, 0, 0, nil)
 		return nil
 	})
 
-	type ObjectPolicyListOptions struct {
-		OBJECT string
-	}
-
-	shellutils.R(&ObjectPolicyListOptions{}, "object-policy-list", "List object policies", func(cli *azure.SRegion, args *ObjectPolicyListOptions) error {
-		policies, err := cli.GetClient().GetCloudpolicies(args.OBJECT)
+	shellutils.R(&CloudpolicyAssignListOptions{}, "cloud-group-policy-list", "Assign cloudpolicy for object", func(cli *azure.SRegion, args *CloudpolicyAssignListOptions) error {
+		ret, err := cli.GetClient().GetPrincipalPolicy(args.ID)
 		if err != nil {
 			return err
 		}
-		printList(policies, 0, 0, 0, nil)
+		printList(ret, 0, 0, 0, nil)
 		return nil
 	})
 
