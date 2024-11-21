@@ -15,13 +15,21 @@
 package shell
 
 import (
-	"yunion.io/x/pkg/util/printutils"
+	"yunion.io/x/pkg/util/shellutils"
+
+	"yunion.io/x/cloudmux/pkg/multicloud/baidu"
 )
 
-func printList(data interface{}) {
-	printutils.PrintInterfaceList(data, 0, 0, 0, nil)
-}
+func init() {
+	type ZoneListOptions struct {
+	}
+	shellutils.R(&ZoneListOptions{}, "zone-list", "list zones", func(cli *baidu.SRegion, args *ZoneListOptions) error {
+		zones, err := cli.GetZones()
+		if err != nil {
+			return err
+		}
+		printList(zones)
+		return nil
+	})
 
-func printObject(obj interface{}) {
-	printutils.PrintInterfaceObject(obj)
 }

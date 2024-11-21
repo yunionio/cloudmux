@@ -15,21 +15,35 @@
 package shell
 
 import (
+	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/util/shellutils"
 
 	"yunion.io/x/cloudmux/pkg/multicloud/baidu"
 )
 
 func init() {
-	type RegionListOptions struct {
+	type diskListOptions struct {
+		ZoneName    string
+		StorageType string
+		InstanceId  string
 	}
-	shellutils.R(&RegionListOptions{}, "region-list", "list regions", func(cli *baidu.SRegion, args *RegionListOptions) error {
-		regions, err := cli.GetClient().GetRegions()
+	shellutils.R(&diskListOptions{}, "disk-list", "list disks", func(cli *baidu.SRegion, args *diskListOptions) error {
+		disks, err := cli.GetDisks(args.StorageType, args.ZoneName, args.InstanceId)
 		if err != nil {
 			return err
 		}
-		printList(regions)
+		printList(disks)
 		return nil
 	})
-
+	type diskShowOptions struct {
+		ID string `help:"ID of disk to show"`
+	}
+	shellutils.R(&diskShowOptions{}, "disk-show", "list disks", func(cli *baidu.SRegion, args *diskShowOptions) error {
+		disk, err := cli.GetDisk(args.ID)
+		if err != nil {
+			return errors.Wrap(err, "Getdisk")
+		}
+		printObject(disk)
+		return nil
+	})
 }
