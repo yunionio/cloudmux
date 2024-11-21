@@ -15,13 +15,20 @@
 package shell
 
 import (
-	"yunion.io/x/pkg/util/printutils"
+	"yunion.io/x/pkg/util/shellutils"
+
+	"yunion.io/x/cloudmux/pkg/multicloud/baidu"
 )
 
-func printList(data interface{}) {
-	printutils.PrintInterfaceList(data, 0, 0, 0, nil)
-}
-
-func printObject(obj interface{}) {
-	printutils.PrintInterfaceObject(obj)
+func init() {
+	type StsListOptions struct {
+	}
+	shellutils.R(&StsListOptions{}, "caller-show", "show caller", func(cli *baidu.SRegion, args *StsListOptions) error {
+		ret, err := cli.GetClient().GetSessionToken()
+		if err != nil {
+			return err
+		}
+		printObject(ret)
+		return nil
+	})
 }

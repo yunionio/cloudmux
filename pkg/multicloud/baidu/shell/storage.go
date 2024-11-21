@@ -15,13 +15,22 @@
 package shell
 
 import (
-	"yunion.io/x/pkg/util/printutils"
+	"yunion.io/x/pkg/util/shellutils"
+
+	"yunion.io/x/cloudmux/pkg/multicloud/baidu"
 )
 
-func printList(data interface{}) {
-	printutils.PrintInterfaceList(data, 0, 0, 0, nil)
-}
+func init() {
+	type StorageListOptions struct {
+		ZoneName string
+	}
+	shellutils.R(&StorageListOptions{}, "storage-list", "list storage", func(cli *baidu.SRegion, args *StorageListOptions) error {
+		storages, err := cli.GetStorageTypes(args.ZoneName)
+		if err != nil {
+			return err
+		}
+		printList(storages)
+		return nil
+	})
 
-func printObject(obj interface{}) {
-	printutils.PrintInterfaceObject(obj)
 }

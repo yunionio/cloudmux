@@ -12,16 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package shell
+package baidu
 
-import (
-	"yunion.io/x/pkg/util/printutils"
-)
+import "time"
 
-func printList(data interface{}) {
-	printutils.PrintInterfaceList(data, 0, 0, 0, nil)
+type SessionToken struct {
+	UserId          string
+	SessionToken    string
+	AccessKeyId     string
+	SecretAccessKey string
+	CreateTime      time.Time
+	Expiration      time.Time
 }
 
-func printObject(obj interface{}) {
-	printutils.PrintInterfaceObject(obj)
+func (client *SBaiduClient) GetSessionToken() (*SessionToken, error) {
+	resp, err := client.post(SERVICE_STS, "", "sessionToken", nil, nil)
+	if err != nil {
+		return nil, err
+	}
+	ret := &SessionToken{}
+	err = resp.Unmarshal(ret)
+	if err != nil {
+		return nil, err
+	}
+	return ret, nil
 }

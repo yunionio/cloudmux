@@ -15,13 +15,21 @@
 package shell
 
 import (
-	"yunion.io/x/pkg/util/printutils"
+	"yunion.io/x/pkg/util/shellutils"
+
+	"yunion.io/x/cloudmux/pkg/multicloud/baidu"
 )
 
-func printList(data interface{}) {
-	printutils.PrintInterfaceList(data, 0, 0, 0, nil)
-}
+func init() {
+	type KeypairListOptions struct {
+	}
+	shellutils.R(&KeypairListOptions{}, "keypair-list", "list keypairs", func(cli *baidu.SRegion, args *KeypairListOptions) error {
+		keypairs, err := cli.GetKeypairs()
+		if err != nil {
+			return err
+		}
+		printList(keypairs)
+		return nil
+	})
 
-func printObject(obj interface{}) {
-	printutils.PrintInterfaceObject(obj)
 }
