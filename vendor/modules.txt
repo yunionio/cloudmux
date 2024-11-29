@@ -291,11 +291,11 @@ github.com/tencentyun/cos-go-sdk-v5/debug
 # github.com/texttheater/golang-levenshtein v0.0.0-20180516184445-d188e65d659e
 ## explicit
 github.com/texttheater/golang-levenshtein/levenshtein
-# github.com/tredoe/osutil/v2 v2.0.0-rc.16
+# github.com/tredoe/osutil v1.5.0
 ## explicit; go 1.16
-github.com/tredoe/osutil/v2/userutil/crypt
-github.com/tredoe/osutil/v2/userutil/crypt/common
-github.com/tredoe/osutil/v2/userutil/crypt/sha512_crypt
+github.com/tredoe/osutil/user/crypt
+github.com/tredoe/osutil/user/crypt/common
+github.com/tredoe/osutil/user/crypt/sha512_crypt
 # github.com/vmware/govmomi v0.20.1
 ## explicit
 github.com/vmware/govmomi
@@ -564,14 +564,14 @@ gopkg.in/yaml.v2
 # moul.io/http2curl/v2 v2.3.0
 ## explicit; go 1.13
 moul.io/http2curl/v2
-# yunion.io/x/jsonutils v1.0.1-0.20240203102553-4096f103b401
+# yunion.io/x/jsonutils v1.0.1-0.20240930100528-1671a2d0d22f
 ## explicit; go 1.18
 yunion.io/x/jsonutils
 # yunion.io/x/log v1.0.1-0.20240305175729-7cf2d6cd5a91
 ## explicit; go 1.12
 yunion.io/x/log
 yunion.io/x/log/hooks
-# yunion.io/x/pkg v1.10.0
+# yunion.io/x/pkg v1.10.1
 ## explicit; go 1.18
 yunion.io/x/pkg/appctx
 yunion.io/x/pkg/errors
