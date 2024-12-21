@@ -415,8 +415,8 @@ honnef.co/go/tools v0.0.0-20190523083050-ea95bdfd59fc/go.mod h1:rf3lG4BRIbNafJWh
 moul.io/http2curl/v2 v2.3.0 h1:9r3JfDzWPcbIklMOs2TnIFzDYvfAZvjeavG6EzP7jYs=
 moul.io/http2curl/v2 v2.3.0/go.mod h1:RW4hyBjTWSYDOxapodpNEtX0g5Eb16sxklBqmd2RHcE=
 yunion.io/x/jsonutils v0.0.0-20190625054549-a964e1e8a051/go.mod h1:4N0/RVzsYL3kH3WE/H1BjUQdFiWu50JGCFQuuy+Z634=
-yunion.io/x/jsonutils v1.0.1-0.20240203102553-4096f103b401 h1:4l6ELFSQ0MBVInscZ8/yOtSWF0cwH5BT1ATN6dCtAqc=
-yunion.io/x/jsonutils v1.0.1-0.20240203102553-4096f103b401/go.mod h1:VK4Z93dgiKgAijcSqbMKmGaBMJuHulR16Hz4K015ZPo=
+yunion.io/x/jsonutils v1.0.1-0.20240930100528-1671a2d0d22f h1:N7V0uLqX9mED1HEPeIKcYpkWglnHL5hyn4ENX+VBeqM=
+yunion.io/x/jsonutils v1.0.1-0.20240930100528-1671a2d0d22f/go.mod h1:VK4Z93dgiKgAijcSqbMKmGaBMJuHulR16Hz4K015ZPo=
 yunion.io/x/log v0.0.0-20190514041436-04ce53b17c6b/go.mod h1:+gauLs73omeJAPlsXcevLsJLKixV+sR/E7WSYTSx1fE=
 yunion.io/x/log v1.0.1-0.20240305175729-7cf2d6cd5a91 h1:inY5o3LDa/zgsIZuPN0HmpzKIsu/lLgsBmMttuDPGj4=
 yunion.io/x/log v1.0.1-0.20240305175729-7cf2d6cd5a91/go.mod h1:LC6f/4FozL0iaAbnFt2eDX9jlsyo3WiOUPm03d7+U4U=
