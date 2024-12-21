@@ -31,7 +31,7 @@ require (
 	golang.org/x/text v0.14.0
 	gopkg.in/fatih/set.v0 v0.2.1
 	moul.io/http2curl/v2 v2.3.0
-	yunion.io/x/jsonutils v1.0.1-0.20240203102553-4096f103b401
+	yunion.io/x/jsonutils v1.0.1-0.20240930100528-1671a2d0d22f
 	yunion.io/x/log v1.0.1-0.20240305175729-7cf2d6cd5a91
 	yunion.io/x/pkg v1.10.2
 	yunion.io/x/s3cli v0.0.0-20241221171442-1c11599d28e1
