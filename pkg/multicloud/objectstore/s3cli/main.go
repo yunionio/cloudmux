@@ -35,6 +35,7 @@ type BaseOptions struct {
 	AccessKey  string `help:"Access key" default:"$S3_ACCESS_KEY" metavar:"S3_ACCESS_KEY"`
 	Secret     string `help:"Secret" default:"$S3_SECRET" metavar:"S3_SECRET"`
 	Backend    string `help:"Backend driver" default:"$S3_BACKEND" metavar:"S3_BACKEND"`
+	SignVer    string `help:"Signing Algorithm Version" default:"$S3_SIGN_VER" metavar:"S3_SIGN_VER"`
 	SUBCOMMAND string `help:"s3cli subcommand" subcommand:"true"`
 }
 
@@ -96,7 +97,7 @@ func newClient(options *BaseOptions) (cloudprovider.ICloudRegion, error) {
 	return objectstore.NewObjectStoreClient(
 		objectstore.NewObjectStoreClientConfig(
 			options.AccessUrl, options.AccessKey, options.Secret,
-		).Debug(options.Debug),
+		).Debug(options.Debug).SignVersion(objectstore.S3SignVersion(options.SignVer)),
 	)
 }
 
