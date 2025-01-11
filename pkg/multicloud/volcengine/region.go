@@ -88,9 +88,9 @@ func (region *SRegion) GetId() string {
 
 func (region *SRegion) GetName() string {
 	if localName, ok := RegionLocations[region.RegionId]; ok {
-		return fmt.Sprintf("%s %s", CLOUD_PROVIDER_VOLCENGINE_CN, localName)
+		return localName
 	}
-	return fmt.Sprintf("%s %s", CLOUD_PROVIDER_VOLCENGINE_CN, region.RegionId)
+	return region.RegionId
 }
 
 func (region *SRegion) GetGlobalId() string {
