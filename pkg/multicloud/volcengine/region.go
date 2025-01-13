@@ -32,9 +32,9 @@ import (
 )
 
 var RegionLocations = map[string]string{
-	"cn-beijing":     "华东2（北京）",
+	"cn-beijing":     "华北2（北京）",
 	"cn-shanghai":    "华东2（上海）",
-	"cn-guangzhou":   "华东2（广州）",
+	"cn-guangzhou":   "华南1（广州）",
 	"ap-southeast-1": "亚太东南（柔佛）",
 	"cn-hongkong":    "中国香港",
 }
