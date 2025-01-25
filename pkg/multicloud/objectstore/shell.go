@@ -29,7 +29,6 @@ import (
 	"yunion.io/x/pkg/util/fileutils"
 	"yunion.io/x/pkg/util/printutils"
 	"yunion.io/x/pkg/util/shellutils"
-	"yunion.io/x/pkg/util/streamutils"
 
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
 )
@@ -360,6 +359,8 @@ func S3Shell() {
 
 		StorageClass string `help:"storage class"`
 
+		Parallel bool `help:"upload object parts in parallel"`
+
 		ObjectHeaderOptions
 	}
 	shellutils.R(&BucketPutObjectOptions{}, "put-object", "Put object into a bucket", func(cli cloudprovider.ICloudRegion, args *BucketPutObjectOptions) error {
@@ -401,7 +402,7 @@ func S3Shell() {
 					}
 				}
 
-				err = cloudprovider.UploadObject(context.Background(), bucket, key, args.BlockSize*1000*1000, file, fSize, cloudprovider.TBucketACLType(args.Acl), args.StorageClass, meta, true)
+				err = cloudprovider.UploadObjectParallel(context.Background(), bucket, key, args.BlockSize*1000*1000, file, fSize, cloudprovider.TBucketACLType(args.Acl), args.StorageClass, meta, true, args.Parallel)
 				if err != nil {
 					return err
 				}
@@ -834,6 +835,9 @@ func S3Shell() {
 			return err
 		}
 		uplaods, err := bucket.ListMultipartUploads()
+		if err != nil {
+			return err
+		}
 		printList(uplaods, len(uplaods), 0, len(uplaods), nil)
 		return nil
 	})
@@ -873,6 +877,10 @@ func S3Shell() {
 		Output string `help:"target output, default to stdout"`
 		Start  int64  `help:"partial download start"`
 		End    int64  `help:"partial download end"`
+
+		BlockSize int64 `help:"blocksz in MB" default:"100"`
+
+		Parallel bool `help:"upload object parts in parallel"`
 	}
 	shellutils.R(&BucketObjectDownloadOptions{}, "object-download", "Download", func(cli cloudprovider.ICloudRegion, args *BucketObjectDownloadOptions) error {
 		bucket, err := cli.GetIBucketById(args.BUCKET)
@@ -891,12 +899,7 @@ func S3Shell() {
 			}
 			rangeOpt = &cloudprovider.SGetObjectRange{Start: args.Start, End: args.End}
 		}
-		output, err := bucket.GetObject(context.Background(), args.KEY, rangeOpt)
-		if err != nil {
-			return err
-		}
-		defer output.Close()
-		var target io.Writer
+		var target io.WriterAt
 		if len(args.Output) == 0 {
 			target = os.Stdout
 		} else {
@@ -907,12 +910,13 @@ func S3Shell() {
 			defer fp.Close()
 			target = fp
 		}
-		prop, err := streamutils.StreamPipe(output, target, false, nil)
+
+		sz, err := cloudprovider.DownloadObjectParallel(context.Background(), bucket, args.KEY, rangeOpt, target, 0, args.BlockSize*1000*1000, true, args.Parallel)
 		if err != nil {
 			return err
 		}
 		if len(args.Output) > 0 {
-			fmt.Println("Success:", prop.Size, "written")
+			fmt.Println("Success:", sz, "written")
 		}
 		return nil
 	})
@@ -938,13 +942,15 @@ func S3Shell() {
 	})
 
 	type BucketObjectCopyOptions struct {
-		SRC       string `help:"name of source bucket"`
-		SRCKEY    string `help:"Key of source object"`
-		DST       string `help:"name of destination bucket"`
-		DSTKEY    string `help:"key of destination object"`
-		Debug     bool   `help:"show debug info"`
-		BlockSize int64  `help:"block size in MB"`
-		Native    bool   `help:"Use native copy"`
+		SRC    string `help:"name of source bucket"`
+		SRCKEY string `help:"Key of source object"`
+		DST    string `help:"name of destination bucket"`
+		DSTKEY string `help:"key of destination object"`
+
+		BlockSize int64 `help:"block size in MB"`
+		Native    bool  `help:"Use native copy"`
+
+		Parallel bool `help:"copy object parts in parallel"`
 
 		ObjectHeaderOptions
 	}
@@ -969,7 +975,7 @@ func S3Shell() {
 				return err
 			}
 		} else {
-			err = cloudprovider.CopyObject(ctx, args.BlockSize*1000*1000, dstBucket, args.DSTKEY, srcBucket, args.SRCKEY, meta, args.Debug)
+			err = cloudprovider.CopyObjectParallel(ctx, args.BlockSize*1000*1000, dstBucket, args.DSTKEY, srcBucket, args.SRCKEY, meta, true, args.Parallel)
 			if err != nil {
 				return err
 			}
