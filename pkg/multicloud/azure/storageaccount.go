@@ -868,6 +868,7 @@ func (b *SStorageAccount) ListObjects(prefix string, marker string, delimiter st
 	result := cloudprovider.SListObjectResult{}
 	containers, err := b.GetContainers()
 	if err != nil {
+		log.Debugf("%#v", err)
 		return result, errors.Wrap(err, "GetContainers")
 	}
 	result.Objects = make([]cloudprovider.ICloudObject, 0)
