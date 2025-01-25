@@ -274,7 +274,7 @@ func S3Shell() {
 		Demiliter string `help:"delimiter"`
 		Max       int    `help:"Max count"`
 	}
-	shellutils.R(&BucketObjectsOptions{}, "bucket-object", "List objects in a bucket", func(cli cloudprovider.ICloudRegion, args *BucketObjectsOptions) error {
+	objectListFunc := func(cli cloudprovider.ICloudRegion, args *BucketObjectsOptions) error {
 		bucket, err := cli.GetIBucketById(args.BUCKET)
 		if err != nil {
 			return err
@@ -291,7 +291,9 @@ func S3Shell() {
 		fmt.Println("Objects:")
 		printutils.PrintGetterList(result.Objects, []string{"key", "size_bytes"})
 		return nil
-	})
+	}
+	shellutils.R(&BucketObjectsOptions{}, "bucket-object", "List objects in a bucket (deprecated)", objectListFunc)
+	shellutils.R(&BucketObjectsOptions{}, "object-list", "List objects in a bucket", objectListFunc)
 
 	type BucketListObjectsOptions struct {
 		BUCKET string `help:"name of bucket to list objects"`
@@ -359,11 +361,11 @@ func S3Shell() {
 
 		StorageClass string `help:"storage class"`
 
-		Parallel bool `help:"upload object parts in parallel"`
+		Parallel int `help:"upload object parts in parallel"`
 
 		ObjectHeaderOptions
 	}
-	shellutils.R(&BucketPutObjectOptions{}, "put-object", "Put object into a bucket", func(cli cloudprovider.ICloudRegion, args *BucketPutObjectOptions) error {
+	objectPutFunc := func(cli cloudprovider.ICloudRegion, args *BucketPutObjectOptions) error {
 		bucket, err := cli.GetIBucketById(args.BUCKET)
 		if err != nil {
 			return err
@@ -441,7 +443,9 @@ func S3Shell() {
 
 		fmt.Printf("Upload success\n")
 		return nil
-	})
+	}
+	shellutils.R(&BucketPutObjectOptions{}, "put-object", "Put object into a bucket (deprecated)", objectPutFunc)
+	shellutils.R(&BucketPutObjectOptions{}, "object-upload", "Upload object into a bucket", objectPutFunc)
 
 	type BucketDeleteObjectOptions struct {
 		BUCKET string `help:"name of bucket to put object"`
@@ -880,7 +884,7 @@ func S3Shell() {
 
 		BlockSize int64 `help:"blocksz in MB" default:"100"`
 
-		Parallel bool `help:"upload object parts in parallel"`
+		Parallel int `help:"upload object parts in parallel"`
 	}
 	shellutils.R(&BucketObjectDownloadOptions{}, "object-download", "Download", func(cli cloudprovider.ICloudRegion, args *BucketObjectDownloadOptions) error {
 		bucket, err := cli.GetIBucketById(args.BUCKET)
@@ -950,11 +954,11 @@ func S3Shell() {
 		BlockSize int64 `help:"block size in MB"`
 		Native    bool  `help:"Use native copy"`
 
-		Parallel bool `help:"copy object parts in parallel"`
+		Parallel int `help:"copy object parts in parallel"`
 
 		ObjectHeaderOptions
 	}
-	shellutils.R(&BucketObjectCopyOptions{}, "object-copy", "Copy object", func(cli cloudprovider.ICloudRegion, args *BucketObjectCopyOptions) error {
+	objectCopyFunc := func(cli cloudprovider.ICloudRegion, args *BucketObjectCopyOptions) error {
 		ctx := context.Background()
 		dstBucket, err := cli.GetIBucketByName(args.DST)
 		if err != nil {
@@ -982,7 +986,8 @@ func S3Shell() {
 		}
 		fmt.Println("Success!")
 		return nil
-	})
+	}
+	shellutils.R(&BucketObjectCopyOptions{}, "object-copy", "Copy object", objectCopyFunc)
 
 	type ObjectMetaOptions struct {
 		BUCKET string `help:"bucket name"`
