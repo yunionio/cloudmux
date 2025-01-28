@@ -495,7 +495,41 @@ func Makedir(ctx context.Context, bucket ICloudBucket, key string) error {
 }
 
 func UploadObject(ctx context.Context, bucket ICloudBucket, key string, blocksz int64, input io.Reader, sizeBytes int64, cannedAcl TBucketACLType, storageClass string, meta http.Header, debug bool) error {
-	return UploadObjectParallel(ctx, bucket, key, blocksz, input, sizeBytes, cannedAcl, storageClass, meta, debug, 1)
+	return UploadObjectParallel(ctx, bucket, key, blocksz, newReaderAt(input), sizeBytes, cannedAcl, storageClass, meta, debug, 1)
+}
+
+type sSeqReader struct {
+	reader io.Reader
+	offset int64
+}
+
+func newReaderAt(input io.Reader) io.ReaderAt {
+	return &sSeqReader{
+		reader: input,
+		offset: 0,
+	}
+}
+
+func (sr *sSeqReader) ReadAt(p []byte, offset int64) (int, error) {
+	return sr.reader.Read(p)
+}
+
+type sOffsetReader struct {
+	readerAt io.ReaderAt
+	offset   int64
+}
+
+func newReader(input io.ReaderAt, inputOffset int64) io.Reader {
+	return &sOffsetReader{
+		readerAt: input,
+		offset:   inputOffset,
+	}
+}
+
+func (or *sOffsetReader) Read(p []byte) (int, error) {
+	n, err := or.readerAt.ReadAt(p, or.offset)
+	or.offset += int64(n)
+	return n, err
 }
 
 type uploadPartOfMultipartJob struct {
@@ -538,12 +572,12 @@ func uploadPartOfMultipart(ctx context.Context, bucket ICloudBucket, key string,
 	if debug {
 		duration := time.Since(startAt)
 		rateMbps := calculateRateMbps(partSize, duration)
-		log.Debugf("End of uploadPart %d %d takes %d seconds at %fMbps", partIndex+1, partSize, duration/time.Second, rateMbps)
+		log.Debugf("End of uploadPart %d %d takes %f seconds at %fMbps", partIndex+1, partSize, float64(duration)/float64(time.Second), rateMbps)
 	}
 	return etag, nil
 }
 
-func UploadObjectParallel(ctx context.Context, bucket ICloudBucket, key string, blocksz int64, input io.Reader, sizeBytes int64, cannedAcl TBucketACLType, storageClass string, meta http.Header, debug bool, parallel int) error {
+func UploadObjectParallel(ctx context.Context, bucket ICloudBucket, key string, blocksz int64, input io.ReaderAt, sizeBytes int64, cannedAcl TBucketACLType, storageClass string, meta http.Header, debug bool, parallel int) error {
 	if blocksz <= 0 {
 		blocksz = MAX_PUT_OBJECT_SIZEBYTES
 	}
@@ -551,7 +585,7 @@ func UploadObjectParallel(ctx context.Context, bucket ICloudBucket, key string, 
 		if debug {
 			log.Debugf("too small, put object in one shot")
 		}
-		return bucket.PutObject(ctx, key, input, sizeBytes, cannedAcl, storageClass, meta)
+		return bucket.PutObject(ctx, key, newReader(input, 0), sizeBytes, cannedAcl, storageClass, meta)
 	}
 	partSize := blocksz
 	partCount := sizeBytes / partSize
@@ -598,7 +632,7 @@ func UploadObjectParallel(ctx context.Context, bucket ICloudBucket, key string, 
 				ctx:       ctx,
 				bucket:    bucket,
 				key:       key,
-				input:     input,
+				input:     newReader(input, offset),
 				sizeBytes: sizeBytes,
 				uploadId:  uploadId,
 				partIndex: partIndex,
@@ -999,19 +1033,19 @@ func SetBucketTags(ctx context.Context, iBucket ICloudBucket, mangerId string, t
 	return ret, SetTags(ctx, iBucket, mangerId, tags, true)
 }
 
-type sOffsetWiter struct {
+type sOffsetWriter struct {
 	writerAt io.WriterAt
 	offset   int64
 }
 
 func newWriter(output io.WriterAt, outputOffset int64) io.Writer {
-	return &sOffsetWiter{
+	return &sOffsetWriter{
 		writerAt: output,
 		offset:   outputOffset,
 	}
 }
 
-func (ow *sOffsetWiter) Write(p []byte) (int, error) {
+func (ow *sOffsetWriter) Write(p []byte) (int, error) {
 	n, err := ow.writerAt.WriteAt(p, ow.offset)
 	ow.offset += int64(n)
 	return n, err
