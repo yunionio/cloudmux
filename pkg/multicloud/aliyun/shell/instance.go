@@ -224,4 +224,13 @@ func init() {
 		return nil
 	})
 
+	type InstanceChangeBillingType struct {
+		ID          string
+		BillingType string `choices:"postpaid|prepaid" default:"prepaid"`
+	}
+
+	shellutils.R(&InstanceChangeBillingType{}, "instance-change-billing-type", "change instance billing type", func(cli *aliyun.SRegion, args *InstanceChangeBillingType) error {
+		return cli.ModifyInstanceChargeType(args.ID, args.BillingType)
+	})
+
 }
