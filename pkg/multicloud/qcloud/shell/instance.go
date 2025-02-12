@@ -21,6 +21,7 @@ import (
 	"yunion.io/x/pkg/util/shellutils"
 
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud/aliyun"
 	"yunion.io/x/cloudmux/pkg/multicloud/qcloud"
 )
 
@@ -237,6 +238,15 @@ func init() {
 	}
 	shellutils.R(&InstanceBandWidthOptions{}, "instance-change-bandwidth", "Change instance bandwidth", func(cli *qcloud.SRegion, args *InstanceBandWidthOptions) error {
 		return cli.UpdateInstanceBandwidth(args.ID, args.BANDWIDTH, args.InternetChargeType)
+	})
+
+	type InstanceChangeBillingType struct {
+		ID          string
+		BillingType string `choices:"postpaid|prepaid" default:"prepaid"`
+	}
+
+	shellutils.R(&InstanceChangeBillingType{}, "instance-change-billing-type", "change instance billing type", func(cli *aliyun.SRegion, args *InstanceChangeBillingType) error {
+		return cli.ModifyInstanceChargeType(args.ID, args.BillingType)
 	})
 
 }
