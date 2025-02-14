@@ -1018,7 +1018,18 @@ func (region *SRegion) ModifyInstanceChargeType(vmId string, billingType string)
 		return fmt.Errorf("invalid billing_type %s", billingType)
 	}
 	_, err := region.ecsRequest("ModifyInstanceChargeType", params)
-	return err
+	if err != nil {
+		return err
+	}
+	if billingType == billing_api.BILLING_TYPE_PREPAID {
+		cycle := billing.SBillingCycle{
+			AutoRenew: true,
+			Count:     1,
+			Unit:      billing.BillingCycleMonth,
+		}
+		region.SetInstanceAutoRenew(vmId, cycle)
+	}
+	return nil
 }
 
 func (self *SInstance) GetCreatedAt() time.Time {
