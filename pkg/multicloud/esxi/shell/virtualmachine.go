@@ -444,17 +444,19 @@ func init() {
 		if err != nil {
 			return err
 		}
+		uefi := false
 		if len(args.TemplateId) > 0 {
 			temp, err := cli.SearchTemplateVM(args.TemplateId)
 			if err != nil {
 				return errors.Wrapf(err, "SearchTemplateVM")
 			}
+			uefi = temp.GetBios() == cloudprovider.UEFI
 			args.ImagePath, err = temp.GetRootImagePath()
 			if err != nil {
 				return errors.Wrapf(err, "CopyRootDisk")
 			}
 		}
-		return vm.DoRebuildRoot(context.Background(), args.ImagePath, "")
+		return vm.DoRebuildRoot(context.Background(), args.ImagePath, "", uefi)
 	})
 
 }
