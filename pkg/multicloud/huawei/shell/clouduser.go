@@ -85,7 +85,7 @@ func init() {
 	}
 
 	shellutils.R(&ClouduserResetPassword{}, "cloud-user-reset-password", "Reset clouduser password", func(cli *huawei.SRegion, args *ClouduserResetPassword) error {
-		return cli.GetClient().ResetClouduserPassword(args.ID, args.PASSWORD)
+		return cli.GetClient().UpdateUser(args.ID, args.PASSWORD, nil)
 	})
 
 	type ClouduserAKSKOptions struct {
