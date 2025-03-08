@@ -15,14 +15,14 @@
 package shell
 
 import (
+	"yunion.io/x/cloudmux/pkg/multicloud/zstack"
 	"yunion.io/x/pkg/util/shellutils"
 
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
-	"yunion.io/x/cloudmux/pkg/multicloud/aliyun"
 )
 
 func init() {
-	shellutils.R(&cloudprovider.MetricListOptions{}, "metric-list", "List metrics in a namespace", func(cli *aliyun.SRegion, args *cloudprovider.MetricListOptions) error {
+	shellutils.R(&cloudprovider.MetricListOptions{}, "metric-list", "List metrics in a namespace", func(cli *zstack.SRegion, args *cloudprovider.MetricListOptions) error {
 		metrics, err := cli.GetClient().GetMetrics(args)
 		if err != nil {
 			return err
