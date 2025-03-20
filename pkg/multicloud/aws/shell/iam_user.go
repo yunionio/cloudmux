@@ -85,7 +85,7 @@ func init() {
 	}
 
 	shellutils.R(&ClouduserLoginProfileCreateOptions{}, "cloud-user-loginprofile-create", "Create clouduser loginprofile", func(cli *aws.SRegion, args *ClouduserLoginProfileCreateOptions) error {
-		profile, err := cli.GetClient().CreateLoginProfile(args.NAME, args.PASSWORD)
+		profile, err := cli.GetClient().CreateLoginProfile(args.NAME, args.PASSWORD, false)
 		if err != nil {
 			return err
 		}
