@@ -100,7 +100,7 @@ func init() {
 	}
 
 	shellutils.R(&LoginProfileCreateOptions{}, "cloud-user-loginprofile-create", "Create Cloud user loginprofile", func(cli *aliyun.SRegion, args *LoginProfileCreateOptions) error {
-		profile, err := cli.GetClient().CreateLoginProfile(args.NAME, args.PASSWORD)
+		profile, err := cli.GetClient().CreateLoginProfile(args.NAME, args.PASSWORD, false, true)
 		if err != nil {
 			return err
 		}
