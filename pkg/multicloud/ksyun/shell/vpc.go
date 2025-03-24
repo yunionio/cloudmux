@@ -30,7 +30,7 @@ func init() {
 		if err != nil {
 			return errors.Wrap(err, "GetVpcs")
 		}
-		printList(res, 0, 0, 0, []string{})
+		printList(res)
 		return nil
 	})
 }
