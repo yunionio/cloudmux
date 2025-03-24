@@ -18,8 +18,8 @@ import (
 	"yunion.io/x/pkg/util/printutils"
 )
 
-func printList(data interface{}, total, offset, limit int, columns []string) {
-	printutils.PrintInterfaceList(data, total, offset, limit, columns)
+func printList(data interface{}) {
+	printutils.PrintInterfaceList(data, 0, 0, 0, nil)
 }
 
 func printObject(obj interface{}) {
