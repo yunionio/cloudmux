@@ -31,7 +31,7 @@ func init() {
 		if err != nil {
 			return errors.Wrap(err, "GetInstances")
 		}
-		printList(res, 0, 0, 0, []string{})
+		printList(res)
 		return nil
 	})
 }

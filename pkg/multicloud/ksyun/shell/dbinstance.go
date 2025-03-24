@@ -15,21 +15,29 @@
 package shell
 
 import (
-	"yunion.io/x/pkg/util/shellutils"
-
 	"yunion.io/x/cloudmux/pkg/multicloud/ksyun"
+
+	"yunion.io/x/pkg/errors"
+	"yunion.io/x/pkg/util/shellutils"
 )
 
 func init() {
-	type ProjectListOptions struct {
+	type DBInstanceListOptions struct {
+		Id string
 	}
-	shellutils.R(&ProjectListOptions{}, "project-list", "list projects", func(cli *ksyun.SRegion, args *ProjectListOptions) error {
-		projects, err := cli.GetClient().GetProjects()
+	shellutils.R(&DBInstanceListOptions{}, "dbinstance-list", "list dbinstances", func(cli *ksyun.SRegion, args *DBInstanceListOptions) error {
+		res, err := cli.GetDBInstances(args.Id)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "GetDBInstances")
 		}
-		printList(projects)
+		printList(res)
 		return nil
 	})
 
+	type DBInstanceIdOptions struct {
+		ID string
+	}
+	shellutils.R(&DBInstanceIdOptions{}, "dbinstance-delete", "delete dbinstance", func(cli *ksyun.SRegion, args *DBInstanceIdOptions) error {
+		return cli.DeleteDBInstance(args.ID)
+	})
 }
