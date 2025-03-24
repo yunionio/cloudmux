@@ -27,7 +27,7 @@ func init() {
 		if err != nil {
 			return err
 		}
-		printList(ret, 0, 0, 0, nil)
+		printList(ret)
 		return nil
 	})
 
@@ -67,7 +67,7 @@ func init() {
 		if err != nil {
 			return err
 		}
-		printList(ret, 0, 0, 0, nil)
+		printList(ret)
 		return nil
 	})
 
