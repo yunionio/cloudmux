@@ -32,7 +32,7 @@ func init() {
 		if err != nil {
 			return errors.Wrap(err, "GetNetworks")
 		}
-		printList(res, 0, 0, 0, []string{})
+		printList(res)
 		return nil
 	})
 }

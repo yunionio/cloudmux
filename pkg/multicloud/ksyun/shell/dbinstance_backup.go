@@ -12,33 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package ksyun
+package shell
 
 import (
-	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud/ksyun"
+
 	"yunion.io/x/pkg/errors"
+	"yunion.io/x/pkg/util/shellutils"
 )
 
-type SKsyunTags struct {
-	Tags []struct {
-		TagId    string
-		TagKey   string
-		TagValue string
+func init() {
+	type DBInstanceBackupListOptions struct {
+		ID string
 	}
-}
-
-func (tag *SKsyunTags) GetTags() (map[string]string, error) {
-	ret := map[string]string{}
-	for _, v := range tag.Tags {
-		ret[v.TagKey] = v.TagValue
-	}
-	return ret, nil
-}
-
-func (tag *SKsyunTags) GetSysTags() map[string]string {
-	return nil
-}
-
-func (tag *SKsyunTags) SetTags(tags map[string]string, replace bool) error {
-	return errors.Wrapf(cloudprovider.ErrNotImplemented, "SetTags")
+	shellutils.R(&DBInstanceBackupListOptions{}, "dbinstance-backup-list", "list dbinstance backup", func(cli *ksyun.SRegion, args *DBInstanceBackupListOptions) error {
+		res, err := cli.GetDBInstanceBackups(args.ID)
+		if err != nil {
+			return errors.Wrap(err, "GetDBInstanceBackups")
+		}
+		printList(res)
+		return nil
+	})
 }
