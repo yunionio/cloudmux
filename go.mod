@@ -33,7 +33,7 @@ require (
 	moul.io/http2curl/v2 v2.3.0
 	yunion.io/x/jsonutils v1.0.1-0.20240930100528-1671a2d0d22f
 	yunion.io/x/log v1.0.1-0.20240305175729-7cf2d6cd5a91
-	yunion.io/x/pkg v1.10.4-0.20250321091808-805c8df74399
+	yunion.io/x/pkg v1.10.4-0.20250324235849-27051af0af08
 	yunion.io/x/s3cli v0.0.0-20241221171442-1c11599d28e1
 	yunion.io/x/structarg v0.0.0-20231017124457-df4d5009457c
 )
