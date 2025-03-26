@@ -140,6 +140,10 @@ func (self *SLoadbalancer) GetNetworkType() string {
 	return api.LB_NETWORK_TYPE_VPC
 }
 
+func (self *SLoadbalancer) GetType() cloudprovider.LoadbalancerType {
+	return cloudprovider.LoadbalancerTypeSLB
+}
+
 func (self *SLoadbalancer) GetNetworkIds() []string {
 	net := self.GetNetwork()
 	if net != nil {

@@ -119,6 +119,17 @@ func (self *SLoadbalancer) Stop() error {
 	return cloudprovider.ErrNotSupported
 }
 
+func (self *SLoadbalancer) GetType() cloudprovider.LoadbalancerType {
+	switch self.Forward {
+	case LB_TYPE_CLASSIC:
+		return cloudprovider.LoadbalancerTypeSLB
+	case LB_TYPE_APPLICATION:
+		return cloudprovider.LoadbalancerTypeALB
+	default:
+		return cloudprovider.LoadbalancerTypeSLB
+	}
+}
+
 // 腾讯云无后端服务器组
 func (self *SLoadbalancer) CreateILoadBalancerBackendGroup(group *cloudprovider.SLoadbalancerBackendGroup) (cloudprovider.ICloudLoadbalancerBackendGroup, error) {
 	return nil, cloudprovider.ErrNotSupported

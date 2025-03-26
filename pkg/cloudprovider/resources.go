@@ -720,6 +720,7 @@ type ICloudLoadbalancer interface {
 	GetLoadbalancerSpec() string
 	GetChargeType() string
 	GetEgressMbps() int
+	GetType() LoadbalancerType
 
 	GetIEIP() (ICloudEIP, error)
 

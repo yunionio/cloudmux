@@ -169,6 +169,10 @@ func (self *SLoadbalancer) GetZone1Id() string {
 	return ""
 }
 
+func (self *SLoadbalancer) GetType() cloudprovider.LoadbalancerType {
+	return cloudprovider.LoadbalancerTypeALB
+}
+
 func (self *SLoadbalancer) GetLoadbalancerSpec() string {
 	if len(self.Sku.Name) > 0 {
 		return self.Sku.Name

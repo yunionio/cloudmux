@@ -83,6 +83,10 @@ func (self *SLoadbalancer) IsEmulated() bool {
 	return true
 }
 
+func (self *SLoadbalancer) GetType() cloudprovider.LoadbalancerType {
+	return cloudprovider.LoadbalancerTypeSLB
+}
+
 func (self *SLoadbalancer) GetSysTags() map[string]string {
 	frs, err := self.GetForwardingRules()
 	if err != nil {
