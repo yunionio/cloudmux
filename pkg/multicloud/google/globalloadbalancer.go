@@ -74,6 +74,10 @@ func (self *SGlobalLoadbalancer) GetEgressMbps() int {
 	return 0
 }
 
+func (self *SGlobalLoadbalancer) GetType() cloudprovider.LoadbalancerType {
+	return cloudprovider.LoadbalancerTypeSLB
+}
+
 func (self *SGlobalLoadbalancer) Delete(ctx context.Context) error {
 	return cloudprovider.ErrNotImplemented
 }

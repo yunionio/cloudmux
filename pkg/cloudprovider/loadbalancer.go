@@ -16,6 +16,19 @@ package cloudprovider
 
 import "yunion.io/x/pkg/util/billing"
 
+type LoadbalancerType string
+
+const (
+	// 传统型负载均衡
+	LoadbalancerTypeSLB LoadbalancerType = "slb"
+	// 应用型负载均衡
+	LoadbalancerTypeALB LoadbalancerType = "alb"
+	// 网络型负载均衡
+	LoadbalancerTypeNLB LoadbalancerType = "nlb"
+	// 网关型负载均衡
+	LoadbalancerTypeGWLB LoadbalancerType = "gwlb"
+)
+
 type SLoadbalancerCreateOptions struct {
 	Name             string
 	Desc             string

@@ -211,6 +211,10 @@ func (lb *SLoadbalancer) GetZoneId() string {
 	return lb.AvailabilityZone
 }
 
+func (lb *SLoadbalancer) GetType() cloudprovider.LoadbalancerType {
+	return cloudprovider.LoadbalancerTypeSLB
+}
+
 func (self *SLoadbalancer) GetZone1Id() string {
 	return ""
 }

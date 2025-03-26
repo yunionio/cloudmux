@@ -122,6 +122,10 @@ func (lb *SLoadbalancer) GetAddressType() string {
 	return lb.AddressType
 }
 
+func (lb *SLoadbalancer) GetType() cloudprovider.LoadbalancerType {
+	return cloudprovider.LoadbalancerTypeSLB
+}
+
 func (lb *SLoadbalancer) GetNetworkType() string {
 	return lb.NetworkType
 }

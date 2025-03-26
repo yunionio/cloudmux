@@ -148,6 +148,10 @@ func (self *SLoadbalancer) GetAddress() string {
 	return self.VipAddress
 }
 
+func (self *SLoadbalancer) GetType() cloudprovider.LoadbalancerType {
+	return cloudprovider.LoadbalancerTypeSLB
+}
+
 // todo: api.LB_ADDR_TYPE_INTERNET?
 func (self *SLoadbalancer) GetAddressType() string {
 	return api.LB_ADDR_TYPE_INTRANET
