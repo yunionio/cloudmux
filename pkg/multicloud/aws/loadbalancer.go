@@ -151,6 +151,19 @@ func (self *SElb) GetNetworkType() string {
 	return api.LB_NETWORK_TYPE_VPC
 }
 
+func (self *SElb) GetType() cloudprovider.LoadbalancerType {
+	switch self.Type {
+	case "application":
+		return cloudprovider.LoadbalancerTypeALB
+	case "network":
+		return cloudprovider.LoadbalancerTypeNLB
+	case "gateway":
+		return cloudprovider.LoadbalancerTypeGWLB
+	default:
+		return cloudprovider.LoadbalancerTypeSLB
+	}
+}
+
 func (self *SElb) GetNetworkIds() []string {
 	ret := []string{}
 	for i := range self.AvailabilityZones {

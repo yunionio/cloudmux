@@ -79,6 +79,10 @@ func (self *SLoadbalancer) GetEgressMbps() int {
 	return self.Bandwidth
 }
 
+func (self *SLoadbalancer) GetType() cloudprovider.LoadbalancerType {
+	return cloudprovider.LoadbalancerTypeSLB
+}
+
 func (self *SLoadbalancer) GetIEIP() (cloudprovider.ICloudEIP, error) {
 	return nil, cloudprovider.ErrNotImplemented
 }

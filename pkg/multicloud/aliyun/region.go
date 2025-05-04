@@ -55,8 +55,6 @@ type SRegion struct {
 
 	ivpcs []cloudprovider.ICloudVpc
 
-	lbEndpints map[string]string
-
 	storageCache *SStoragecache
 
 	instanceTypes []SInstanceType
@@ -184,6 +182,16 @@ func (self *SRegion) kafkaRequest(apiName string, params map[string]string) (jso
 	return jsonRequest(client, domain, ALIYUN_KAFKA_API_VERSION, apiName, params, self.client.debug)
 }
 
+func (self *SRegion) albRequest(apiName string, params map[string]string) (jsonutils.JSONObject, error) {
+	client, err := self.getSdkClient()
+	if err != nil {
+		return nil, err
+	}
+	params = self.client.SetResourceGropuId(params)
+	domain := fmt.Sprintf("alb.%s.aliyuncs.com", self.RegionId)
+	return jsonRequest(client, domain, ALIYUN_ALB_API_VERSION, apiName, params, self.client.debug)
+}
+
 func (self *SRegion) rdsRequest(apiName string, params map[string]string) (jsonutils.JSONObject, error) {
 	client, err := self.getSdkClient()
 	if err != nil {
@@ -268,54 +276,16 @@ func (self *SRegion) scRequest(apiName string, params map[string]string) (jsonut
 	return jsonRequest(client, domain, ALIYUN_CAS_API_VERSION, apiName, params, self.client.debug)
 }
 
-type LBRegion struct {
-	RegionEndpoint string
-	RegionId       string
-}
-
-func (self *SRegion) fetchLBRegions(client *sdk.Client) error {
-	if len(self.lbEndpints) > 0 {
-		return nil
-	}
-	params := map[string]string{}
-	result, err := self._lbRequest(client, "DescribeRegions", "slb.aliyuncs.com", params)
-	if err != nil {
-		return err
-	}
-	self.lbEndpints = map[string]string{}
-	regions := []LBRegion{}
-	if err := result.Unmarshal(&regions, "Regions", "Region"); err != nil {
-		return err
-	}
-	for _, region := range regions {
-		self.lbEndpints[region.RegionId] = region.RegionEndpoint
-	}
-	return nil
-}
-
 func (self *SRegion) lbRequest(apiName string, params map[string]string) (jsonutils.JSONObject, error) {
 	client, err := self.getSdkClient()
 	if err != nil {
 		return nil, err
 	}
-	domain := "slb.aliyuncs.com"
-	if !utils.IsInStringArray(apiName, []string{"DescribeRegions", "DescribeZones"}) {
-		if regionId, ok := params["RegionId"]; ok {
-			if err := self.fetchLBRegions(client); err != nil {
-				return nil, err
-			}
-			endpoint, ok := self.lbEndpints[regionId]
-			if !ok {
-				return nil, fmt.Errorf("failed to find endpoint for lb region %s", regionId)
-			}
-			domain = endpoint
-		}
+	domain := fmt.Sprint("slb.%s.aliyuncs.com", self.RegionId)
+	if utils.IsInStringArray(self.RegionId, []string{"cn-shanghai-finance-1", "cn-hangzhou-finance", "cn-hangzhou"}) {
+		domain = "slb.aliyuncs.com"
 	}
 	params = self.client.SetResourceGropuId(params)
-	return self._lbRequest(client, apiName, domain, params)
-}
-
-func (self *SRegion) _lbRequest(client *sdk.Client, apiName string, domain string, params map[string]string) (jsonutils.JSONObject, error) {
 	return jsonRequest(client, domain, ALIYUN_API_VERSION_LB, apiName, params, self.client.debug)
 }
 
@@ -909,6 +879,14 @@ func (region *SRegion) GetILoadBalancers() ([]cloudprovider.ICloudLoadbalancer, 
 	for i := 0; i < len(lbs); i++ {
 		lbs[i].region = region
 		ilbs = append(ilbs, &lbs[i])
+	}
+	albs, err := region.GetAlbs(nil)
+	if err != nil {
+		return nil, err
+	}
+	for i := 0; i < len(albs); i++ {
+		albs[i].region = region
+		ilbs = append(ilbs, &albs[i])
 	}
 	return ilbs, nil
 }
