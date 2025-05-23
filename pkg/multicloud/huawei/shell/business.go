@@ -31,4 +31,17 @@ func init() {
 		printObject(result)
 		return nil
 	})
+
+	type AccountMonthBillOptions struct {
+		MONTH int
+	}
+	shellutils.R(&AccountMonthBillOptions{}, "month-bill", "Get account month bill", func(cli *huawei.SRegion, args *AccountMonthBillOptions) error {
+		result, err := cli.GetClient().QueryAccountMonthBill(args.MONTH)
+		if err != nil {
+			return err
+		}
+		printObject(result)
+		return nil
+	})
+
 }
