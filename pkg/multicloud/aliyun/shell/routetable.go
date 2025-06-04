@@ -45,7 +45,7 @@ func init() {
 			return e
 		}
 		if len(routetables) == 0 {
-			return fmt.Errorf("No such ID %s", args.ID)
+			return fmt.Errorf("no such ID %s", args.ID)
 		}
 		printObject(routetables[0])
 		return nil

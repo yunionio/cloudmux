@@ -12,21 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package multicloud
+package cloudprovider
 
-import (
-	"yunion.io/x/cloudmux/pkg/cloudprovider"
-	"yunion.io/x/pkg/errors"
-)
-
-type SLoadbalancerBase struct {
-	SVirtualResourceBase
+type AiGatewayCreateOptions struct {
+	Authentication          bool
+	CacheInvalidateOnUpdate bool
+	CacheTTL                int
+	CollectLogs             bool
+	Name                    string
+	RateLimitingInterval    int
+	RateLimitingLimit       int
+	RateLimitingTechnique   string
 }
 
-func (lb *SLoadbalancerBase) GetIEIPs() ([]cloudprovider.ICloudEIP, error) {
-	return nil, nil
-}
-
-func (lb *SLoadbalancerBase) GetSecurityGroupIds() ([]string, error) {
-	return nil, errors.Wrapf(cloudprovider.ErrNotImplemented, "GetSecurityGroupIds")
+type AiGatewayChangeConfigOptions struct {
+	Authentication          bool
+	CacheInvalidateOnUpdate bool
+	CacheTTL                int
+	CollectLogs             bool
+	RateLimitingInterval    int
+	RateLimitingLimit       int
+	RateLimitingTechnique   string
 }

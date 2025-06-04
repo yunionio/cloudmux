@@ -722,7 +722,7 @@ type ICloudLoadbalancer interface {
 	GetChargeType() string
 	GetEgressMbps() int
 
-	GetIEIP() (ICloudEIP, error)
+	GetIEIPs() ([]ICloudEIP, error)
 
 	Delete(ctx context.Context) error
 
@@ -842,7 +842,13 @@ type ICloudLoadbalancerBackendGroup interface {
 }
 
 type ICloudLoadbalancerBackend interface {
-	ICloudResource
+	GetId() string
+	GetName() string
+	GetGlobalId() string
+	GetCreatedAt() time.Time
+	GetDescription() string
+
+	GetStatus() string
 
 	GetWeight() int
 	GetPort() int
@@ -1535,7 +1541,12 @@ type ICloudWafRule interface {
 	GetType() string
 	GetAction() *DefaultAction
 	GetStatementCondition() TWafStatementCondition
+	GetExpression() string
 	GetStatements() ([]SWafStatement, error)
+	GetConfig() (jsonutils.JSONObject, error)
+	GetEnabled() bool
+	Enable() error
+	Disable() error
 
 	Update(opts *SWafRule) error
 	Delete() error
@@ -1730,6 +1741,19 @@ type ICloudCDNDomain interface {
 	// 浏览器缓存配置
 	GetMaxAge() (*SCDNMaxAge, error)
 
+	GetDNSSECEnabled() bool
+	// SSL/TLS加密模式
+	GetSSLSetting() string
+
+	GetHTTPSRewrites() bool
+	GetCacheLevel() string
+	ClearCache(opts *CacheClearOptions) error
+	GetBrowserCacheTTL() int
+	ChangeConfig(opts *CacheConfig) error
+	GetCustomHostnames() ([]CustomHostname, error)
+	AddCustomHostname(opts *CustomHostnameCreateOptions) error
+	DeleteCustomHostname(id string) error
+
 	Delete() error
 }
 
@@ -1798,4 +1822,20 @@ type ICloudSSLCertificate interface {
 	GetIsUpload() bool
 	GetCert() string
 	GetKey() string
+	GetDnsZoneId() string
+}
+
+type IAiGateway interface {
+	IVirtualResource
+
+	IsAuthentication() bool
+	IsCacheInvalidateOnUpdate() bool
+	GetCacheTTL() int
+	IsCollectLogs() bool
+	GetRateLimitingInterval() int
+	GetRateLimitingLimit() int
+	GetRateLimitingTechnique() string
+
+	ChangeConfig(opts *AiGatewayChangeConfigOptions) error
+	Delete() error
 }
