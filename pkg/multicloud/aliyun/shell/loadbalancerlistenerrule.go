@@ -22,11 +22,12 @@ import (
 
 func init() {
 	type LoadbalancerListenerRuleListOptions struct {
-		ID   string `help:"ID of loadbalaner"`
-		PORT int    `help:"Port of listener port"`
+		ID       string `help:"ID of loadbalaner"`
+		Protocol string
+		PORT     int `help:"Port of listener port"`
 	}
 	shellutils.R(&LoadbalancerListenerRuleListOptions{}, "lb-listener-rule-list", "List LoadbalancerListenerRules", func(cli *aliyun.SRegion, args *LoadbalancerListenerRuleListOptions) error {
-		rules, err := cli.GetLoadbalancerListenerRules(args.ID, args.PORT)
+		rules, err := cli.GetLoadbalancerListenerRules(args.ID, args.Protocol, args.PORT)
 		if err != nil {
 			return err
 		}
