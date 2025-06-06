@@ -24,7 +24,7 @@ func init() {
 	type LbbgIdOptions struct {
 		ID string
 	}
-	shellutils.R(&LbbgIdOptions{}, "elb-lbbg-show", "Show loadbalancer backendgroup", func(cli *aws.SRegion, args *LbbgIdOptions) error {
+	shellutils.R(&LbbgIdOptions{}, "lb-lbbg-show", "Show loadbalancer backendgroup", func(cli *aws.SRegion, args *LbbgIdOptions) error {
 		ret, err := cli.GetElbBackendgroup(args.ID)
 		if err != nil {
 			return err
@@ -33,8 +33,17 @@ func init() {
 		return nil
 	})
 
-	shellutils.R(&LbbgIdOptions{}, "elb-lbbg-delete", "Delete loadbalancer", func(cli *aws.SRegion, args *LbbgIdOptions) error {
+	shellutils.R(&LbbgIdOptions{}, "lb-lbbg-delete", "Delete loadbalancer", func(cli *aws.SRegion, args *LbbgIdOptions) error {
 		return cli.DeleteElbBackendGroup(args.ID)
+	})
+
+	shellutils.R(&LbbgIdOptions{}, "lb-lbbg-backend-list", "Delete loadbalancer", func(cli *aws.SRegion, args *LbbgIdOptions) error {
+		backends, err := cli.GetELbBackends(args.ID)
+		if err != nil {
+			return err
+		}
+		printList(backends, 0, 0, 0, nil)
+		return nil
 	})
 
 }

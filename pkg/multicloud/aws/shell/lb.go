@@ -37,6 +37,15 @@ func init() {
 		return nil
 	})
 
+	shellutils.R(&LbListOptions{}, "lb-lis-list", "List loadbalancer", func(cli *aws.SRegion, args *LbListOptions) error {
+		ret, _, e := cli.GetElbListeners(args.Id, "", args.Marker)
+		if e != nil {
+			return e
+		}
+		printList(ret, 0, 0, 0, []string{})
+		return nil
+	})
+
 	type LbIdOptions struct {
 		ID string
 	}
