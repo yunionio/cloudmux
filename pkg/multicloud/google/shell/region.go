@@ -28,4 +28,19 @@ func init() {
 		printList(regions, 0, 0, 0, nil)
 		return nil
 	})
+
+	type ResourceShowOptions struct {
+		ID string
+	}
+
+	shellutils.R(&ResourceShowOptions{}, "resource-show", "show resource", func(cli *google.SRegion, args *ResourceShowOptions) error {
+		ret := struct{}{}
+		return cli.GetBySelfId(args.ID, &ret)
+	})
+
+	shellutils.R(&ResourceShowOptions{}, "resource-post", "post resource", func(cli *google.SRegion, args *ResourceShowOptions) error {
+		ret := struct{}{}
+		return cli.PostBySelfId(args.ID, &ret)
+	})
+
 }
