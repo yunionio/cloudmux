@@ -21,15 +21,28 @@ import (
 )
 
 func init() {
-	type RegionListOptions struct {
+	type InstanceListOptions struct {
+		ZoneId string
+		Id     string
 	}
-	shellutils.R(&RegionListOptions{}, "region-list", "list regions", func(cli *cucloud.SRegion, args *RegionListOptions) error {
-		regions, err := cli.GetClient().GetRegions()
+	shellutils.R(&InstanceListOptions{}, "instance-list", "list instances", func(cli *cucloud.SRegion, args *InstanceListOptions) error {
+		instances, err := cli.GetInstances(args.ZoneId, args.Id)
 		if err != nil {
 			return err
 		}
-		printList(regions)
+		printList(instances)
 		return nil
 	})
 
+	type InstanceIdOptions struct {
+		ID string `help:"Instance ID"`
+	}
+
+	shellutils.R(&InstanceIdOptions{}, "instance-stop", "stop instance", func(cli *cucloud.SRegion, args *InstanceIdOptions) error {
+		return cli.StopVM(args.ID)
+	})
+
+	shellutils.R(&InstanceIdOptions{}, "instance-start", "start instance", func(cli *cucloud.SRegion, args *InstanceIdOptions) error {
+		return cli.StartVM(args.ID)
+	})
 }

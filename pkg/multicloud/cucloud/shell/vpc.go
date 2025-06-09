@@ -21,15 +21,27 @@ import (
 )
 
 func init() {
-	type RegionListOptions struct {
+	type VpcListOptions struct {
+		Id string
 	}
-	shellutils.R(&RegionListOptions{}, "region-list", "list regions", func(cli *cucloud.SRegion, args *RegionListOptions) error {
-		regions, err := cli.GetClient().GetRegions()
+	shellutils.R(&VpcListOptions{}, "vpc-list", "list vpcs", func(cli *cucloud.SRegion, args *VpcListOptions) error {
+		vpcs, err := cli.GetVpcs(args.Id)
 		if err != nil {
 			return err
 		}
-		printList(regions)
+		printList(vpcs)
 		return nil
 	})
 
+	type VpcIdOptions struct {
+		ID string
+	}
+	shellutils.R(&VpcIdOptions{}, "vpc-show", "Get vpc", func(cli *cucloud.SRegion, args *VpcIdOptions) error {
+		vpc, err := cli.GetVpc(args.ID)
+		if err != nil {
+			return err
+		}
+		printObject(vpc)
+		return nil
+	})
 }
