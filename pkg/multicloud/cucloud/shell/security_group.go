@@ -21,15 +21,27 @@ import (
 )
 
 func init() {
-	type RegionListOptions struct {
+	type SecurityGroupListOptions struct {
+		Id string
 	}
-	shellutils.R(&RegionListOptions{}, "region-list", "list regions", func(cli *cucloud.SRegion, args *RegionListOptions) error {
-		regions, err := cli.GetClient().GetRegions()
+	shellutils.R(&SecurityGroupListOptions{}, "security-group-list", "list security groups", func(cli *cucloud.SRegion, args *SecurityGroupListOptions) error {
+		securityGroups, err := cli.GetSecurityGroups(args.Id)
 		if err != nil {
 			return err
 		}
-		printList(regions)
+		printList(securityGroups)
 		return nil
 	})
 
+	type SeucrityGroupIdOptions struct {
+		ID string
+	}
+	shellutils.R(&SeucrityGroupIdOptions{}, "security-group-show", "Show security group", func(cli *cucloud.SRegion, args *SeucrityGroupIdOptions) error {
+		secgroup, err := cli.GetSecurityGroup(args.ID)
+		if err != nil {
+			return err
+		}
+		printObject(secgroup)
+		return nil
+	})
 }
