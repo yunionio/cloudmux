@@ -372,15 +372,18 @@ func (self *SAliyunProvider) GetSamlEntityId() string {
 
 func (self *SAliyunProvider) GetICloudDnsZones() ([]cloudprovider.ICloudDnsZone, error) {
 	izones := []cloudprovider.ICloudDnsZone{}
-	privateZone, err := self.client.GetPrivateICloudDnsZones()
-	if err != nil {
-		return nil, errors.Wrap(err, "self.client.GetPrivateICloudDnsZones()")
+	{
+		privateZone, err := self.client.GetPrivateICloudDnsZones()
+		if err != nil && errors.Cause(err) != cloudprovider.ErrForbidden {
+			return nil, errors.Wrap(err, "self.client.GetPrivateICloudDnsZones()")
+		} else {
+			izones = append(izones, privateZone...)
+		}
 	}
 	publicZone, err := self.client.GetPublicICloudDnsZones()
 	if err != nil {
 		return nil, errors.Wrap(err, "self.client.GetPrivateICloudDnsZones()")
 	}
-	izones = append(izones, privateZone...)
 	izones = append(izones, publicZone...)
 	return izones, nil
 }
