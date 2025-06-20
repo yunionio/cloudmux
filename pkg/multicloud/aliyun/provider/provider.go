@@ -392,7 +392,7 @@ func (self *SAliyunProvider) GetICloudDnsZoneById(id string) (cloudprovider.IClo
 	if err == nil {
 		return privateIzone, nil
 	} else {
-		if errors.Cause(err) != cloudprovider.ErrNotFound {
+		if errors.Cause(err) != cloudprovider.ErrNotFound && errors.Cause(err) != cloudprovider.ErrForbidden {
 			return nil, err
 		}
 	}
