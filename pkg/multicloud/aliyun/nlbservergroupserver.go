@@ -126,6 +126,6 @@ func (region *SRegion) UpdateNlbServerGroupServerAttribute(serverGroupId, server
 	}))
 	params["Servers"] = servers.String()
 
-	_, err := region.NlbRequest("UpdateServerGroupServersAttribute", params)
+	_, err := region.nlbRequest("UpdateServerGroupServersAttribute", params)
 	return err
 }

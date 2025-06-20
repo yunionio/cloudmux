@@ -164,14 +164,20 @@ func (alb *SAlb) Delete(ctx context.Context) error {
 }
 
 func (alb *SAlb) GetILoadBalancerBackendGroups() ([]cloudprovider.ICloudLoadbalancerBackendGroup, error) {
-	groups, err := alb.region.GetAlbServerGroups(alb.LoadBalancerId)
+	groups, err := alb.region.GetAlbServerGroups()
 	if err != nil {
 		return nil, err
 	}
 	igroups := []cloudprovider.ICloudLoadbalancerBackendGroup{}
 	for i := 0; i < len(groups); i++ {
-		groups[i].alb = alb
-		igroups = append(igroups, &groups[i])
+		// 过滤出属于当前负载均衡器的服务器组
+		for _, lbId := range groups[i].RelatedLoadBalancerIds {
+			if lbId == alb.LoadBalancerId {
+				groups[i].alb = alb
+				igroups = append(igroups, &groups[i])
+				break
+			}
+		}
 	}
 	return igroups, nil
 }
@@ -263,22 +269,38 @@ func (alb *SAlb) GetProjectId() string {
 // region methods
 func (region *SRegion) GetAlbs() ([]SAlb, error) {
 	params := map[string]string{
-		"RegionId": region.RegionId,
-	}
-
-	body, err := region.AlbRequest("ListLoadBalancers", params)
-	if err != nil {
-		return nil, err
+		"RegionId":   region.RegionId,
+		"MaxResults": "100",
 	}
 
 	albs := []SAlb{}
-	err = body.Unmarshal(&albs, "LoadBalancers")
-	if err != nil {
-		return nil, err
-	}
+	nextToken := ""
 
-	for i := 0; i < len(albs); i++ {
-		albs[i].region = region
+	for {
+		if nextToken != "" {
+			params["NextToken"] = nextToken
+		}
+
+		body, err := region.albRequest("ListLoadBalancers", params)
+		if err != nil {
+			return nil, err
+		}
+
+		pageAlbs := []SAlb{}
+		err = body.Unmarshal(&pageAlbs, "LoadBalancers")
+		if err != nil {
+			return nil, err
+		}
+
+		for i := 0; i < len(pageAlbs); i++ {
+			pageAlbs[i].region = region
+		}
+		albs = append(albs, pageAlbs...)
+
+		nextToken, _ = body.GetString("NextToken")
+		if nextToken == "" {
+			break
+		}
 	}
 
 	return albs, nil
@@ -290,7 +312,7 @@ func (region *SRegion) GetAlbDetail(albId string) (*SAlb, error) {
 		"LoadBalancerId": albId,
 	}
 
-	body, err := region.AlbRequest("GetLoadBalancerAttribute", params)
+	body, err := region.albRequest("GetLoadBalancerAttribute", params)
 	if err != nil {
 		return nil, err
 	}
@@ -310,10 +332,6 @@ func (region *SRegion) DeleteAlb(albId string) error {
 		"LoadBalancerId": albId,
 	}
 
-	_, err := region.AlbRequest("DeleteLoadBalancer", params)
+	_, err := region.albRequest("DeleteLoadBalancer", params)
 	return err
-}
-
-func (region *SRegion) albRequest(apiName string, params map[string]string) (jsonutils.JSONObject, error) {
-	return region.AlbRequest(apiName, params)
 }

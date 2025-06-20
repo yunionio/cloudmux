@@ -195,7 +195,7 @@ func (region *SRegion) GetAlbRules(listenerId string) ([]SAlbRule, error) {
 		"ListenerIds.1": listenerId,
 	}
 
-	body, err := region.AlbRequest("ListRules", params)
+	body, err := region.albRequest("ListRules", params)
 	if err != nil {
 		return nil, err
 	}
@@ -276,7 +276,7 @@ func (region *SRegion) CreateAlbRule(listenerId string, rule *cloudprovider.SLoa
 
 	params["RuleActions"] = actions.String()
 
-	body, err := region.AlbRequest("CreateRule", params)
+	body, err := region.albRequest("CreateRule", params)
 	if err != nil {
 		return nil, err
 	}
@@ -295,6 +295,6 @@ func (region *SRegion) DeleteAlbRule(ruleId string) error {
 		"RuleId":   ruleId,
 	}
 
-	_, err := region.AlbRequest("DeleteRule", params)
+	_, err := region.albRequest("DeleteRule", params)
 	return err
 }

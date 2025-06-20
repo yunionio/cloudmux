@@ -126,6 +126,6 @@ func (region *SRegion) UpdateAlbServerGroupServerAttribute(serverGroupId, server
 	}))
 	params["Servers"] = servers.String()
 
-	_, err := region.AlbRequest("UpdateServerGroupServersAttribute", params)
+	_, err := region.albRequest("UpdateServerGroupServersAttribute", params)
 	return err
 }

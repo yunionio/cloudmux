@@ -69,10 +69,9 @@ func init() {
 	})
 
 	type NlbServerGroupListOptions struct {
-		NLB_ID string `help:"NLB instance ID"`
 	}
 	shellutils.R(&NlbServerGroupListOptions{}, "nlb-servergroup-list", "List NLB server groups", func(cli *aliyun.SRegion, args *NlbServerGroupListOptions) error {
-		groups, err := cli.GetNlbServerGroups(args.NLB_ID)
+		groups, err := cli.GetNlbServerGroups()
 		if err != nil {
 			return err
 		}
