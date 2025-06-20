@@ -44,6 +44,7 @@ type SNlbServerGroup struct {
 	PersistenceEnabled      bool                   `json:"PersistenceEnabled"`
 	PersistenceTimeout      int                    `json:"PersistenceTimeout"`
 	HealthCheckConfig       map[string]interface{} `json:"HealthCheckConfig"`
+	RelatedLoadBalancerIds  []string               `json:"RelatedLoadBalancerIds"`
 	Servers                 []NlbServer            `json:"Servers"`
 	CreateTime              string                 `json:"CreateTime"`
 	RegionId                string                 `json:"RegionId"`
@@ -192,20 +193,37 @@ func (group *SNlbServerGroup) GetProjectId() string {
 }
 
 // region methods
-func (region *SRegion) GetNlbServerGroups(loadBalancerId string) ([]SNlbServerGroup, error) {
+func (region *SRegion) GetNlbServerGroups() ([]SNlbServerGroup, error) {
 	params := map[string]string{
-		"RegionId": region.RegionId,
-	}
-
-	body, err := region.NlbRequest("ListServerGroups", params)
-	if err != nil {
-		return nil, err
+		"RegionId":   region.RegionId,
+		"MaxResults": "100",
 	}
 
 	groups := []SNlbServerGroup{}
-	err = body.Unmarshal(&groups, "ServerGroups")
-	if err != nil {
-		return nil, err
+	nextToken := ""
+
+	for {
+		if nextToken != "" {
+			params["NextToken"] = nextToken
+		}
+
+		body, err := region.nlbRequest("ListServerGroups", params)
+		if err != nil {
+			return nil, err
+		}
+
+		pageGroups := []SNlbServerGroup{}
+		err = body.Unmarshal(&pageGroups, "ServerGroups")
+		if err != nil {
+			return nil, err
+		}
+
+		groups = append(groups, pageGroups...)
+
+		nextToken, _ = body.GetString("NextToken")
+		if nextToken == "" {
+			break
+		}
 	}
 
 	return groups, nil
@@ -217,7 +235,7 @@ func (region *SRegion) GetNlbServerGroup(serverGroupId string) (*SNlbServerGroup
 		"ServerGroupId": serverGroupId,
 	}
 
-	body, err := region.NlbRequest("ListServerGroupServers", params)
+	body, err := region.nlbRequest("ListServerGroupServers", params)
 	if err != nil {
 		return nil, err
 	}
@@ -241,7 +259,7 @@ func (region *SRegion) CreateNlbServerGroup(group *cloudprovider.SLoadbalancerBa
 		"Scheduler":       "Wrr",
 	}
 
-	body, err := region.NlbRequest("CreateServerGroup", params)
+	body, err := region.nlbRequest("CreateServerGroup", params)
 	if err != nil {
 		return nil, err
 	}
@@ -260,7 +278,7 @@ func (region *SRegion) DeleteNlbServerGroup(serverGroupId string) error {
 		"ServerGroupId": serverGroupId,
 	}
 
-	_, err := region.NlbRequest("DeleteServerGroup", params)
+	_, err := region.nlbRequest("DeleteServerGroup", params)
 	return err
 }
 
@@ -281,7 +299,7 @@ func (region *SRegion) AddServersToNlbServerGroup(serverGroupId string, backends
 	}
 	params["Servers"] = servers.String()
 
-	_, err := region.NlbRequest("AddServersToServerGroup", params)
+	_, err := region.nlbRequest("AddServersToServerGroup", params)
 	return err
 }
 
@@ -300,6 +318,6 @@ func (region *SRegion) RemoveServersFromNlbServerGroup(serverGroupId string, ser
 	}
 	params["Servers"] = servers.String()
 
-	_, err := region.NlbRequest("RemoveServersFromServerGroup", params)
+	_, err := region.nlbRequest("RemoveServersFromServerGroup", params)
 	return err
 }

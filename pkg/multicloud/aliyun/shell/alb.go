@@ -69,10 +69,9 @@ func init() {
 	})
 
 	type AlbServerGroupListOptions struct {
-		ALB_ID string `help:"ALB instance ID"`
 	}
 	shellutils.R(&AlbServerGroupListOptions{}, "alb-servergroup-list", "List ALB server groups", func(cli *aliyun.SRegion, args *AlbServerGroupListOptions) error {
-		groups, err := cli.GetAlbServerGroups(args.ALB_ID)
+		groups, err := cli.GetAlbServerGroups()
 		if err != nil {
 			return err
 		}

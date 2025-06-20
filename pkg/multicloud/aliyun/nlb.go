@@ -168,14 +168,20 @@ func (nlb *SNlb) Delete(ctx context.Context) error {
 }
 
 func (nlb *SNlb) GetILoadBalancerBackendGroups() ([]cloudprovider.ICloudLoadbalancerBackendGroup, error) {
-	groups, err := nlb.region.GetNlbServerGroups(nlb.LoadBalancerId)
+	groups, err := nlb.region.GetNlbServerGroups()
 	if err != nil {
 		return nil, err
 	}
 	igroups := []cloudprovider.ICloudLoadbalancerBackendGroup{}
 	for i := 0; i < len(groups); i++ {
-		groups[i].nlb = nlb
-		igroups = append(igroups, &groups[i])
+		// 过滤出属于当前负载均衡器的服务器组
+		for _, lbId := range groups[i].RelatedLoadBalancerIds {
+			if lbId == nlb.LoadBalancerId {
+				groups[i].nlb = nlb
+				igroups = append(igroups, &groups[i])
+				break
+			}
+		}
 	}
 	return igroups, nil
 }
@@ -267,22 +273,38 @@ func (nlb *SNlb) GetProjectId() string {
 // region methods
 func (region *SRegion) GetNlbs() ([]SNlb, error) {
 	params := map[string]string{
-		"RegionId": region.RegionId,
-	}
-
-	body, err := region.NlbRequest("ListLoadBalancers", params)
-	if err != nil {
-		return nil, err
+		"RegionId":   region.RegionId,
+		"MaxResults": "100",
 	}
 
 	nlbs := []SNlb{}
-	err = body.Unmarshal(&nlbs, "LoadBalancers")
-	if err != nil {
-		return nil, err
-	}
+	nextToken := ""
 
-	for i := 0; i < len(nlbs); i++ {
-		nlbs[i].region = region
+	for {
+		if nextToken != "" {
+			params["NextToken"] = nextToken
+		}
+
+		body, err := region.nlbRequest("ListLoadBalancers", params)
+		if err != nil {
+			return nil, err
+		}
+
+		pageNlbs := []SNlb{}
+		err = body.Unmarshal(&pageNlbs, "LoadBalancers")
+		if err != nil {
+			return nil, err
+		}
+
+		for i := 0; i < len(pageNlbs); i++ {
+			pageNlbs[i].region = region
+		}
+		nlbs = append(nlbs, pageNlbs...)
+
+		nextToken, _ = body.GetString("NextToken")
+		if nextToken == "" {
+			break
+		}
 	}
 
 	return nlbs, nil
@@ -294,7 +316,7 @@ func (region *SRegion) GetNlbDetail(nlbId string) (*SNlb, error) {
 		"LoadBalancerId": nlbId,
 	}
 
-	body, err := region.NlbRequest("GetLoadBalancerAttribute", params)
+	body, err := region.nlbRequest("GetLoadBalancerAttribute", params)
 	if err != nil {
 		return nil, err
 	}
@@ -314,6 +336,6 @@ func (region *SRegion) DeleteNlb(nlbId string) error {
 		"LoadBalancerId": nlbId,
 	}
 
-	_, err := region.NlbRequest("DeleteLoadBalancer", params)
+	_, err := region.nlbRequest("DeleteLoadBalancer", params)
 	return err
 }

@@ -50,8 +50,8 @@ type SAlbListener struct {
 	XForwardedForConfig    map[string]interface{} `json:"XForwardedForConfig"`
 	AccessLogTracingConfig map[string]interface{} `json:"AccessLogTracingConfig"`
 	// LogConfig              map[string]interface{} `json:"LogConfig"`
-	CreateTime             string                 `json:"CreateTime"`
-	RegionId               string                 `json:"RegionId"`
+	CreateTime string `json:"CreateTime"`
+	RegionId   string `json:"RegionId"`
 }
 
 type AlbCertificate struct {
@@ -389,22 +389,39 @@ func (listener *SAlbListener) GetBackendConnectTimeout() int {
 // region methods
 func (region *SRegion) GetAlbListeners(loadBalancerId string) ([]SAlbListener, error) {
 	params := map[string]string{
-		"RegionId": region.RegionId,
+		"RegionId":   region.RegionId,
+		"MaxResults": "100",
 	}
 
 	if len(loadBalancerId) > 0 {
 		params["LoadBalancerIds.1"] = loadBalancerId
 	}
 
-	body, err := region.AlbRequest("ListListeners", params)
-	if err != nil {
-		return nil, err
-	}
-
 	listeners := []SAlbListener{}
-	err = body.Unmarshal(&listeners, "Listeners")
-	if err != nil {
-		return nil, err
+	nextToken := ""
+
+	for {
+		if nextToken != "" {
+			params["NextToken"] = nextToken
+		}
+
+		body, err := region.albRequest("ListListeners", params)
+		if err != nil {
+			return nil, err
+		}
+
+		pageListeners := []SAlbListener{}
+		err = body.Unmarshal(&pageListeners, "Listeners")
+		if err != nil {
+			return nil, err
+		}
+
+		listeners = append(listeners, pageListeners...)
+
+		nextToken, _ = body.GetString("NextToken")
+		if nextToken == "" {
+			break
+		}
 	}
 
 	return listeners, nil
@@ -416,7 +433,7 @@ func (region *SRegion) GetAlbListener(listenerId string) (*SAlbListener, error) 
 		"ListenerId": listenerId,
 	}
 
-	body, err := region.AlbRequest("GetListenerAttribute", params)
+	body, err := region.albRequest("GetListenerAttribute", params)
 	if err != nil {
 		return nil, err
 	}
@@ -442,7 +459,7 @@ func (region *SRegion) CreateAlbListener(alb *SAlb, listener *cloudprovider.SLoa
 		params["ListenerDescription"] = listener.Name
 	}
 
-	body, err := region.AlbRequest("CreateListener", params)
+	body, err := region.albRequest("CreateListener", params)
 	if err != nil {
 		return nil, err
 	}
@@ -461,7 +478,7 @@ func (region *SRegion) DeleteAlbListener(listenerId string) error {
 		"ListenerId": listenerId,
 	}
 
-	_, err := region.AlbRequest("DeleteListener", params)
+	_, err := region.albRequest("DeleteListener", params)
 	return err
 }
 
@@ -471,7 +488,7 @@ func (region *SRegion) StartAlbListener(listenerId string) error {
 		"ListenerId": listenerId,
 	}
 
-	_, err := region.AlbRequest("StartListener", params)
+	_, err := region.albRequest("StartListener", params)
 	return err
 }
 
@@ -481,6 +498,6 @@ func (region *SRegion) StopAlbListener(listenerId string) error {
 		"ListenerId": listenerId,
 	}
 
-	_, err := region.AlbRequest("StopListener", params)
+	_, err := region.albRequest("StopListener", params)
 	return err
 }

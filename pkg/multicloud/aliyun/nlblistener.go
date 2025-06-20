@@ -278,22 +278,39 @@ func (listener *SNlbListener) GetBackendConnectTimeout() int {
 // region methods
 func (region *SRegion) GetNlbListeners(loadBalancerId string) ([]SNlbListener, error) {
 	params := map[string]string{
-		"RegionId": region.RegionId,
+		"RegionId":   region.RegionId,
+		"MaxResults": "100",
 	}
 
 	if len(loadBalancerId) > 0 {
 		params["LoadBalancerIds.1"] = loadBalancerId
 	}
 
-	body, err := region.NlbRequest("ListListeners", params)
-	if err != nil {
-		return nil, err
-	}
-
 	listeners := []SNlbListener{}
-	err = body.Unmarshal(&listeners, "Listeners")
-	if err != nil {
-		return nil, err
+	nextToken := ""
+
+	for {
+		if nextToken != "" {
+			params["NextToken"] = nextToken
+		}
+
+		body, err := region.nlbRequest("ListListeners", params)
+		if err != nil {
+			return nil, err
+		}
+
+		pageListeners := []SNlbListener{}
+		err = body.Unmarshal(&pageListeners, "Listeners")
+		if err != nil {
+			return nil, err
+		}
+
+		listeners = append(listeners, pageListeners...)
+
+		nextToken, _ = body.GetString("NextToken")
+		if nextToken == "" {
+			break
+		}
 	}
 
 	return listeners, nil
@@ -305,7 +322,7 @@ func (region *SRegion) GetNlbListener(listenerId string) (*SNlbListener, error) 
 		"ListenerId": listenerId,
 	}
 
-	body, err := region.NlbRequest("GetListenerAttribute", params)
+	body, err := region.nlbRequest("GetListenerAttribute", params)
 	if err != nil {
 		return nil, err
 	}
@@ -331,7 +348,7 @@ func (region *SRegion) CreateNlbListener(nlb *SNlb, listener *cloudprovider.SLoa
 		params["ListenerDescription"] = listener.Name
 	}
 
-	body, err := region.NlbRequest("CreateListener", params)
+	body, err := region.nlbRequest("CreateListener", params)
 	if err != nil {
 		return nil, err
 	}
@@ -350,7 +367,7 @@ func (region *SRegion) DeleteNlbListener(listenerId string) error {
 		"ListenerId": listenerId,
 	}
 
-	_, err := region.NlbRequest("DeleteListener", params)
+	_, err := region.nlbRequest("DeleteListener", params)
 	return err
 }
 
@@ -360,7 +377,7 @@ func (region *SRegion) StartNlbListener(listenerId string) error {
 		"ListenerId": listenerId,
 	}
 
-	_, err := region.NlbRequest("StartListener", params)
+	_, err := region.nlbRequest("StartListener", params)
 	return err
 }
 
@@ -370,6 +387,6 @@ func (region *SRegion) StopNlbListener(listenerId string) error {
 		"ListenerId": listenerId,
 	}
 
-	_, err := region.NlbRequest("StopListener", params)
+	_, err := region.nlbRequest("StopListener", params)
 	return err
 }

@@ -319,7 +319,7 @@ func (self *SRegion) _lbRequest(client *sdk.Client, apiName string, domain strin
 	return jsonRequest(client, domain, ALIYUN_API_VERSION_LB, apiName, params, self.client.debug)
 }
 
-func (self *SRegion) AlbRequest(apiName string, params map[string]string) (jsonutils.JSONObject, error) {
+func (self *SRegion) albRequest(apiName string, params map[string]string) (jsonutils.JSONObject, error) {
 	client, err := self.getSdkClient()
 	if err != nil {
 		return nil, err
@@ -329,7 +329,7 @@ func (self *SRegion) AlbRequest(apiName string, params map[string]string) (jsonu
 	return jsonRequest(client, domain, ALIYUN_API_VERSION_ALB, apiName, params, self.client.debug)
 }
 
-func (self *SRegion) NlbRequest(apiName string, params map[string]string) (jsonutils.JSONObject, error) {
+func (self *SRegion) nlbRequest(apiName string, params map[string]string) (jsonutils.JSONObject, error) {
 	client, err := self.getSdkClient()
 	if err != nil {
 		return nil, err

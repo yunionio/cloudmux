@@ -29,22 +29,23 @@ type SAlbServerGroup struct {
 	AliyunTags
 	alb *SAlb
 
-	ServerGroupId         string                 `json:"ServerGroupId"`
-	ServerGroupName       string                 `json:"ServerGroupName"`
-	ServerGroupType       string                 `json:"ServerGroupType"`
-	Protocol              string                 `json:"Protocol"`
-	Scheduler             string                 `json:"Scheduler"`
-	VpcId                 string                 `json:"VpcId"`
-	ServerGroupStatus     string                 `json:"ServerGroupStatus"`
-	StickySessionConfig   map[string]interface{} `json:"StickySessionConfig"`
-	HealthCheckConfig     map[string]interface{} `json:"HealthCheckConfig"`
-	UchConfig             map[string]interface{} `json:"UchConfig"`
-	SlowStartConfig       map[string]interface{} `json:"SlowStartConfig"`
-	ConnectionDrainConfig map[string]interface{} `json:"ConnectionDrainConfig"`
-	Servers               []AlbServer            `json:"Servers"`
-	CreateTime            string                 `json:"CreateTime"`
-	RegionId              string                 `json:"RegionId"`
-	ResourceGroupId       string                 `json:"ResourceGroupId"`
+	ServerGroupId          string                 `json:"ServerGroupId"`
+	ServerGroupName        string                 `json:"ServerGroupName"`
+	ServerGroupType        string                 `json:"ServerGroupType"`
+	Protocol               string                 `json:"Protocol"`
+	Scheduler              string                 `json:"Scheduler"`
+	VpcId                  string                 `json:"VpcId"`
+	ServerGroupStatus      string                 `json:"ServerGroupStatus"`
+	StickySessionConfig    map[string]interface{} `json:"StickySessionConfig"`
+	HealthCheckConfig      map[string]interface{} `json:"HealthCheckConfig"`
+	UchConfig              map[string]interface{} `json:"UchConfig"`
+	SlowStartConfig        map[string]interface{} `json:"SlowStartConfig"`
+	ConnectionDrainConfig  map[string]interface{} `json:"ConnectionDrainConfig"`
+	RelatedLoadBalancerIds []string               `json:"RelatedLoadBalancerIds"`
+	Servers                []AlbServer            `json:"Servers"`
+	CreateTime             string                 `json:"CreateTime"`
+	RegionId               string                 `json:"RegionId"`
+	ResourceGroupId        string                 `json:"ResourceGroupId"`
 }
 
 type AlbServer struct {
@@ -188,20 +189,37 @@ func (group *SAlbServerGroup) GetProjectId() string {
 }
 
 // region methods
-func (region *SRegion) GetAlbServerGroups(loadBalancerId string) ([]SAlbServerGroup, error) {
+func (region *SRegion) GetAlbServerGroups() ([]SAlbServerGroup, error) {
 	params := map[string]string{
-		"RegionId": region.RegionId,
-	}
-
-	body, err := region.AlbRequest("ListServerGroups", params)
-	if err != nil {
-		return nil, err
+		"RegionId":   region.RegionId,
+		"MaxResults": "100",
 	}
 
 	groups := []SAlbServerGroup{}
-	err = body.Unmarshal(&groups, "ServerGroups")
-	if err != nil {
-		return nil, err
+	nextToken := ""
+
+	for {
+		if nextToken != "" {
+			params["NextToken"] = nextToken
+		}
+
+		body, err := region.albRequest("ListServerGroups", params)
+		if err != nil {
+			return nil, err
+		}
+
+		pageGroups := []SAlbServerGroup{}
+		err = body.Unmarshal(&pageGroups, "ServerGroups")
+		if err != nil {
+			return nil, err
+		}
+
+		groups = append(groups, pageGroups...)
+
+		nextToken, _ = body.GetString("NextToken")
+		if nextToken == "" {
+			break
+		}
 	}
 
 	return groups, nil
@@ -213,7 +231,7 @@ func (region *SRegion) GetAlbServerGroup(serverGroupId string) (*SAlbServerGroup
 		"ServerGroupId": serverGroupId,
 	}
 
-	body, err := region.AlbRequest("ListServerGroupServers", params)
+	body, err := region.albRequest("ListServerGroupServers", params)
 	if err != nil {
 		return nil, err
 	}
@@ -237,7 +255,7 @@ func (region *SRegion) CreateAlbServerGroup(group *cloudprovider.SLoadbalancerBa
 		"Scheduler":       "Wrr",
 	}
 
-	body, err := region.AlbRequest("CreateServerGroup", params)
+	body, err := region.albRequest("CreateServerGroup", params)
 	if err != nil {
 		return nil, err
 	}
@@ -256,7 +274,7 @@ func (region *SRegion) DeleteAlbServerGroup(serverGroupId string) error {
 		"ServerGroupId": serverGroupId,
 	}
 
-	_, err := region.AlbRequest("DeleteServerGroup", params)
+	_, err := region.albRequest("DeleteServerGroup", params)
 	return err
 }
 
@@ -277,7 +295,7 @@ func (region *SRegion) AddServersToAlbServerGroup(serverGroupId string, backends
 	}
 	params["Servers"] = servers.String()
 
-	_, err := region.AlbRequest("AddServersToServerGroup", params)
+	_, err := region.albRequest("AddServersToServerGroup", params)
 	return err
 }
 
@@ -296,6 +314,6 @@ func (region *SRegion) RemoveServersFromAlbServerGroup(serverGroupId string, ser
 	}
 	params["Servers"] = servers.String()
 
-	_, err := region.AlbRequest("RemoveServersFromServerGroup", params)
+	_, err := region.albRequest("RemoveServersFromServerGroup", params)
 	return err
 }
