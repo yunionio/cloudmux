@@ -278,7 +278,7 @@ type CacheClearOptions struct {
 	Tags            []string
 	Hosts           []string
 	Prefixes        []string
-	Filters         []interface{}
+	Files           []interface{}
 }
 
 type CacheConfig struct {
