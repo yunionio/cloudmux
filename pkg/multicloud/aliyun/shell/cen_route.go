@@ -52,14 +52,6 @@ func init() {
 		return nil
 	})
 
-	type WithDrawCenRouteOptions struct {
-		CENID               string
-		CHILDINSTANCEID     string
-		CHILDINSTANCEREGION string
-		CHILDINSTANCETYPE   string
-		ROUTETABLEID        string
-		CIDR                string
-	}
 	shellutils.R(&PublishCenRouteOptions{}, "cen-route-withdraw", "withdraw cloud enterprise network route", func(cli *aliyun.SRegion, args *PublishCenRouteOptions) error {
 		e := cli.GetClient().WithdrawPublishedRouteEntries(args.CENID, args.CHILDINSTANCEID, args.ROUTETABLEID, args.CHILDINSTANCEREGION, args.CHILDINSTANCETYPE, args.CIDR)
 		if e != nil {

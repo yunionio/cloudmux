@@ -285,7 +285,7 @@ type CacheConfig struct {
 	DNSSECEnabled   *bool
 	HTTPSEnabled    *bool
 	CacheLevel      string
-	BrowserCacheTTL int
+	BrowserCacheTTL *int
 	HTTPSRewrites   *bool
 	SSLSetting      string
 }
