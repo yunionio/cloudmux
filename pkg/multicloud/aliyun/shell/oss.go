@@ -30,7 +30,7 @@ import (
 type progressListener struct {
 }
 
-func (this *progressListener) ProgressChanged(event *osslib.ProgressEvent) {
+func (pl *progressListener) ProgressChanged(event *osslib.ProgressEvent) {
 	switch event.EventType {
 	case osslib.TransferStartedEvent:
 		fmt.Printf("\n")
@@ -161,7 +161,7 @@ func init() {
 				return nil
 			})
 		} else {
-			return fmt.Errorf("Unsupported file type %s", args.FILE)
+			return fmt.Errorf("unsupported file type %s", args.FILE)
 		}
 	})
 
