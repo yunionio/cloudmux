@@ -102,7 +102,7 @@ func init() {
 				} else if len(dbInfo) == 2 {
 					databases[dbInfo[0]] = dbInfo[1]
 				} else {
-					return fmt.Errorf("Invalid dbinfo: %s", database)
+					return fmt.Errorf("invalid dbinfo: %s", database)
 				}
 			}
 		}
