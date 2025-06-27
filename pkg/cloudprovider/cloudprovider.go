@@ -336,6 +336,10 @@ func IsSupportDnsZone(prod ICloudProvider) bool {
 	return IsSupportCapability(prod, CLOUD_CAPABILITY_DNSZONE)
 }
 
+func IsSupportAiGateway(prod ICloudProvider) bool {
+	return IsSupportCapability(prod, CLOUD_CAPABILITY_AI_GATEWAY)
+}
+
 func IsSupportInterVpcNetwork(prod ICloudProvider) bool {
 	return IsSupportCapability(prod, CLOUD_CAPABILITY_INTERVPCNETWORK)
 }
@@ -637,6 +641,18 @@ func (self *SBaseProvider) GetIModelartsPoolSku() ([]ICloudModelartsPoolSku, err
 
 func (self *SBaseProvider) GetISSLCertificates() ([]ICloudSSLCertificate, error) {
 	return nil, errors.Wrapf(ErrNotImplemented, "GetISSLCertificates")
+}
+
+func (self *SBaseProvider) GetIAiGateways() ([]IAiGateway, error) {
+	return nil, errors.Wrapf(ErrNotImplemented, "GetIAiGateways")
+}
+
+func (self *SBaseProvider) GetIAiGatewayById(id string) (IAiGateway, error) {
+	return nil, errors.Wrapf(ErrNotImplemented, "GetIAiGateways")
+}
+
+func (self *SBaseProvider) CreateIAiGateway(opts *AiGatewayCreateOptions) (IAiGateway, error) {
+	return nil, errors.Wrapf(ErrNotImplemented, "CreateIAiGateway")
 }
 
 func NewBaseProvider(factory ICloudProviderFactory) SBaseProvider {
