@@ -310,6 +310,10 @@ type ICloudProvider interface {
 	GetMetrics(opts *MetricListOptions) ([]MetricValues, error)
 
 	GetISSLCertificates() ([]ICloudSSLCertificate, error)
+
+	GetIAiGateways() ([]IAiGateway, error)
+	GetIAiGatewayById(id string) (IAiGateway, error)
+	CreateIAiGateway(opts *AiGatewayCreateOptions) (IAiGateway, error)
 }
 
 func IsSupportCapability(prod ICloudProvider, capa string) bool {
