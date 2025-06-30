@@ -1839,18 +1839,3 @@ type IAiGateway interface {
 	ChangeConfig(opts *AiGatewayChangeConfigOptions) error
 	Delete() error
 }
-
-type IAiGateway interface {
-	IVirtualResource
-
-	IsAuthentication() bool
-	IsCacheInvalidateOnUpdate() bool
-	GetCacheTTL() int
-	IsCollectLogs() bool
-	GetRateLimitingInterval() int
-	GetRateLimitingLimit() int
-	GetRateLimitingTechnique() string
-
-	ChangeConfig(opts *AiGatewayChangeConfigOptions) error
-	Delete() error
-}
