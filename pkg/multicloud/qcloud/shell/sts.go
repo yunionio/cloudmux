@@ -35,7 +35,10 @@ func init() {
 	})
 
 	shellutils.R(&CallerShowOptions{}, "app-id-show", "Show app id", func(cli *qcloud.SRegion, args *CallerShowOptions) error {
-		appId := cli.GetClient().GetAppId()
+		appId, err := cli.GetClient().GetAppId()
+		if err != nil {
+			return err
+		}
 		fmt.Println(appId)
 		return nil
 	})

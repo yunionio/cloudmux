@@ -14,19 +14,10 @@
 
 package multicloud
 
-import (
-	"yunion.io/x/cloudmux/pkg/cloudprovider"
-	"yunion.io/x/pkg/errors"
-)
-
-type SLoadbalancerBase struct {
+type SCertificateBase struct {
 	SVirtualResourceBase
 }
 
-func (lb *SLoadbalancerBase) GetIEIPs() ([]cloudprovider.ICloudEIP, error) {
-	return nil, nil
-}
-
-func (lb *SLoadbalancerBase) GetSecurityGroupIds() ([]string, error) {
-	return nil, errors.Wrapf(cloudprovider.ErrNotImplemented, "GetSecurityGroupIds")
+func (cert *SCertificateBase) GetDnsZoneId() string {
+	return ""
 }
