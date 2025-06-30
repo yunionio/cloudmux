@@ -144,6 +144,7 @@ func init() {
 		opts.DnsValue = args.VALUE
 		opts.Ttl = args.TTL
 		opts.PolicyType = cloudprovider.TDnsPolicyType(args.PolicyType)
+		opts.PolicyValue = cloudprovider.TDnsPolicyValue(args.PolicyValue)
 
 		_, err := cli.GetClient().AddDomainRecord(args.DOMAINNAME, opts)
 		if err != nil {
