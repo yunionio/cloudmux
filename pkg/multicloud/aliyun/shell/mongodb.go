@@ -49,7 +49,15 @@ func init() {
 		}
 		printObject(db)
 		return nil
+	})
 
+	shellutils.R(&MongoDBIdOptions{}, "mongodb-network-list", "List mongodb network", func(cli *aliyun.SRegion, args *MongoDBIdOptions) error {
+		nets, err := cli.DescribeShardingNetworkAddress(args.ID)
+		if err != nil {
+			return errors.Wrapf(err, "GetMongoDB(%s)", args.ID)
+		}
+		printList(nets, 0, 0, 0, nil)
+		return nil
 	})
 
 	shellutils.R(&MongoDBIdOptions{}, "mongodb-delete", "Delete mongodb", func(cli *aliyun.SRegion, args *MongoDBIdOptions) error {
