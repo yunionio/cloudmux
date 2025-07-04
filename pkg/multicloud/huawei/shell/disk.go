@@ -17,6 +17,7 @@ package shell
 import (
 	"yunion.io/x/pkg/util/shellutils"
 
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/huawei"
 )
 
@@ -65,7 +66,15 @@ func init() {
 	}
 
 	shellutils.R(&DiskCreateOptions{}, "disk-create", "Create disk", func(cli *huawei.SRegion, args *DiskCreateOptions) error {
-		ret, e := cli.CreateDisk(args.ZoneId, args.Category, args.NAME, args.SizeGb, args.SnapshotId, args.Desc, args.ProjectId)
+		opts := &cloudprovider.DiskCreateConfig{
+			Name:       args.NAME,
+			SizeGb:     args.SizeGb,
+			ImageId:    args.SnapshotId,
+			Desc:       args.Desc,
+			ProjectId:  args.ProjectId,
+			SnapshotId: args.SnapshotId,
+		}
+		ret, e := cli.CreateDisk(args.ZoneId, args.Category, opts)
 		if e != nil {
 			return e
 		}
