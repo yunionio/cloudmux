@@ -17,6 +17,7 @@ package shell
 import (
 	"yunion.io/x/pkg/util/shellutils"
 
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/google"
 )
 
@@ -62,7 +63,13 @@ func init() {
 	}
 
 	shellutils.R(&DiskCreateOptions{}, "disk-create", "Create disks", func(cli *google.SRegion, args *DiskCreateOptions) error {
-		disk, err := cli.CreateDisk(args.NAME, args.SIZE_GB, args.ZONE, args.STORAGE_TYPE, args.Image, args.Desc)
+		opts := &cloudprovider.DiskCreateConfig{
+			Name:    args.NAME,
+			SizeGb:  args.SIZE_GB,
+			ImageId: args.Image,
+			Desc:    args.Desc,
+		}
+		disk, err := cli.CreateDisk(args.ZONE, args.STORAGE_TYPE, opts)
 		if err != nil {
 			return err
 		}
