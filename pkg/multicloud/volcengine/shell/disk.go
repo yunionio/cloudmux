@@ -71,13 +71,16 @@ func init() {
 	}
 
 	shellutils.R(&DiskCreateOptions{}, "disk-create", "create a disk", func(cli *volcengine.SRegion, args *DiskCreateOptions) error {
+		opts := &cloudprovider.DiskCreateConfig{
+			Name:      args.Name,
+			SizeGb:    args.SizeGb,
+			Desc:      args.Desc,
+			ProjectId: "",
+		}
 		diskId, err := cli.CreateDisk(
 			args.ZoneId,
 			args.Category,
-			args.Name,
-			args.SizeGb,
-			args.Desc,
-			"",
+			opts,
 		)
 		if err != nil {
 			return err
