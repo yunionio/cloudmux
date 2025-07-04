@@ -17,6 +17,7 @@ package shell
 import (
 	"yunion.io/x/pkg/util/shellutils"
 
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/azure"
 )
 
@@ -35,14 +36,21 @@ func init() {
 	type DiskCreateOptions struct {
 		NAME          string `help:"Disk name"`
 		STORAGETYPE   string `help:"Storage type" choices:"Standard_LRS|Premium_LRS|StandardSSD_LRS"`
-		SizeGb        int32  `help:"Disk size"`
+		SizeGb        int    `help:"Disk size"`
 		Image         string `help:"Image id"`
 		SnapshotId    string `help:"Create disk by snapshot"`
 		ResourceGroup string `help:"ResourceGroup Name"`
 	}
 
 	shellutils.R(&DiskCreateOptions{}, "disk-create", "Create disk", func(cli *azure.SRegion, args *DiskCreateOptions) error {
-		disk, err := cli.CreateDisk(args.STORAGETYPE, args.NAME, args.SizeGb, args.Image, args.SnapshotId, args.ResourceGroup)
+		opts := &cloudprovider.DiskCreateConfig{
+			Name:       args.NAME,
+			SizeGb:     args.SizeGb,
+			ImageId:    args.Image,
+			SnapshotId: args.SnapshotId,
+			ProjectId:  args.ResourceGroup,
+		}
+		disk, err := cli.CreateDisk(args.STORAGETYPE, opts)
 		if err != nil {
 			return err
 		}
