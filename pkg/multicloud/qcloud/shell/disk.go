@@ -20,6 +20,7 @@ import (
 
 	"yunion.io/x/pkg/util/shellutils"
 
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/qcloud"
 )
 
@@ -69,7 +70,13 @@ func init() {
 		ProjectId string `help:"Project Id"`
 	}
 	shellutils.R(&DiskCreateOptions{}, "disk-create", "Create disk", func(cli *qcloud.SRegion, args *DiskCreateOptions) error {
-		diskId, err := cli.CreateDisk(args.ZONE, args.CATEGORY, args.NAME, args.SIZE, args.Desc, args.ProjectId)
+		opts := &cloudprovider.DiskCreateConfig{
+			Name:      args.NAME,
+			SizeGb:    args.SIZE,
+			Desc:      args.Desc,
+			ProjectId: args.ProjectId,
+		}
+		diskId, err := cli.CreateDisk(args.ZONE, args.CATEGORY, opts)
 		if err != nil {
 			return err
 		}
