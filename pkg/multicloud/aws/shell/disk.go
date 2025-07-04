@@ -17,6 +17,7 @@ package shell
 import (
 	"yunion.io/x/pkg/util/shellutils"
 
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/aws"
 )
 
@@ -71,7 +72,15 @@ func init() {
 	}
 
 	shellutils.R(&VolumeCreateOptions{}, "disk-create", "create a volume", func(cli *aws.SRegion, args *VolumeCreateOptions) error {
-		volume, err := cli.CreateDisk(args.ZoneId, args.VolumeType, args.Name, args.SizeGb, args.Iops, args.Throughput, args.SnapshotId, args.Desc)
+		opts := &cloudprovider.DiskCreateConfig{
+			Name:       args.Name,
+			SizeGb:     args.SizeGb,
+			Iops:       args.Iops,
+			Throughput: args.Throughput,
+			SnapshotId: args.SnapshotId,
+			Desc:       args.Desc,
+		}
+		volume, err := cli.CreateDisk(args.ZoneId, args.VolumeType, opts)
 		if err != nil {
 			return err
 		}
