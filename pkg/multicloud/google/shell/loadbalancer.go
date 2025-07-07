@@ -36,6 +36,22 @@ func init() {
 	type ElbShowOptions struct {
 		RESOURCEID string `json:"resourceid"`
 	}
+
+	shellutils.R(&ElbShowOptions{}, "lb-eips", "List all loadbalancer eips", func(cli *google.SRegion, args *ElbShowOptions) error {
+		lb, err := cli.GetLoadbalancer(args.RESOURCEID)
+		if err != nil {
+			return err
+		}
+
+		eips, err := lb.GetIEIPs()
+		if err != nil {
+			return err
+		}
+
+		printList(eips, len(eips), 0, 0, []string{})
+		return nil
+	})
+
 	shellutils.R(&ElbShowOptions{}, "lb-bss", "List all loadbalancer backend services", func(cli *google.SRegion, args *ElbShowOptions) error {
 		lb, err := cli.GetLoadbalancer(args.RESOURCEID)
 		if err != nil {
