@@ -66,6 +66,7 @@ func init() {
 
 	type MongoDBBackupListOptions struct {
 		ID         string
+		NodeId     string
 		START      time.Time
 		END        time.Time
 		PageSize   int
@@ -73,7 +74,7 @@ func init() {
 	}
 
 	shellutils.R(&MongoDBBackupListOptions{}, "mongodb-backup-list", "List mongodb backups", func(cli *aliyun.SRegion, args *MongoDBBackupListOptions) error {
-		backups, _, err := cli.GetMongoDBBackups(args.ID, args.START, args.END, args.PageSize, args.PageNumber)
+		backups, _, err := cli.GetMongoDBBackups(args.ID, args.NodeId, args.START, args.END, args.PageSize, args.PageNumber)
 		if err != nil {
 			return err
 		}
