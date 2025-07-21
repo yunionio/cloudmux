@@ -15,13 +15,23 @@
 package shell
 
 import (
-	"yunion.io/x/pkg/util/printutils"
+	"yunion.io/x/pkg/util/shellutils"
+
+	"yunion.io/x/cloudmux/pkg/multicloud/cucloud"
 )
 
-func printList(data interface{}) {
-	printutils.PrintInterfaceList(data, 0, 0, 0, []string{})
-}
+func init() {
+	type NetworkListOptions struct {
+		VpcId    string
+		ZoneCode string
+	}
+	shellutils.R(&NetworkListOptions{}, "network-list", "list networks", func(cli *cucloud.SRegion, args *NetworkListOptions) error {
+		networks, err := cli.GetNetworks(args.VpcId, args.ZoneCode)
+		if err != nil {
+			return err
+		}
+		printList(networks)
+		return nil
+	})
 
-func printObject(obj interface{}) {
-	printutils.PrintInterfaceObject(obj)
 }
