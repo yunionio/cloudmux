@@ -15,13 +15,20 @@
 package shell
 
 import (
-	"yunion.io/x/pkg/util/printutils"
+	"yunion.io/x/pkg/util/shellutils"
+
+	"yunion.io/x/cloudmux/pkg/multicloud/cucloud"
 )
 
-func printList(data interface{}) {
-	printutils.PrintInterfaceList(data, 0, 0, 0, []string{})
-}
-
-func printObject(obj interface{}) {
-	printutils.PrintInterfaceObject(obj)
+func init() {
+	type StorageListOptions struct {
+	}
+	shellutils.R(&StorageListOptions{}, "storage-list", "list storages", func(cli *cucloud.SRegion, args *StorageListOptions) error {
+		storages, err := cli.GetStorages()
+		if err != nil {
+			return err
+		}
+		printList(storages)
+		return nil
+	})
 }
