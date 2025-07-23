@@ -45,7 +45,7 @@ func init() {
 	})
 
 	type EipIdOptions struct {
-		ID string
+		ID string `help:"numeric id of eip"`
 	}
 	shellutils.R(&EipIdOptions{}, "eip-show", "Show eip", func(cli *google.SRegion, args *EipIdOptions) error {
 		eip, err := cli.GetEip(args.ID)
@@ -56,15 +56,17 @@ func init() {
 		return nil
 	})
 
-	shellutils.R(&EipIdOptions{}, "eip-delete", "Delete eip", func(cli *google.SRegion, args *EipIdOptions) error {
-		return cli.Delete(args.ID)
+	type EipIdOptions2 struct {
+		LINK string `help:"self link of eip"`
+	}
+	shellutils.R(&EipIdOptions2{}, "eip-delete", "Delete eip", func(cli *google.SRegion, args *EipIdOptions2) error {
+		return cli.Delete(args.LINK)
 	})
 
 	type EipCreateOptions struct {
 		NAME string
 		Desc string
 	}
-
 	shellutils.R(&EipCreateOptions{}, "eip-create", "Create eip", func(cli *google.SRegion, args *EipCreateOptions) error {
 		eip, err := cli.CreateEip(args.NAME, args.Desc)
 		if err != nil {
