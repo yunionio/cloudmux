@@ -60,6 +60,15 @@ func init() {
 		return nil
 	})
 
+	shellutils.R(&MongoDBIdOptions{}, "mongodb-cluster-backup-list", "List mongodb cluster backups", func(cli *aliyun.SRegion, args *MongoDBIdOptions) error {
+		backups, err := cli.DescribeClusterBackups(args.ID)
+		if err != nil {
+			return errors.Wrapf(err, "DescribeClusterBackups(%s)", args.ID)
+		}
+		printList(backups, 0, 0, 0, nil)
+		return nil
+	})
+
 	shellutils.R(&MongoDBIdOptions{}, "mongodb-delete", "Delete mongodb", func(cli *aliyun.SRegion, args *MongoDBIdOptions) error {
 		return cli.DeleteMongoDB(args.ID)
 	})
