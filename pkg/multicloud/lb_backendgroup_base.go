@@ -27,3 +27,7 @@ type SLoadbalancerBackendGroupBase struct {
 func (self *SLoadbalancerBackendGroupBase) Update(ctx context.Context, opts *cloudprovider.SLoadbalancerBackendGroup) error {
 	return cloudprovider.ErrNotImplemented
 }
+
+func (self *SLoadbalancerBackendGroupBase) GetHealthCheckId() string {
+	return ""
+}
