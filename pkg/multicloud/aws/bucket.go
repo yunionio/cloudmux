@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/service/s3"
 
@@ -31,6 +32,7 @@ import (
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/util/fileutils"
+	"yunion.io/x/pkg/util/httputils"
 	"yunion.io/x/pkg/utils"
 	"yunion.io/x/s3cli"
 
@@ -159,6 +161,15 @@ func (b *SBucket) GetStats() cloudprovider.SBucketStats {
 	return stats
 }
 
+func standardizeAwsError(err error) error {
+	switch ne := err.(type) {
+	case awserr.RequestFailure:
+		return httputils.NewJsonClientError(ne.StatusCode(), ne.Code(), ne.Message())
+	default:
+		return err
+	}
+}
+
 func (b *SBucket) ListObjects(prefix string, marker string, delimiter string, maxCount int) (cloudprovider.SListObjectResult, error) {
 	result := cloudprovider.SListObjectResult{}
 	s3cli, err := b.region.GetS3Client()
@@ -181,7 +192,9 @@ func (b *SBucket) ListObjects(prefix string, marker string, delimiter string, ma
 	}
 	oResult, err := s3cli.ListObjects(input)
 	if err != nil {
-		return result, errors.Wrap(err, "ListObjects")
+
+		log.Debugf("%#v", err)
+		return result, errors.Wrap(standardizeAwsError(err), "ListObjects")
 	}
 	result.Objects = make([]cloudprovider.ICloudObject, 0)
 	for _, object := range oResult.Contents {
