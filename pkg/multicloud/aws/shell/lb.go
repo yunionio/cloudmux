@@ -115,4 +115,18 @@ func init() {
 		return nil
 	})
 
+	type LbListenerRuleListOptions struct {
+		ListenerId string
+		RuleId     string
+	}
+
+	shellutils.R(&LbListenerRuleListOptions{}, "lb-listener-rule-list", "List loadbalancer listener rules", func(cli *aws.SRegion, args *LbListenerRuleListOptions) error {
+		rules, err := cli.GetElbListenerRules(args.ListenerId, args.RuleId)
+		if err != nil {
+			return err
+		}
+		printList(rules, 0, 0, 0, nil)
+		return nil
+	})
+
 }
