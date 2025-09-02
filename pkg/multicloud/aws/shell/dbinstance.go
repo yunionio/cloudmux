@@ -24,11 +24,10 @@ import (
 
 func init() {
 	type DBInstanceListOptions struct {
-		Id     string
-		Marker string
+		Id string
 	}
 	shellutils.R(&DBInstanceListOptions{}, "dbinstance-list", "List rds intances", func(cli *aws.SRegion, args *DBInstanceListOptions) error {
-		instances, _, err := cli.GetDBInstances(args.Id, args.Marker)
+		instances, err := cli.GetDBInstances(args.Id)
 		if err != nil {
 			return err
 		}
@@ -68,6 +67,18 @@ func init() {
 			log.Errorln(err)
 		}
 		return err
+	})
+
+	type SDBInstanceClusterListOptions struct {
+		Id string
+	}
+	shellutils.R(&SDBInstanceClusterListOptions{}, "dbinstance-cluster-list", "List rds intance clusters", func(cli *aws.SRegion, args *SDBInstanceClusterListOptions) error {
+		clusters, err := cli.GetDBInstanceClusters(args.Id)
+		if err != nil {
+			return err
+		}
+		printList(clusters, 0, 0, 0, []string{})
+		return nil
 	})
 
 }
