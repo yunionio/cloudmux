@@ -108,15 +108,15 @@ type SDBInstance struct {
 	PerformanceInsightsEnabled       bool                     `xml:"PerformanceInsightsEnabled"`
 	DBName                           string                   `xml:"DBName"`
 	MultiAZ                          bool                     `xml:"MultiAZ"`
-	//DomainMemberships                string                  `xml:"DomainMemberships"`
-	StorageEncrypted           bool               `xml:"StorageEncrypted"`
-	DBSubnetGroup              SDBSubnetGroup     `xml:"DBSubnetGroup"`
-	VpcSecurityGroups          SVpcSecurityGroups `xml:"VpcSecurityGroups"`
-	LicenseModel               string             `xml:"LicenseModel"`
-	PreferredMaintenanceWindow string             `xml:"PreferredMaintenanceWindow"`
-	StorageType                string             `xml:"StorageType"`
-	AutoMinorVersionUpgrade    bool               `xml:"AutoMinorVersionUpgrade"`
-	CopyTagsToSnapshot         bool               `xml:"CopyTagsToSnapshot"`
+	DBClusterIdentifier              string                   `xml:"DBClusterIdentifier"`
+	StorageEncrypted                 bool                     `xml:"StorageEncrypted"`
+	DBSubnetGroup                    SDBSubnetGroup           `xml:"DBSubnetGroup"`
+	VpcSecurityGroups                SVpcSecurityGroups       `xml:"VpcSecurityGroups"`
+	LicenseModel                     string                   `xml:"LicenseModel"`
+	PreferredMaintenanceWindow       string                   `xml:"PreferredMaintenanceWindow"`
+	StorageType                      string                   `xml:"StorageType"`
+	AutoMinorVersionUpgrade          bool                     `xml:"AutoMinorVersionUpgrade"`
+	CopyTagsToSnapshot               bool                     `xml:"CopyTagsToSnapshot"`
 }
 
 func (rds *SDBInstance) GetName() string {
@@ -164,6 +164,10 @@ func (rds *SDBInstance) Reboot() error {
 	return rds.region.RebootDBInstance(rds.DBInstanceIdentifier)
 }
 
+func (rds *SDBInstance) GetMasterInstanceId() string {
+	return rds.DBClusterIdentifier
+}
+
 func (self *SDBInstance) GetCategory() string {
 	switch self.Engine {
 	case "aurora", "aurora-mysql":
@@ -180,6 +184,20 @@ func (self *SDBInstance) GetCategory() string {
 		return api.AWS_DBINSTANCE_CATEGORY_EXPRESS_EDITION
 	case "sqlserver-web":
 		return api.AWS_DBINSTANCE_CATEGORY_WEB_EDITION
+	case "docdb":
+		cluster, err := self.region.GetDBInstanceCluster(self.DBClusterIdentifier)
+		if err != nil {
+			return api.AWS_DBINSTANCE_CATEGORY_GENERAL_PURPOSE
+		}
+		for _, member := range cluster.DBClusterMembers {
+			if member.DBInstanceIdentifier == self.DBInstanceIdentifier {
+				if member.IsClusterWriter {
+					return api.AWS_DBINSTANCE_CATEGORY_MASTER
+				}
+				return api.AWS_DBINSTANCE_CATEGORY_SLAVE
+			}
+		}
+		return api.AWS_DBINSTANCE_CATEGORY_GENERAL_PURPOSE
 	default:
 		if strings.HasPrefix(self.DBInstanceClass, "db.r") || strings.HasPrefix(self.DBInstanceClass, "db.x") || strings.HasPrefix(self.DBInstanceClass, "db.d") {
 			return api.AWS_DBINSTANCE_CATEGORY_MEMORY_OPTIMIZED
