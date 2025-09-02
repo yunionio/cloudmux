@@ -81,4 +81,15 @@ func init() {
 		return nil
 	})
 
+	type SDBInstanceGlobalClusterListOptions struct {
+		Id string
+	}
+	shellutils.R(&SDBInstanceGlobalClusterListOptions{}, "dbinstance-global-cluster-list", "List rds intance global clusters", func(cli *aws.SRegion, args *SDBInstanceGlobalClusterListOptions) error {
+		clusters, err := cli.GetDBInstanceGlobalClusters(args.Id)
+		if err != nil {
+			return err
+		}
+		printList(clusters, 0, 0, 0, []string{})
+		return nil
+	})
 }
