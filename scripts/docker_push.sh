@@ -66,7 +66,7 @@ build_bin() {
                 -v $SRC_DIR:/root/go/src/yunion.io/x/$PKGNAME \
                 -v $SRC_DIR/_output/alpine-build:/root/go/src/yunion.io/x/$PKGNAME/_output \
                 -v $SRC_DIR/_output/alpine-build/_cache:/root/.cache \
-                registry.cn-beijing.aliyuncs.com/yunionio/alpine-build:3.19.0-go-1.21.10-0 \
+                registry.cn-beijing.aliyuncs.com/yunionio/alpine-build:3.22.0-go-1.24.6-0 \
                 /bin/sh -c "set -ex; git config --global --add safe.directory /root/go/src/yunion.io/x/$PKGNAME; cd /root/go/src/yunion.io/x/$PKGNAME; $BUILD_ARCH $BUILD_CGO GOOS=linux make cmd/*cli; chown -R $(id -u):$(id -g) _output"
             ;;
         *)
@@ -74,7 +74,7 @@ build_bin() {
                 -v $SRC_DIR:/root/go/src/yunion.io/x/$PKGNAME \
                 -v $SRC_DIR/_output/alpine-build:/root/go/src/yunion.io/x/$PKGNAME/_output \
                 -v $SRC_DIR/_output/alpine-build/_cache:/root/.cache \
-                registry.cn-beijing.aliyuncs.com/yunionio/alpine-build:3.19.0-go-1.21.10-0 \
+                registry.cn-beijing.aliyuncs.com/yunionio/alpine-build:3.22.0-go-1.24.6-0 \
                 /bin/sh -c "set -ex; git config --global --add safe.directory /root/go/src/yunion.io/x/$PKGNAME; cd /root/go/src/yunion.io/x/$PKGNAME; $BUILD_ARCH $BUILD_CGO GOOS=linux make cmd/$1; chown -R $(id -u):$(id -g) _output"
             ;;
     esac
