@@ -56,6 +56,10 @@ func init() {
 		return cli.Delete(args.ID)
 	})
 
+	shellutils.R(&InstanceIdOptions{}, "instance-disable-deletion-protection", "Disable deletion protection instance", func(cli *google.SRegion, args *InstanceIdOptions) error {
+		return cli.DisableDeletionProtection(args.ID)
+	})
+
 	shellutils.R(&InstanceIdOptions{}, "instance-start", "Start instance", func(cli *google.SRegion, args *InstanceIdOptions) error {
 		return cli.StartInstance(args.ID)
 	})
