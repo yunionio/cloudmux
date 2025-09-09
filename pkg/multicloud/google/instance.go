@@ -28,6 +28,7 @@ import (
 	"yunion.io/x/pkg/util/encode"
 	"yunion.io/x/pkg/util/fileutils"
 	"yunion.io/x/pkg/util/imagetools"
+	"yunion.io/x/pkg/util/stringutils"
 	"yunion.io/x/pkg/utils"
 
 	billing_api "yunion.io/x/cloudmux/pkg/apis/billing"
@@ -384,6 +385,12 @@ func (instance *SInstance) StopVM(ctx context.Context, opts *cloudprovider.Serve
 }
 
 func (instance *SInstance) DeleteVM(ctx context.Context) error {
+	if instance.DeletionProtection {
+		err := instance.host.zone.region.DisableDeletionProtection(instance.SelfLink)
+		if err != nil {
+			return errors.Wrapf(err, "DisableDeletionProtection(%s)", instance.Name)
+		}
+	}
 	return instance.host.zone.region.Delete(instance.SelfLink)
 }
 
@@ -669,6 +676,14 @@ func (region *SRegion) StopInstance(id string) error {
 func (region *SRegion) ResetInstance(id string) error {
 	params := map[string]string{}
 	return region.Do(id, "reset", nil, jsonutils.Marshal(params))
+}
+
+func (region *SRegion) DisableDeletionProtection(id string) error {
+	params := map[string]string{
+		"requestId":          stringutils.UUID4(),
+		"deletionProtection": "false",
+	}
+	return region.Do(id, "setDeletionProtection", params, nil)
 }
 
 func (region *SRegion) DetachDisk(instanceId, deviceName string) error {
