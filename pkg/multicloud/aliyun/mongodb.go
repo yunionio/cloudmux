@@ -417,7 +417,7 @@ func (self *SRegion) GetMongoDB(id string) (*SMongoDB, error) {
 		ret[0].region = self
 		return &ret[0], nil
 	}
-	return nil, errors.Wrapf(cloudprovider.ErrNotFound, id)
+	return nil, errors.Wrapf(cloudprovider.ErrNotFound, "%s", id)
 }
 
 func (self *SRegion) DeleteMongoDB(id string) error {
