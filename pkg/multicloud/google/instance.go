@@ -514,7 +514,9 @@ func getDiskInfo(disk string) (cloudprovider.SDiskInfo, error) {
 	result := cloudprovider.SDiskInfo{}
 	diskInfo := strings.Split(disk, ":")
 	for _, d := range diskInfo {
-		if utils.IsInStringArray(d, []string{api.STORAGE_GOOGLE_PD_STANDARD, api.STORAGE_GOOGLE_PD_SSD, api.STORAGE_GOOGLE_LOCAL_SSD, api.STORAGE_GOOGLE_PD_BALANCED}) {
+		if utils.IsInStringArray(d, []string{
+			api.STORAGE_GOOGLE_PD_STANDARD, api.STORAGE_GOOGLE_PD_SSD, api.STORAGE_GOOGLE_LOCAL_SSD, api.STORAGE_GOOGLE_PD_BALANCED,
+			api.STORAGE_GOOGLE_HYPERDISK_THROUGHPUT, api.STORAGE_GOOGLE_HYPERDISK_ML, api.STORAGE_GOOGLE_HYPERDISK_BALANCED, api.STORAGE_GOOGLE_HYPERDISK_EXTREME}) {
 			result.StorageType = d
 		} else if memSize, err := fileutils.GetSizeMb(d, 'M', 1024); err == nil {
 			result.SizeGB = memSize >> 10
@@ -527,17 +529,17 @@ func getDiskInfo(disk string) (cloudprovider.SDiskInfo, error) {
 	}
 
 	if result.SizeGB == 0 {
-		return result, fmt.Errorf("Missing disk size")
+		return result, fmt.Errorf("missing disk size")
 	}
 	return result, nil
 }
 
 func (region *SRegion) CreateInstance(zone, name, desc, instanceType string, cpu, memoryMb int, networkId string, ipAddr, imageId string, disks []string) (*SInstance, error) {
 	if len(instanceType) == 0 && (cpu == 0 || memoryMb == 0) {
-		return nil, fmt.Errorf("Missing instanceType or cpu &memory info")
+		return nil, fmt.Errorf("missing instanceType or cpu &memory info")
 	}
 	if len(disks) == 0 {
-		return nil, fmt.Errorf("Missing disk info")
+		return nil, fmt.Errorf("missing disk info")
 	}
 	sysDisk, err := getDiskInfo(disks[0])
 	if err != nil {
