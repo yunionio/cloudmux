@@ -91,6 +91,7 @@ const (
 	STORAGE_GOOGLE_PD_STANDARD          = "pd-standard"          //标准永久性磁盘
 	STORAGE_GOOGLE_PD_SSD               = "pd-ssd"               //SSD永久性磁盘
 	STORAGE_GOOGLE_PD_BALANCED          = "pd-balanced"          //平衡永久性磁盘
+	STORAGE_GOOGLE_PD_EXTREME           = "pd-extreme"           //极端永久性磁盘
 	STORAGE_GOOGLE_HYPERDISK_THROUGHPUT = "hyperdisk-throughput" //Hyperdisk Throughput
 	STORAGE_GOOGLE_HYPERDISK_ML         = "hyperdisk-ml"         //Hyperdisk ML
 	STORAGE_GOOGLE_HYPERDISK_BALANCED   = "hyperdisk-balanced"   //平衡 Hyperdisk

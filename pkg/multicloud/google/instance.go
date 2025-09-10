@@ -515,7 +515,7 @@ func getDiskInfo(disk string) (cloudprovider.SDiskInfo, error) {
 	diskInfo := strings.Split(disk, ":")
 	for _, d := range diskInfo {
 		if utils.IsInStringArray(d, []string{
-			api.STORAGE_GOOGLE_PD_STANDARD, api.STORAGE_GOOGLE_PD_SSD, api.STORAGE_GOOGLE_LOCAL_SSD, api.STORAGE_GOOGLE_PD_BALANCED,
+			api.STORAGE_GOOGLE_PD_STANDARD, api.STORAGE_GOOGLE_PD_SSD, api.STORAGE_GOOGLE_LOCAL_SSD, api.STORAGE_GOOGLE_PD_BALANCED, api.STORAGE_GOOGLE_PD_EXTREME,
 			api.STORAGE_GOOGLE_HYPERDISK_THROUGHPUT, api.STORAGE_GOOGLE_HYPERDISK_ML, api.STORAGE_GOOGLE_HYPERDISK_BALANCED, api.STORAGE_GOOGLE_HYPERDISK_EXTREME}) {
 			result.StorageType = d
 		} else if memSize, err := fileutils.GetSizeMb(d, 'M', 1024); err == nil {
