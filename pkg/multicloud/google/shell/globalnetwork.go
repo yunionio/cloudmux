@@ -34,6 +34,17 @@ func init() {
 		return nil
 	})
 
+	type SharedVpcListOptions struct {
+	}
+	shellutils.R(&SharedVpcListOptions{}, "shared-global-network-list", "List shared vpc", func(cli *google.SRegion, args *SharedVpcListOptions) error {
+		sharedVpcs, err := cli.GetClient().GetSharedGlobalNetworks()
+		if err != nil {
+			return err
+		}
+		printList(sharedVpcs, 0, 0, 0, nil)
+		return nil
+	})
+
 	type GlobalNetworkShowOptions struct {
 		ID string
 	}
