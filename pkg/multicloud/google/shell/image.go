@@ -22,7 +22,7 @@ import (
 
 func init() {
 	type ImageListOptions struct {
-		Project    string `choices:"centos-cloud|ubuntu-os-cloud|windows-cloud|windows-sql-cloud|suse-cloud|suse-sap-cloud|rhel-cloud|rhel-sap-cloud|cos-cloud|debian-cloud"`
+		Project    string `help:"project id like centos-cloud|ubuntu-os-cloud|windows-cloud|windows-sql-cloud|suse-cloud|suse-sap-cloud|rhel-cloud|rhel-sap-cloud|cos-cloud|debian-cloud"`
 		MaxResults int
 		PageToken  string
 	}
