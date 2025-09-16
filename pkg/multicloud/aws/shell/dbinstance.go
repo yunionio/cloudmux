@@ -81,4 +81,17 @@ func init() {
 		return nil
 	})
 
+	type SDBInstanceClusterSnapshotsListOptions struct {
+		ClusterId  string
+		SnapshotId string
+	}
+
+	shellutils.R(&SDBInstanceClusterSnapshotsListOptions{}, "dbinstance-cluster-snapshots-list", "List rds intance cluster snapshots", func(cli *aws.SRegion, args *SDBInstanceClusterSnapshotsListOptions) error {
+		snapshots, err := cli.DescribeDBClusterSnapshots(args.ClusterId, args.SnapshotId)
+		if err != nil {
+			return err
+		}
+		printList(snapshots, 0, 0, 0, []string{})
+		return nil
+	})
 }
