@@ -46,4 +46,36 @@ func init() {
 		return nil
 	})
 
+	type SSQLServerSQLInstanceListOptions struct {
+		Id string
+	}
+	shellutils.R(&SSQLServerSQLInstanceListOptions{}, "sqlserver-instance-list", "List sqlserver instances", func(cli *qcloud.SRegion, args *SSQLServerSQLInstanceListOptions) error {
+		instances, err := cli.GetSQLServers(args.Id)
+		if err != nil {
+			return errors.Wrapf(err, "GetSQLServers")
+		}
+		printList(instances, 0, 0, 0, nil)
+		return nil
+	})
+
+	type SQLServerIdOptions struct {
+		ID string
+	}
+	shellutils.R(&SQLServerIdOptions{}, "sqlserver-instance-show", "Show sqlserver", func(cli *qcloud.SRegion, args *SQLServerIdOptions) error {
+		instance, err := cli.GetSQLServer(args.ID)
+		if err != nil {
+			return err
+		}
+		printObject(instance)
+		return nil
+	})
+
+	shellutils.R(&SQLServerIdOptions{}, "sqlserver-instance-delete", "Delete sqlserver", func(cli *qcloud.SRegion, args *SQLServerIdOptions) error {
+		return cli.DeleteSQLServer(args.ID)
+	})
+
+	shellutils.R(&SQLServerIdOptions{}, "sqlserver-instance-delete-in-recycle-bin", "Delete sqlserver in recycle bin", func(cli *qcloud.SRegion, args *SQLServerIdOptions) error {
+		return cli.DeleteSQLServerInRecycleBin(args.ID)
+	})
+
 }
