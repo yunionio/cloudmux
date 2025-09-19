@@ -112,7 +112,7 @@ type SSQLServer struct {
 	CrossBackupSaveDays int
 	CrossRegions        []string
 	DnsPodDomain        string
-	EndTime             string
+	EndTime             time.Time
 	HAFlag              string
 	InstanceId          string
 	InstanceNote        string
@@ -343,7 +343,7 @@ func (mssql *SSQLServer) IsAutoRenew() bool {
 }
 
 func (mssql *SSQLServer) GetExpiredAt() time.Time {
-	return time.Time{}
+	return mssql.EndTime
 }
 
 func (mssql *SSQLServer) GetVcpuCount() int {
