@@ -15,40 +15,33 @@
 package shell
 
 import (
-	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/ksyun"
 
-	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/util/shellutils"
 )
 
 func init() {
-	type VpcListOptions struct {
-		Id []string
+	type KeyPairListOptions struct {
 	}
-	shellutils.R(&VpcListOptions{}, "vpc-list", "list vpc", func(cli *ksyun.SRegion, args *VpcListOptions) error {
-		res, err := cli.GetVpcs(args.Id)
-		if err != nil {
-			return errors.Wrap(err, "GetVpcs")
-		}
-		printList(res)
-		return nil
-	})
-
-	shellutils.R(&cloudprovider.VpcCreateOptions{}, "vpc-create", "create vpc", func(cli *ksyun.SRegion, args *cloudprovider.VpcCreateOptions) error {
-		vpc, err := cli.CreateVpc(args)
+	shellutils.R(&KeyPairListOptions{}, "keypair-list", "List keypairs", func(cli *ksyun.SRegion, args *KeyPairListOptions) error {
+		keypairs, err := cli.GetClient().GetKeypairs()
 		if err != nil {
 			return err
 		}
-		printObject(vpc)
+		printList(keypairs)
 		return nil
 	})
 
-	type VpcIdOptions struct {
-		ID string
+	type KeyPairCreateOptions struct {
+		Name      string
+		PublicKey string
 	}
-
-	shellutils.R(&VpcIdOptions{}, "vpc-delete", "delete vpc", func(cli *ksyun.SRegion, args *VpcIdOptions) error {
-		return cli.DeleteVpc(args.ID)
+	shellutils.R(&KeyPairCreateOptions{}, "keypair-create", "Create keypair", func(cli *ksyun.SRegion, args *KeyPairCreateOptions) error {
+		keypair, err := cli.GetClient().CreateKeypair(args.Name, args.PublicKey)
+		if err != nil {
+			return err
+		}
+		printObject(keypair)
+		return nil
 	})
 }
