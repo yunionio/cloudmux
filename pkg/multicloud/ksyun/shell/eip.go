@@ -15,6 +15,7 @@
 package shell
 
 import (
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/ksyun"
 
 	"yunion.io/x/pkg/errors"
@@ -32,5 +33,31 @@ func init() {
 		}
 		printList(res)
 		return nil
+	})
+
+	shellutils.R(&EipListOptions{}, "eip-line-list", "list eip lines", func(cli *ksyun.SRegion, args *EipListOptions) error {
+		res, err := cli.GetLines()
+		if err != nil {
+			return errors.Wrap(err, "GetLines")
+		}
+		printList(res)
+		return nil
+	})
+
+	shellutils.R(&cloudprovider.SEip{}, "eip-create", "create eip", func(cli *ksyun.SRegion, args *cloudprovider.SEip) error {
+		eip, err := cli.CreateEip(args)
+		if err != nil {
+			return errors.Wrap(err, "CreateEip")
+		}
+		printObject(eip)
+		return nil
+	})
+
+	type EipIdOptions struct {
+		ID string
+	}
+
+	shellutils.R(&EipIdOptions{}, "eip-delete", "delete eip", func(cli *ksyun.SRegion, args *EipIdOptions) error {
+		return cli.DeallocateEIP(args.ID)
 	})
 }

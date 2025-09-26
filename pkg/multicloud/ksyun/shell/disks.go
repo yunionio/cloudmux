@@ -15,6 +15,7 @@
 package shell
 
 import (
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/ksyun"
 
 	"yunion.io/x/pkg/errors"
@@ -45,6 +46,61 @@ func init() {
 			return errors.Wrap(err, "GetDiskByInstanceId")
 		}
 		printList(res)
+		return nil
+	})
+
+	type DiskCreateOptions struct {
+		NAME        string
+		Desc        string
+		SizeGb      int
+		ZoneId      string
+		StorageType string
+	}
+	shellutils.R(&DiskCreateOptions{}, "disk-create", "create disk", func(cli *ksyun.SRegion, args *DiskCreateOptions) error {
+		disk, err := cli.CreateDisk(args.StorageType, args.ZoneId, &cloudprovider.DiskCreateConfig{
+			Name:   args.NAME,
+			Desc:   args.Desc,
+			SizeGb: args.SizeGb,
+		})
+		if err != nil {
+			return errors.Wrap(err, "CreateDisk")
+		}
+		printObject(disk)
+		return nil
+	})
+
+	type DiskDeleteOptions struct {
+		ID string
+	}
+	shellutils.R(&DiskDeleteOptions{}, "disk-delete", "delete disk", func(cli *ksyun.SRegion, args *DiskDeleteOptions) error {
+		return cli.DeleteDisk(args.ID)
+	})
+
+	type DiskResizeOptions struct {
+		ID   string
+		SIZE int64
+	}
+	shellutils.R(&DiskResizeOptions{}, "disk-resize", "resize disk", func(cli *ksyun.SRegion, args *DiskResizeOptions) error {
+		return cli.ResizeDisk(args.ID, args.SIZE)
+	})
+
+	type DiskResetOptions struct {
+		ID       string
+		SNAPSHOT string
+	}
+	shellutils.R(&DiskResetOptions{}, "disk-reset", "reset disk", func(cli *ksyun.SRegion, args *DiskResetOptions) error {
+		return cli.ResetDisk(args.ID, args.SNAPSHOT)
+	})
+
+	type DiskShowOptions struct {
+		ID string
+	}
+	shellutils.R(&DiskShowOptions{}, "disk-show", "show disk", func(cli *ksyun.SRegion, args *DiskShowOptions) error {
+		disk, err := cli.GetDisk(args.ID)
+		if err != nil {
+			return errors.Wrap(err, "GetDisk")
+		}
+		printObject(disk)
 		return nil
 	})
 }
