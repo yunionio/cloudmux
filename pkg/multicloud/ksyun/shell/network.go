@@ -15,6 +15,7 @@
 package shell
 
 import (
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/ksyun"
 
 	"yunion.io/x/pkg/errors"
@@ -34,5 +35,28 @@ func init() {
 		}
 		printList(res)
 		return nil
+	})
+
+	type NetworkCreateOptions struct {
+		VpcId  string
+		ZoneId string
+		cloudprovider.SNetworkCreateOptions
+	}
+
+	shellutils.R(&NetworkCreateOptions{}, "network-create", "create network", func(cli *ksyun.SRegion, args *NetworkCreateOptions) error {
+		network, err := cli.CreateNetwork(args.VpcId, args.ZoneId, &args.SNetworkCreateOptions)
+		if err != nil {
+			return err
+		}
+		printObject(network)
+		return nil
+	})
+
+	type NetworkIdOptions struct {
+		ID string
+	}
+
+	shellutils.R(&NetworkIdOptions{}, "network-delete", "delete network", func(cli *ksyun.SRegion, args *NetworkIdOptions) error {
+		return cli.DeleteNetwork(args.ID)
 	})
 }
