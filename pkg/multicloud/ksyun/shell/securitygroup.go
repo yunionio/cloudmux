@@ -15,6 +15,7 @@
 package shell
 
 import (
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/ksyun"
 
 	"yunion.io/x/pkg/errors"
@@ -33,5 +34,30 @@ func init() {
 		}
 		printList(res)
 		return nil
+	})
+
+	type SecurityGroupCreateOptions struct {
+		VpcId string
+		Name  string
+		Desc  string
+	}
+	shellutils.R(&SecurityGroupCreateOptions{}, "secgroup-create", "create secgroup", func(cli *ksyun.SRegion, args *SecurityGroupCreateOptions) error {
+		group, err := cli.CreateSecurityGroup(&cloudprovider.SecurityGroupCreateInput{
+			VpcId: args.VpcId,
+			Name:  args.Name,
+			Desc:  args.Desc,
+		})
+		if err != nil {
+			return err
+		}
+		printObject(group)
+		return nil
+	})
+
+	type SecurityGroupDeleteOptions struct {
+		ID string
+	}
+	shellutils.R(&SecurityGroupDeleteOptions{}, "secgroup-delete", "delete secgroup", func(cli *ksyun.SRegion, args *SecurityGroupDeleteOptions) error {
+		return cli.DeleteSecurityGroup(args.ID)
 	})
 }
