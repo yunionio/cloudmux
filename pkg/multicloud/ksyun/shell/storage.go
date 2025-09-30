@@ -15,6 +15,8 @@
 package shell
 
 import (
+	"fmt"
+
 	"yunion.io/x/cloudmux/pkg/multicloud/ksyun"
 
 	"yunion.io/x/pkg/errors"
@@ -30,6 +32,17 @@ func init() {
 			return errors.Wrap(err, "GetIStorages")
 		}
 		printList(res)
+		return nil
+	})
+	type StorageZoneListOptions struct {
+		DiskType string
+	}
+	shellutils.R(&StorageZoneListOptions{}, "storage-zone-list", "list storage zone", func(cli *ksyun.SRegion, args *StorageZoneListOptions) error {
+		res, err := cli.GetZonesByDiskType(args.DiskType)
+		if err != nil {
+			return errors.Wrap(err, "GetZonesByDiskType")
+		}
+		fmt.Println(res)
 		return nil
 	})
 }
