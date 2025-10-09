@@ -15,10 +15,11 @@
 package shell
 
 import (
+	"context"
 	"fmt"
 	"os"
 
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 
 	"yunion.io/x/pkg/util/printutils"
 	"yunion.io/x/pkg/util/shellutils"
@@ -74,18 +75,19 @@ func init() {
 			return err
 		}
 		input := &s3.ListObjectsInput{}
-		input = input.SetBucket(args.BUCKET)
+		input.Bucket = &args.BUCKET
 		if args.Limit > 0 {
-			input = input.SetMaxKeys(args.Limit)
+			limit := int32(args.Limit)
+			input.MaxKeys = &limit
 		}
 		if len(args.Prefix) > 0 {
-			input = input.SetPrefix(args.Prefix)
+			input.Prefix = &args.Prefix
 		}
 		if len(args.Marker) > 0 {
-			input = input.SetMarker(args.Marker)
+			input.Marker = &args.Marker
 		}
 
-		output, err := s3cli.ListObjects(input)
+		output, err := s3cli.ListObjects(context.Background(), input)
 		if err != nil {
 			return err
 		}
@@ -107,8 +109,9 @@ func init() {
 			return err
 		}
 		input := &s3.GetObjectInput{}
-		input = input.SetBucket(args.BUCKET).SetKey(args.OBJECT)
-		output, err := s3cli.GetObject(input)
+		input.Bucket = &args.BUCKET
+		input.Key = &args.OBJECT
+		output, err := s3cli.GetObject(context.Background(), input)
 		if err != nil {
 			return err
 		}
