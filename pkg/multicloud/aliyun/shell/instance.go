@@ -90,6 +90,15 @@ func init() {
 		return nil
 	})
 
+	shellutils.R(&InstanceOperationOptions{}, "instance-status", "Show a instance status", func(cli *aliyun.SRegion, args *InstanceOperationOptions) error {
+		status, err := cli.DescribeInstancesFullStatus(args.ID)
+		if err != nil {
+			return err
+		}
+		printObject(status)
+		return nil
+	})
+
 	shellutils.R(&InstanceOperationOptions{}, "instance-auto-renew-info", "Show instance auto renew info", func(cli *aliyun.SRegion, args *InstanceOperationOptions) error {
 		info, err := cli.GetInstanceAutoRenewAttribute(args.ID)
 		if err != nil {
