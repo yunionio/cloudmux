@@ -15,8 +15,11 @@
 package shell
 
 import (
+	"context"
+
 	"yunion.io/x/pkg/util/shellutils"
 
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/aliyun"
 )
 
@@ -45,5 +48,16 @@ func init() {
 			return e
 		}
 		return nil
+	})
+
+	type DiskChangeStorageOptions struct {
+		ID          string `help:"Disk ID"`
+		StorageType string `help:"Storage type"`
+	}
+	shellutils.R(&DiskChangeStorageOptions{}, "disk-change-storage", "Change disk storage", func(cli *aliyun.SRegion, args *DiskChangeStorageOptions) error {
+		return cli.ChagneDiskStorage(context.Background(), &cloudprovider.ChangeStorageOptions{
+			DiskId:      args.ID,
+			StorageType: args.StorageType,
+		})
 	})
 }
