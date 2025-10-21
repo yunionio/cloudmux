@@ -370,6 +370,10 @@ github.com/googleapis/gax-go/v2/internal
 # github.com/huaweicloud/huaweicloud-sdk-go v1.0.26
 ## explicit
 github.com/huaweicloud/huaweicloud-sdk-go/auth/aksk
+# github.com/icholy/digest v1.1.0
+## explicit; go 1.20
+github.com/icholy/digest
+github.com/icholy/digest/internal/param
 # github.com/jdcloud-api/jdcloud-sdk-go v1.55.0
 ## explicit
 github.com/jdcloud-api/jdcloud-sdk-go/core
