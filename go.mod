@@ -21,6 +21,7 @@ require (
 	github.com/coredns/coredns v1.3.0
 	github.com/fatih/color v1.13.0
 	github.com/huaweicloud/huaweicloud-sdk-go v1.0.26
+	github.com/icholy/digest v1.1.0
 	github.com/jdcloud-api/jdcloud-sdk-go v1.55.0
 	github.com/ks3sdklib/aws-sdk-go v1.8.1
 	github.com/oracle/oci-go-sdk v24.3.0+incompatible
