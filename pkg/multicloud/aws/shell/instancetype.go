@@ -22,9 +22,10 @@ import (
 
 func init() {
 	type InstanceTypeListOptions struct {
+		InstanceType string
 	}
 	shellutils.R(&InstanceTypeListOptions{}, "instance-type-list", "List intance types", func(cli *aws.SRegion, args *InstanceTypeListOptions) error {
-		skus, err := cli.GetInstanceTypes()
+		skus, err := cli.GetInstanceTypes(args.InstanceType)
 		if err != nil {
 			return err
 		}

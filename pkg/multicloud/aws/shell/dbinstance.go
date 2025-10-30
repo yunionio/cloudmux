@@ -106,4 +106,16 @@ func init() {
 		printList(clusters, 0, 0, 0, []string{})
 		return nil
 	})
+
+	type SDBEngineVersionListOptions struct {
+		Engine string `choices:"mysql|mariadb|postgres|oracle|sqlserver"`
+	}
+	shellutils.R(&SDBEngineVersionListOptions{}, "dbengine-version-list", "List rds engine versions", func(cli *aws.SRegion, args *SDBEngineVersionListOptions) error {
+		versions, err := cli.DescribeDBEngineVersions(args.Engine)
+		if err != nil {
+			return err
+		}
+		printList(versions, 0, 0, 0, []string{})
+		return nil
+	})
 }
