@@ -15,6 +15,8 @@
 package aws
 
 import (
+	"time"
+
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/pkg/errors"
 )
@@ -62,4 +64,52 @@ func (self *SRegion) GetProducts(serviceCode string, filters []ProductFilter, ne
 		result = append(result, product)
 	}
 	return result, ret.NextToken, nil
+}
+
+type SPriceList struct {
+	CurrencyCode string
+	FileFormats  []string
+	PriceListArn string
+	RegionCode   string
+}
+
+func (region *SRegion) ListPriceLists(serviceCode string) ([]SPriceList, error) {
+	params := map[string]interface{}{
+		"RegionCode":    region.RegionId,
+		"ServiceCode":   serviceCode,
+		"CurrencyCode":  "USD",
+		"EffectiveDate": time.Now().Unix(),
+	}
+	ret := []SPriceList{}
+	for {
+		part := struct {
+			NextToken  string
+			PriceLists []SPriceList
+		}{}
+		err := region.priceRequest("ListPriceLists", params, &part)
+		if err != nil {
+			return nil, err
+		}
+		ret = append(ret, part.PriceLists...)
+		if len(part.NextToken) == 0 || len(part.PriceLists) == 0 {
+			break
+		}
+		params["NextToken"] = part.NextToken
+	}
+	return ret, nil
+}
+
+func (region *SRegion) GetPriceListFileUrl(arn string) (string, error) {
+	params := map[string]interface{}{
+		"FileFormat":   "json",
+		"PriceListArn": arn,
+	}
+	ret := struct {
+		Url string
+	}{}
+	err := region.priceRequest("GetPriceListFileUrl", params, &ret)
+	if err != nil {
+		return "", errors.Wrapf(err, "GetPriceListFileUrl")
+	}
+	return ret.Url, nil
 }
