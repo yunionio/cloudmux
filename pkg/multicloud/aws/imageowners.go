@@ -69,6 +69,10 @@ var rhel = SAWSImagePublisherInfo{
 		parts := strings.Split(image.ImageName, "-")
 		if len(parts) >= 2 {
 			parts = strings.Split(parts[1], "_")
+			version := strings.Split(parts[0], ".")
+			if len(version) >= 2 {
+				return fmt.Sprintf("%s.%s", version[0], version[1])
+			}
 			return parts[0]
 		}
 		return ""
@@ -76,7 +80,7 @@ var rhel = SAWSImagePublisherInfo{
 	GetOSBuildID: func(image SImage) string {
 		parts := strings.Split(image.ImageName, "-")
 		if len(parts) >= 2 {
-			return parts[2]
+			return parts[2] + image.CreationTime.Format("20060102150405")
 		}
 		return ""
 	},
