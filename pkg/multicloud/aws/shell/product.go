@@ -15,6 +15,7 @@
 package shell
 
 import (
+	"fmt"
 	"strings"
 
 	"yunion.io/x/pkg/util/shellutils"
@@ -45,6 +46,31 @@ func init() {
 			return err
 		}
 		printList(products, 0, 0, 0, []string{})
+		return nil
+	})
+
+	type PriceListOptions struct {
+		ServiceCode string `default:"AmazonEC2" choices:"AmazonEC2|AmazonElastiCache"`
+	}
+	shellutils.R(&PriceListOptions{}, "price-list", "List price", func(cli *aws.SRegion, args *PriceListOptions) error {
+		prices, err := cli.ListPriceLists(args.ServiceCode)
+		if err != nil {
+			return err
+		}
+		printList(prices, 0, 0, 0, nil)
+		return nil
+	})
+
+	type PriceFileOptions struct {
+		ARN string
+	}
+
+	shellutils.R(&PriceFileOptions{}, "price-file-url", "List price", func(cli *aws.SRegion, args *PriceFileOptions) error {
+		url, err := cli.GetPriceListFileUrl(args.ARN)
+		if err != nil {
+			return err
+		}
+		fmt.Println(url)
 		return nil
 	})
 }
