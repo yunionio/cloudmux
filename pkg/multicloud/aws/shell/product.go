@@ -50,7 +50,7 @@ func init() {
 	})
 
 	type PriceListOptions struct {
-		ServiceCode string `default:"AmazonEC2" choices:"AmazonEC2|AmazonElastiCache"`
+		ServiceCode string `default:"AmazonEC2" choices:"AmazonEC2|AmazonElastiCache|AmazonRDS"`
 	}
 	shellutils.R(&PriceListOptions{}, "price-list", "List price", func(cli *aws.SRegion, args *PriceListOptions) error {
 		prices, err := cli.ListPriceLists(args.ServiceCode)
@@ -73,4 +73,17 @@ func init() {
 		fmt.Println(url)
 		return nil
 	})
+
+	type ServiceListOptions struct {
+	}
+
+	shellutils.R(&ServiceListOptions{}, "service-list", "List service", func(cli *aws.SRegion, args *ServiceListOptions) error {
+		ret, err := cli.DescribeServices()
+		if err != nil {
+			return err
+		}
+		printList(ret, 0, 0, 0, nil)
+		return nil
+	})
+
 }

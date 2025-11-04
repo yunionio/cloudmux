@@ -113,3 +113,29 @@ func (region *SRegion) GetPriceListFileUrl(arn string) (string, error) {
 	}
 	return ret.Url, nil
 }
+
+type Service struct {
+	AttributeNames []string `xml:"AttributeNames"`
+	ServiceCode    string   `xml:"ServiceCode"`
+}
+
+func (region *SRegion) DescribeServices() ([]Service, error) {
+	params := map[string]interface{}{}
+	ret := []Service{}
+	for {
+		part := struct {
+			NextToken string    `xml:"NextToken"`
+			Services  []Service `xml:"Services"`
+		}{}
+		err := region.priceRequest("DescribeServices", params, &part)
+		if err != nil {
+			return nil, errors.Wrapf(err, "DescribeServices")
+		}
+		ret = append(ret, part.Services...)
+		if len(part.NextToken) == 0 || len(part.Services) == 0 {
+			break
+		}
+		params["NextToken"] = part.NextToken
+	}
+	return ret, nil
+}
