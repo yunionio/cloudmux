@@ -51,6 +51,24 @@ func init() {
 		return nil
 	})
 
+	type HostSyncPoolOptions struct {
+		IP           string `help:"Host IP"`
+		ResourcePool string `help:"Resource pool name"`
+	}
+
+	shellutils.R(&HostSyncPoolOptions{}, "host-sync-pool", "Sync resource pool of a given host", func(cli *esxi.SESXiClient, args *HostSyncPoolOptions) error {
+		host, err := cli.FindHostByIp(args.IP)
+		if err != nil {
+			return err
+		}
+		pool, err := host.SyncResourcePool(args.ResourcePool)
+		if err != nil {
+			return err
+		}
+		printObject(pool)
+		return nil
+	})
+
 	shellutils.R(&HostShowOptions{}, "host-storages", "Show all storages of a given host", func(cli *esxi.SESXiClient, args *HostShowOptions) error {
 		host, err := cli.FindHostByIp(args.IP)
 		if err != nil {
@@ -88,20 +106,6 @@ func init() {
 			return err
 		}
 		printList(networks, nil)
-		return nil
-	})
-
-	shellutils.R(&HostShowOptions{}, "host-cluster", "Show host cluster", func(cli *esxi.SESXiClient,
-		args *HostShowOptions) error {
-		host, err := cli.FindHostByIp(args.IP)
-		if err != nil {
-			return err
-		}
-		cluster, err := host.GetCluster()
-		if err != nil {
-			return err
-		}
-		printObject(cluster)
 		return nil
 	})
 
