@@ -145,6 +145,31 @@ func (host *SHost) GetName() string {
 	return formatName(host.SManagedObject.GetName())
 }
 
+func (host *SHost) GetSchedtags() ([]string, error) {
+	clusters, err := host.datacenter.listClusters()
+	if err != nil {
+		return nil, err
+	}
+	cpName := host.datacenter.manager.cpcfg.Name
+	reference := host.GetHostSystem().Reference()
+	tags := make([]string, 0, 1)
+	oDatacenter := host.datacenter.getDatacenter()
+Loop:
+	for i := range clusters {
+		oc := clusters[i].getoCluster()
+		if len(oc.Host) == 0 {
+			continue
+		}
+		for _, h := range oc.Host {
+			if h == reference {
+				tags = append(tags, fmt.Sprintf("cluster:/%s/%s/%s", cpName, oDatacenter.Name, oc.Name))
+				continue Loop
+			}
+		}
+	}
+	return tags, nil
+}
+
 func (host *SHost) getHostSystem() *mo.HostSystem {
 	return host.object.(*mo.HostSystem)
 }
