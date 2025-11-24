@@ -15,6 +15,7 @@
 package shell
 
 import (
+	"yunion.io/x/pkg/util/printutils"
 	"yunion.io/x/pkg/util/shellutils"
 
 	"yunion.io/x/cloudmux/pkg/multicloud/esxi"
@@ -120,6 +121,20 @@ func init() {
 			return err
 		}
 		printObject(pool)
+		return nil
+	})
+
+	shellutils.R(&HostShowOptions{}, "host-schedtag-list", "List host schedtags", func(cli *esxi.SESXiClient,
+		args *HostShowOptions) error {
+		host, err := cli.FindHostByIp(args.IP)
+		if err != nil {
+			return err
+		}
+		schedtags, err := host.GetSchedtags()
+		if err != nil {
+			return err
+		}
+		printutils.PrintInterfaceList(schedtags, 0, 0, 0, []string{"Name", "Id", "Meta"})
 		return nil
 	})
 }
