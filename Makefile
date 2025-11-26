@@ -1,6 +1,8 @@
 ROOT_DIR := $(CURDIR)
 BUILD_DIR := $(ROOT_DIR)/_output
 BIN_DIR := $(BUILD_DIR)/bin
+BUILD_SCRIPT := $(ROOT_DIR)/build/build.sh
+DEB_BUILD_SCRIPT := $(ROOT_DIR)/build/build_deb.sh
 REPO_PREFIX := yunion.io/x/cloudmux
 VERSION_PKG := yunion.io/x/pkg/util/version
 
@@ -37,6 +39,12 @@ GO_BUILD := go build $(GO_BUILD_FLAGS)
 
 cmd/%: prepare_dir
 	$(GO_BUILD) -o $(BIN_DIR)/$(shell basename $@) $(REPO_PREFIX)/$@
+
+rpm/%: cmd/%
+	$(BUILD_SCRIPT) $*
+
+deb/%: cmd/%
+	$(DEB_BUILD_SCRIPT) $*
 
 test:
 	go test -v $(GO_BUILD_FLAGS) ./...
