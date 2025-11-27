@@ -4,7 +4,6 @@ go 1.21
 
 require (
 	cloud.google.com/go/storage v1.39.1
-	github.com/Azure/azure-sdk-for-go v36.1.0+incompatible
 	github.com/Azure/go-autorest/autorest v0.9.6
 	github.com/Azure/go-autorest/autorest/azure/auth v0.4.2
 	github.com/Microsoft/azure-vhd-utils v0.0.0-20181115010904-44cbada2ece3
@@ -47,7 +46,6 @@ require (
 	github.com/Azure/go-autorest/autorest/adal v0.8.2 // indirect
 	github.com/Azure/go-autorest/autorest/azure/cli v0.3.1 // indirect
 	github.com/Azure/go-autorest/autorest/date v0.2.0 // indirect
-	github.com/Azure/go-autorest/autorest/to v0.4.0 // indirect
 	github.com/Azure/go-autorest/logger v0.1.0 // indirect
 	github.com/Azure/go-autorest/tracing v0.5.0 // indirect
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
@@ -55,7 +53,6 @@ require (
 	github.com/bitly/go-simplejson v0.5.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/dimchansky/utfbom v1.1.0 // indirect
-	github.com/dnaeon/go-vcr v1.2.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-logr/logr v1.4.1 // indirect
