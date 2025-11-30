@@ -24,11 +24,11 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/Microsoft/azure-vhd-utils/vhdcore/block/bitmap"
-	"github.com/Microsoft/azure-vhd-utils/vhdcore/common"
-	"github.com/Microsoft/azure-vhd-utils/vhdcore/diskstream"
-	"github.com/Microsoft/azure-vhd-utils/vhdcore/footer"
-	"github.com/Microsoft/azure-vhd-utils/vhdcore/validator"
+	"yunion.io/x/cloudmux/pkg/multicloud/azure/vhdcore/block/bitmap"
+	"yunion.io/x/cloudmux/pkg/multicloud/azure/vhdcore/common"
+	"yunion.io/x/cloudmux/pkg/multicloud/azure/vhdcore/diskstream"
+	"yunion.io/x/cloudmux/pkg/multicloud/azure/vhdcore/footer"
+	"yunion.io/x/cloudmux/pkg/multicloud/azure/vhdcore/validator"
 
 	"yunion.io/x/cloudmux/pkg/multicloud/azure/concurrent"
 	"yunion.io/x/cloudmux/pkg/multicloud/azure/progress"

@@ -6,7 +6,6 @@ require (
 	cloud.google.com/go/storage v1.39.1
 	github.com/Azure/go-autorest/autorest v0.9.6
 	github.com/Azure/go-autorest/autorest/azure/auth v0.4.2
-	github.com/Microsoft/azure-vhd-utils v0.0.0-20181115010904-44cbada2ece3
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.684
 	github.com/aliyun/aliyun-oss-go-sdk v2.0.4+incompatible
 	github.com/aokoli/goutils v1.0.1
@@ -124,5 +123,3 @@ require (
 	gopkg.in/ini.v1 v1.62.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
-
-replace github.com/Azure/azure-sdk-for-go => github.com/Azure/azure-sdk-for-go v36.1.0+incompatible
