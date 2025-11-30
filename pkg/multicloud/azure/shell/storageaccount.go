@@ -15,8 +15,12 @@
 package shell
 
 import (
+	"context"
 	"fmt"
+	"net/http"
+	"strings"
 
+	"github.com/pkg/errors"
 	"yunion.io/x/pkg/util/shellutils"
 
 	"yunion.io/x/cloudmux/pkg/multicloud/azure"
@@ -34,27 +38,9 @@ func init() {
 		return nil
 	})
 
-	shellutils.R(&StorageAccountListOptions{}, "classic-storage-account-list", "List classic storage account", func(cli *azure.SRegion, args *StorageAccountListOptions) error {
-		accounts, err := cli.ListClassicStorageAccounts()
-		if err != nil {
-			return err
-		}
-		printList(accounts, len(accounts), 0, 0, []string{})
-		return nil
-	})
-
 	type StorageAccountOptions struct {
 		ID string `help:"StorageAccount ID"`
 	}
-
-	shellutils.R(&StorageAccountOptions{}, "classic-storage-account-show", "Show storage account detail", func(cli *azure.SRegion, args *StorageAccountOptions) error {
-		account, err := cli.GetClassicStorageAccount(args.ID)
-		if err != nil {
-			return err
-		}
-		printObject(account)
-		return nil
-	})
 
 	shellutils.R(&StorageAccountOptions{}, "storage-account-delete", "Delete storage account", func(cli *azure.SRegion, args *StorageAccountOptions) error {
 		return cli.DeleteStorageAccount(args.ID)
@@ -76,6 +62,27 @@ func init() {
 			fmt.Printf("Key: %s", key)
 			return nil
 		}
+	})
+
+	type StorageAccountObjectOptions struct {
+		StorageAccountOptions
+		Prefix     string `help:"prefix of object to list"`
+		Delimiter  string `help:"delimiter of object to list"`
+		MaxResults int    `help:"max results of object to list"`
+		Marker     string `help:"marker of object to list"`
+	}
+
+	shellutils.R(&StorageAccountObjectOptions{}, "storage-account-object-list", "List objects of a storage account", func(cli *azure.SRegion, args *StorageAccountObjectOptions) error {
+		account, err := cli.GetStorageAccountDetail(args.ID)
+		if err != nil {
+			return err
+		}
+		objects, err := account.ListObjects(args.Prefix, args.Marker, args.Delimiter, args.MaxResults)
+		if err != nil {
+			return err
+		}
+		printList(objects.Objects, len(objects.Objects), 0, 0, nil)
+		return nil
 	})
 
 	shellutils.R(&StorageAccountOptions{}, "storage-container-list", "Get list of containers of a storage account", func(cli *azure.SRegion, args *StorageAccountOptions) error {
@@ -117,7 +124,7 @@ func init() {
 		if err != nil {
 			return err
 		}
-		blobs, err := container.ListAllFiles(nil)
+		blobs, err := container.ListAllFiles()
 		if err != nil {
 			return err
 		}
@@ -180,6 +187,48 @@ func init() {
 			return err
 		}
 		printList(skus, 0, 0, 0, nil)
+		return nil
+	})
+
+	type StorageAccountSetObjectMetaOptions struct {
+		ACCOUNT string   `help:"storage account ID"`
+		OBJECT  string   `help:"name of object to set meta"`
+		META    []string `help:"meta to set"`
+	}
+	shellutils.R(&StorageAccountSetObjectMetaOptions{}, "storage-object-set-meta", "Set meta of a object in a storage account", func(cli *azure.SRegion, args *StorageAccountSetObjectMetaOptions) error {
+		account, err := cli.GetStorageAccountDetail(args.ACCOUNT)
+		if err != nil {
+			return err
+		}
+		meta := http.Header{}
+		for _, m := range args.META {
+			parts := strings.SplitN(m, ":", 2)
+			if len(parts) != 2 {
+				return errors.Errorf("invalid meta: %s", m)
+			}
+			meta.Set(parts[0], parts[1])
+		}
+		err = account.SetObjectMeta(context.Background(), args.OBJECT, meta)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+
+	type StorageAccountGetObjectMetaOptions struct {
+		ACCOUNT string `help:"storage account ID"`
+		OBJECT  string `help:"name of object to get meta"`
+	}
+	shellutils.R(&StorageAccountGetObjectMetaOptions{}, "storage-object-get-meta", "Get meta of a object in a storage account", func(cli *azure.SRegion, args *StorageAccountGetObjectMetaOptions) error {
+		account, err := cli.GetStorageAccountDetail(args.ACCOUNT)
+		if err != nil {
+			return err
+		}
+		meta, err := account.GetObjectMeta(args.OBJECT)
+		if err != nil {
+			return err
+		}
+		printObject(meta)
 		return nil
 	})
 }
