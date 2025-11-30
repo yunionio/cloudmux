@@ -29,8 +29,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Microsoft/azure-vhd-utils/vhdcore/common"
-	"github.com/Microsoft/azure-vhd-utils/vhdcore/diskstream"
+	"yunion.io/x/cloudmux/pkg/multicloud/azure/vhdcore/common"
+	"yunion.io/x/cloudmux/pkg/multicloud/azure/vhdcore/diskstream"
 
 	"yunion.io/x/jsonutils"
 	"yunion.io/x/log"
