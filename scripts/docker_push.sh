@@ -34,6 +34,9 @@ get_current_arch() {
         aarch64)
             current_arch=arm64
             ;;
+        riscv64)
+            current_arch=riscv64
+            ;;
     esac
     echo $current_arch
 }
@@ -66,7 +69,7 @@ build_bin() {
                 -v $SRC_DIR:/root/go/src/yunion.io/x/$PKGNAME \
                 -v $SRC_DIR/_output/alpine-build:/root/go/src/yunion.io/x/$PKGNAME/_output \
                 -v $SRC_DIR/_output/alpine-build/_cache:/root/.cache \
-                registry.cn-beijing.aliyuncs.com/yunionio/alpine-build:3.22.0-go-1.24.6-0 \
+                registry.cn-beijing.aliyuncs.com/yunionio/alpine-build:3.22.2-go-1.24.9-0 \
                 /bin/sh -c "set -ex; git config --global --add safe.directory /root/go/src/yunion.io/x/$PKGNAME; cd /root/go/src/yunion.io/x/$PKGNAME; $BUILD_ARCH $BUILD_CGO GOOS=linux make cmd/*cli; chown -R $(id -u):$(id -g) _output"
             ;;
         *)
@@ -74,7 +77,7 @@ build_bin() {
                 -v $SRC_DIR:/root/go/src/yunion.io/x/$PKGNAME \
                 -v $SRC_DIR/_output/alpine-build:/root/go/src/yunion.io/x/$PKGNAME/_output \
                 -v $SRC_DIR/_output/alpine-build/_cache:/root/.cache \
-                registry.cn-beijing.aliyuncs.com/yunionio/alpine-build:3.22.0-go-1.24.6-0 \
+                registry.cn-beijing.aliyuncs.com/yunionio/alpine-build:3.22.2-go-1.24.9-0 \
                 /bin/sh -c "set -ex; git config --global --add safe.directory /root/go/src/yunion.io/x/$PKGNAME; cd /root/go/src/yunion.io/x/$PKGNAME; $BUILD_ARCH $BUILD_CGO GOOS=linux make cmd/$1; chown -R $(id -u):$(id -g) _output"
             ;;
     esac
@@ -108,7 +111,7 @@ get_image_name() {
     local is_all_arch=$3
 
     local img_name="$REGISTRY/$component:$TAG"
-    if [[ "$is_all_arch" == "true" || "$arch" == arm64 ]]; then
+    if [[ "$is_all_arch" == "true" || "$arch" == arm64 || "$arch" == riscv64 ]]; then
         img_name="${img_name}-$arch"
     fi
     echo $img_name
@@ -137,7 +140,7 @@ build_process_with_buildx() {
     local img_name=$(get_image_name $component $arch $is_all_arch)
 
     build_env="GOARCH=$arch"
-    if [[ "$arch" == arm64 ]]; then
+    if [[ "$arch" == arm64 || "$arch" == riscv64 ]]; then
         build_env="$build_env"
     fi
     if [[ "$DRY_RUN" == "true" ]]; then
@@ -145,15 +148,8 @@ build_process_with_buildx() {
         echo "[$(readlink -f ${BASH_SOURCE}):${LINENO} ${FUNCNAME[0]}] return for DRY_RUN"
         return
     fi
-    case "$component" in
-        host | torrent)
-            buildx_and_push $img_name $DOCKER_DIR/multi-arch/Dockerfile.$component $SRC_DIR $arch
-            ;;
-        *)
-            build_bin $component $build_env
-            buildx_and_push $img_name $DOCKER_DIR/Dockerfile.$component $SRC_DIR $arch
-            ;;
-    esac
+    build_bin $component $build_env
+    buildx_and_push $img_name $DOCKER_DIR/Dockerfile.$component $SRC_DIR $arch
 }
 
 general_build() {
@@ -178,7 +174,8 @@ make_manifest_image() {
     fi
     docker buildx imagetools create -t $img_name \
         $img_name-amd64 \
-        $img_name-arm64
+        $img_name-arm64 \
+        $img_name-riscv64
 }
 
 ALL_COMPONENTS=$(ls cmd | grep -v '.*cli$' | xargs)
@@ -204,17 +201,11 @@ for component in $COMPONENTS; do
         continue
     fi
     echo "Start to build component: $component"
-    if [[ $component == baremetal-agent ]]; then
-        if [[ "$ARCH" == "arm64" ]]; then
-            continue
-        fi
-        build_process $component
-        continue
-    fi
+    build_process $component $ARCH "false"
 
     case "$ARCH" in
         all)
-            for arch in "arm64" "amd64"; do
+            for arch in "arm64" "amd64" "riscv64"; do
                 general_build $component $arch "true"
             done
             make_manifest_image $component
