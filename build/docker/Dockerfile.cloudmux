@@ -1,6 +1,6 @@
-FROM registry.cn-beijing.aliyuncs.com/yunionio/onecloud-base:v0.3.5
+FROM registry.cn-beijing.aliyuncs.com/yunionio/onecloud-base:v3.22.2-0
 
-ENV TZ Asia/Shanghai
+ENV TZ="Asia/Shanghai"
 
 RUN mkdir -p /opt/yunion/bin
 RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
