@@ -15,6 +15,8 @@
 package shell
 
 import (
+	"strings"
+
 	"yunion.io/x/cloudmux/pkg/multicloud/ksyun"
 
 	"yunion.io/x/pkg/errors"
@@ -33,5 +35,39 @@ func init() {
 		}
 		printObject(ret)
 		return nil
+	})
+
+	type TagCreateOptions struct {
+		ResourceType string `choices:"kec-image|kec-instance|rds-instance|security-group|vpc|subnet|eip|slb|bucket|kcs-instance|volume|nat|tunnel|bws|peering" default:"kec-instance"`
+		ID           string
+		Tags         string `help:"tags, key:value"`
+	}
+	shellutils.R(&TagCreateOptions{}, "tag-create", "create tag", func(cli *ksyun.SRegion, args *TagCreateOptions) error {
+		tags := map[string]string{}
+		for _, t := range strings.Split(args.Tags, ",") {
+			parts := strings.Split(t, ":")
+			if len(parts) != 2 {
+				return errors.Errorf("invalid tag %s", t)
+			}
+			tags[parts[0]] = parts[1]
+		}
+		return cli.CreateTags(args.ResourceType, args.ID, tags)
+	})
+
+	type TagDeleteOptions struct {
+		ResourceType string `choices:"kec-image|kec-instance|rds-instance|security-group|vpc|subnet|eip|slb|bucket|kcs-instance|volume|nat|tunnel|bws|peering" default:"kec-instance"`
+		ID           string
+		Tags         string `help:"tags, key:value"`
+	}
+	shellutils.R(&TagDeleteOptions{}, "tag-delete", "delete tag", func(cli *ksyun.SRegion, args *TagDeleteOptions) error {
+		tags := map[string]string{}
+		for _, t := range strings.Split(args.Tags, ",") {
+			parts := strings.Split(t, ":")
+			if len(parts) != 2 {
+				return errors.Errorf("invalid tag %s", t)
+			}
+			tags[parts[0]] = parts[1]
+		}
+		return cli.DeleteTags(args.ResourceType, args.ID, tags)
 	})
 }
