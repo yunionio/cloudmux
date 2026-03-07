@@ -142,8 +142,7 @@ func init() {
 		opts.DnsType = cloudprovider.TDnsType(args.TYPE)
 		opts.DnsValue = args.VALUE
 		opts.Ttl = args.TTL
-		_, err := cli.GetClient().ChangeResourceRecordSets("CREATE", args.HOSTEDZONEID, args.NAME, args.Id, opts)
-		return err
+		return cli.GetClient().ChangeResourceRecordSets("CREATE", args.HOSTEDZONEID, args.NAME, args.Id, opts)
 	})
 
 	type DnsRecordSetupdateOptions struct {
@@ -160,8 +159,7 @@ func init() {
 		opts.DnsType = cloudprovider.TDnsType(args.TYPE)
 		opts.DnsValue = args.VALUE
 		opts.Ttl = args.TTL
-		_, err := cli.GetClient().ChangeResourceRecordSets("UPSERT", args.HOSTEDZONEID, args.NAME, args.Identify, opts)
-		return err
+		return cli.GetClient().ChangeResourceRecordSets("UPSERT", args.HOSTEDZONEID, args.NAME, args.Identify, opts)
 	})
 
 	type DnsRecordDeleteOptions struct {
@@ -170,8 +168,7 @@ func init() {
 		cloudprovider.DnsRecord
 	}
 	shellutils.R(&DnsRecordDeleteOptions{}, "dns-record-delete", "delete dnsrecordset", func(cli *aws.SRegion, args *DnsRecordDeleteOptions) error {
-		_, err := cli.GetClient().ChangeResourceRecordSets("DELETE", args.HOSTEDZONEID, args.DnsName, args.ID, args.DnsRecord)
-		return err
+		return cli.GetClient().ChangeResourceRecordSets("DELETE", args.HOSTEDZONEID, args.DnsName, args.ID, args.DnsRecord)
 	})
 
 }
