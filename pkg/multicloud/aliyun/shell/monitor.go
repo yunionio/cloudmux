@@ -50,6 +50,12 @@ func init() {
 	})
 
 	shellutils.R(&cloudprovider.MetricListOptions{}, "metric-list", "List metrics in a namespace", func(cli *aliyun.SRegion, args *cloudprovider.MetricListOptions) error {
+		if args.StartTime.IsZero() {
+			args.StartTime = time.Now().Add(-time.Minute * 20)
+		}
+		if args.EndTime.IsZero() {
+			args.EndTime = time.Now()
+		}
 		metrics, err := cli.GetClient().GetMetrics(args)
 		if err != nil {
 			return err
@@ -75,6 +81,8 @@ func init() {
 			if err != nil {
 				return err
 			}
+		} else {
+			since = time.Now().Add(-time.Minute * 20)
 		}
 		var until time.Time
 		if len(args.Until) > 0 {
@@ -82,6 +90,8 @@ func init() {
 			if err != nil {
 				return err
 			}
+		} else {
+			until = time.Now().Add(-time.Minute * 10)
 		}
 		data, err := cli.FetchMetricData(args.METRIC, args.NAMESPACE, since, until)
 		if err != nil {
