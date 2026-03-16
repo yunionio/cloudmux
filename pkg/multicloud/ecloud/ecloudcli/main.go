@@ -22,6 +22,7 @@ import (
 
 	"golang.org/x/net/http/httpproxy"
 
+	"yunion.io/x/pkg/errors"
 	"yunion.io/x/pkg/util/shellutils"
 	"yunion.io/x/structarg"
 
@@ -67,6 +68,16 @@ func showErrorAndExit(e error) {
 	os.Exit(1)
 }
 
+// isClientOnlyCommand 仅依赖 client、不依赖 region 资源的命令，无有效 region 时可用 PlaceholderRegion 执行
+func isClientOnlyCommand(subcommand string) bool {
+	switch subcommand {
+	case "region-list", "balance-show", "metric-list":
+		return true
+	default:
+		return false
+	}
+}
+
 func newClient(options *Options) (*ecloud.SRegion, error) {
 	if len(options.AccessKey) == 0 {
 		return nil, fmt.Errorf("Missing access key")
@@ -87,9 +98,8 @@ func newClient(options *Options) (*ecloud.SRegion, error) {
 	}
 
 	cli, err := ecloud.NewEcloudClient(
-		ecloud.NewEcloudClientConfig(
-			ecloud.NewRamRoleSigner(options.AccessKey, options.AccessSecret),
-		).SetDebug(options.Debug).
+		ecloud.NewEcloudClientConfig(options.AccessKey, options.AccessSecret).
+			SetDebug(options.Debug).
 			SetCloudproviderConfig(
 				cloudprovider.ProviderConfig{
 					ProxyFunc: proxyFunc,
@@ -102,6 +112,10 @@ func newClient(options *Options) (*ecloud.SRegion, error) {
 
 	region, err := cli.GetRegionById(options.RegionId)
 	if err != nil {
+		// 无 region 时仍允许执行仅需 client 的命令（region-list/balance-show/metric-list），便于验证
+		if errors.Cause(err) == cloudprovider.ErrNotFound && isClientOnlyCommand(options.SUBCOMMAND) {
+			return ecloud.NewPlaceholderRegion(cli, options.RegionId), nil
+		}
 		return nil, err
 	}
 
