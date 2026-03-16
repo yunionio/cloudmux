@@ -22,14 +22,26 @@ import (
 
 func init() {
 	type VImageListOptions struct {
-		Public bool
+		Public bool `help:"List public images"`
 	}
 	shellutils.R(&VImageListOptions{}, "image-list", "List images", func(cli *ecloud.SRegion, args *VImageListOptions) error {
 		images, e := cli.GetImages(args.Public)
 		if e != nil {
 			return e
 		}
-		printList(images, 0, 0, 0, nil)
+		printList(images)
+		return nil
+	})
+
+	type ImageShowOptions struct {
+		ID string `help:"Image ID"`
+	}
+	shellutils.R(&ImageShowOptions{}, "image-show", "Show image detail", func(cli *ecloud.SRegion, args *ImageShowOptions) error {
+		img, err := cli.GetImage(args.ID)
+		if err != nil {
+			return err
+		}
+		printObject(img)
 		return nil
 	})
 }
