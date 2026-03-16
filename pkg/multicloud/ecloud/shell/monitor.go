@@ -15,6 +15,8 @@
 package shell
 
 import (
+	"time"
+
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/util/shellutils"
 
@@ -23,26 +25,31 @@ import (
 )
 
 func init() {
-	type PListOptions struct {
+	type SMetricTypeListOptions struct {
 	}
-	shellutils.R(&PListOptions{}, "server-producttype-list", "List productTypes", func(cli *ecloud.SRegion,
-		args *PListOptions) error {
-		prod, e := cli.GetProductTypes()
-		if e != nil {
-			return e
+	shellutils.R(&SMetricTypeListOptions{}, "metric-type-list", "List metric types", func(cli *ecloud.SRegion, args *SMetricTypeListOptions) error {
+		metricTypes, err := cli.GetMetricTypes()
+		if err != nil {
+			return err
 		}
-		printObject(prod)
+		printObject(metricTypes)
 		return nil
 	})
 
 	shellutils.R(&cloudprovider.MetricListOptions{}, "metric-list", "List metrics", func(cli *ecloud.SRegion, args *cloudprovider.MetricListOptions) error {
+		if args.StartTime.IsZero() {
+			args.StartTime = time.Now().Add(time.Minute * -20)
+		}
+		if args.EndTime.IsZero() {
+			args.EndTime = time.Now()
+		}
 		metrics, err := cli.GetClient().GetMetrics(args)
 		if err != nil {
 			return err
 		}
 		for i := range metrics {
 			log.Infof("metric: %s %s %s", metrics[i].Id, metrics[i].MetricType, metrics[i].Unit)
-			printList(metrics[i].Values, len(metrics[i].Values), 0, 0, []string{})
+			printList(metrics[i].Values)
 		}
 		return nil
 	})
