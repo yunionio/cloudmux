@@ -59,4 +59,17 @@ func init() {
 		return nil
 	})
 
+	type AliyunQueryBillOverviewOptions struct {
+		MONTH   string
+		OwnerId string `help:"Owner ID"`
+	}
+	shellutils.R(&AliyunQueryBillOverviewOptions{}, "query-bill-overview", "Query bill overview", func(cli *aliyun.SRegion, args *AliyunQueryBillOverviewOptions) error {
+		result, err := cli.GetClient().QueryBillOverview(args.MONTH, args.OwnerId)
+		if err != nil {
+			return err
+		}
+		printObject(result)
+		return nil
+	})
+
 }
