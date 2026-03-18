@@ -15,6 +15,9 @@
 package shell
 
 import (
+	"context"
+	"fmt"
+
 	"yunion.io/x/pkg/util/shellutils"
 
 	"yunion.io/x/cloudmux/pkg/multicloud/ecloud"
@@ -22,48 +25,68 @@ import (
 
 func init() {
 	type InstanceListOptions struct {
+		ZoneId   string
+		ServerId string
 	}
 	shellutils.R(&InstanceListOptions{}, "instance-list", "List intances", func(cli *ecloud.SRegion, args *InstanceListOptions) error {
-		instances, e := cli.GetInstancesWithHost("")
-		if e != nil {
-			return e
+		instances, err := cli.GetInstances(args.ZoneId, args.ServerId)
+		if err != nil {
+			return err
 		}
-		printList(instances, 0, 0, 0, []string{})
+		printList(instances)
 		return nil
 	})
 	type InstanceShowOptions struct {
 		ID string
 	}
 	shellutils.R(&InstanceShowOptions{}, "instance-show", "Show intances", func(cli *ecloud.SRegion, args *InstanceShowOptions) error {
-		instance, e := cli.GetInstanceById(args.ID)
-		if e != nil {
-			return e
+		instance, err := cli.GetInstance(args.ID)
+		if err != nil {
+			return err
 		}
 		printObject(instance)
 		return nil
 	})
 	shellutils.R(&InstanceShowOptions{}, "instance-nic-list", "List intance nics", func(cli *ecloud.SRegion, args *InstanceShowOptions) error {
-		instance, e := cli.GetInstanceById(args.ID)
-		if e != nil {
-			return e
-		}
-		nics, err := instance.GetINics()
+		nics, err := cli.GetInstanceNics(context.Background(), args.ID)
 		if err != nil {
 			return err
 		}
-		printList(nics, 0, 0, 0, []string{})
+		printList(nics)
 		return nil
 	})
 	shellutils.R(&InstanceShowOptions{}, "instance-disk-list", "List intance disks", func(cli *ecloud.SRegion, args *InstanceShowOptions) error {
-		instance, e := cli.GetInstanceById(args.ID)
-		if e != nil {
-			return e
-		}
-		disks, err := instance.GetIDisks()
+		disks, err := cli.GetDataDisks(args.ID)
 		if err != nil {
 			return err
 		}
-		printList(disks, 0, 0, 0, []string{})
+		printList(disks)
 		return nil
+	})
+
+	shellutils.R(&InstanceShowOptions{}, "instance-vnc-url", "Get instance VNC url", func(cli *ecloud.SRegion, args *InstanceShowOptions) error {
+		url, err := cli.GetInstanceVNCUrl(args.ID)
+		if err != nil {
+			return err
+		}
+		fmt.Println(url)
+		return nil
+	})
+
+	shellutils.R(&InstanceShowOptions{}, "instance-start", "Start instance", func(cli *ecloud.SRegion, args *InstanceShowOptions) error {
+		return cli.StartInstance(context.Background(), args.ID)
+	})
+
+	shellutils.R(&InstanceShowOptions{}, "instance-stop", "Stop instance", func(cli *ecloud.SRegion, args *InstanceShowOptions) error {
+		return cli.StopInstance(context.Background(), args.ID)
+	})
+
+	type InstanceDeleteOptions struct {
+		ID                  string `help:"Instance ID"`
+		DeletePublicNetwork bool   `help:"Delete associated public network (EIP)" default:"false"`
+		DeleteDataVolumes   bool   `help:"Delete associated data volumes" default:"false"`
+	}
+	shellutils.R(&InstanceDeleteOptions{}, "instance-delete", "Delete instance", func(cli *ecloud.SRegion, args *InstanceDeleteOptions) error {
+		return cli.DeleteInstance(context.Background(), args.ID, args.DeletePublicNetwork, args.DeleteDataVolumes)
 	})
 }
