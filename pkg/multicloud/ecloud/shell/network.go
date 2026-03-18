@@ -17,24 +17,67 @@ package shell
 import (
 	"yunion.io/x/pkg/util/shellutils"
 
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/ecloud"
 )
 
 func init() {
 	type VNetworkListOptions struct {
-		VpcId string `help:"Vpc ID"`
+		RouteId string `help:"VPC ID or router ID"`
 	}
-	shellutils.R(&VNetworkListOptions{}, "subnet-list", "List subnets", func(cli *ecloud.SRegion, args *VNetworkListOptions) error {
+	shellutils.R(&VNetworkListOptions{}, "network-list", "List networks", func(cli *ecloud.SRegion, args *VNetworkListOptions) error {
+		networks, err := cli.GetNetworks(args.RouteId, "")
+		if err != nil {
+			return err
+		}
+		printList(networks)
+		return nil
+	})
+
+	type NetworkShowOptions struct {
+		ID string `help:"Subnet ID"`
+	}
+	shellutils.R(&NetworkShowOptions{}, "network-show", "Show network detail", func(cli *ecloud.SRegion, args *NetworkShowOptions) error {
+		// VPCId 当前未被 OpenAPI 使用，这里仅保留参数以兼容调用习惯
+		net, err := cli.GetNetwork(args.ID)
+		if err != nil {
+			return err
+		}
+		printObject(net)
+		return nil
+	})
+
+	type NetworkCreateOptions struct {
+		VpcId string `help:"VPC ID or router ID"`
+		Name  string `help:"Network name (5-22 chars, letter first)"`
+		Cidr  string `help:"CIDR, e.g. 192.168.1.0/24" default:"192.168.0.0/24"`
+	}
+	shellutils.R(&NetworkCreateOptions{}, "network-create", "Create network", func(cli *ecloud.SRegion, args *NetworkCreateOptions) error {
 		ivpc, err := cli.GetIVpcById(args.VpcId)
 		if err != nil {
 			return err
 		}
 		vpc := ivpc.(*ecloud.SVpc)
-		networks, e := cli.GetNetworks(vpc.RouterId, "")
-		if e != nil {
-			return e
+		iwires, err := vpc.GetIWires()
+		if err != nil || len(iwires) == 0 {
+			return err
 		}
-		printList(networks, 0, 0, 0, nil)
+		wire := iwires[0].(*ecloud.SWire)
+		inet, err := wire.CreateINetwork(&cloudprovider.SNetworkCreateOptions{
+			Name: args.Name,
+			Cidr: args.Cidr,
+		})
+		if err != nil {
+			return err
+		}
+		printObject(inet)
 		return nil
+	})
+
+	type NetworkDeleteOptions struct {
+		NetworkId string `help:"Network ID"`
+	}
+	shellutils.R(&NetworkDeleteOptions{}, "network-delete", "Delete network", func(cli *ecloud.SRegion, args *NetworkDeleteOptions) error {
+		return cli.DeleteNetwork(args.NetworkId)
 	})
 }

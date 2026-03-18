@@ -28,7 +28,7 @@ func init() {
 		if err != nil {
 			return err
 		}
-		printList(regions, 0, 0, 0, nil)
+		printList(regions)
 		return nil
 	})
 	shellutils.R(&RegionListOptions{}, "zone-list", "List zones", func(cli *ecloud.SRegion, args *RegionListOptions) error {
@@ -36,7 +36,7 @@ func init() {
 		if err != nil {
 			return err
 		}
-		printList(zones, 0, 0, 0, nil)
+		printList(zones)
 		return nil
 	})
 }
