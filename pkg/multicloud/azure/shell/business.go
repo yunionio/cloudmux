@@ -21,25 +21,15 @@ import (
 )
 
 func init() {
-	type EnrollmentAccountListOptions struct {
+	type AzureMonthBillOptions struct {
+		MONTH string `help:"Billing month, e.g. 2026-03"`
 	}
-	shellutils.R(&EnrollmentAccountListOptions{}, "enrollment-account-list", "List enrollment accounts", func(cli *azure.SRegion, args *EnrollmentAccountListOptions) error {
-		accounts, err := cli.GetClient().GetEnrollmentAccounts()
+	shellutils.R(&AzureMonthBillOptions{}, "month-bill", "Query Azure month bill overview", func(cli *azure.SRegion, args *AzureMonthBillOptions) error {
+		result, err := cli.GetClient().GetMonthBill(args.MONTH)
 		if err != nil {
 			return err
 		}
-		printList(accounts, 0, 0, 0, nil)
-		return nil
-	})
-
-	type BillingAccountListOptions struct {
-	}
-	shellutils.R(&BillingAccountListOptions{}, "billing-account-list", "List billing accounts", func(cli *azure.SRegion, args *BillingAccountListOptions) error {
-		accounts, err := cli.GetClient().GetBillingAccounts()
-		if err != nil {
-			return err
-		}
-		printList(accounts, 0, 0, 0, nil)
+		printObject(result)
 		return nil
 	})
 }
