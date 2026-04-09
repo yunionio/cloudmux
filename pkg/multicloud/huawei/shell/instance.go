@@ -92,6 +92,15 @@ func init() {
 		return nil
 	})
 
+	shellutils.R(&InstanceOperationOptions{}, "instance-modification-types", "Get instance available modification types", func(cli *huawei.SRegion, args *InstanceOperationOptions) error {
+		types, err := cli.GetInstanceModificationTypes(args.ID)
+		if err != nil {
+			return err
+		}
+		printList(types, 0, 0, 0, nil)
+		return nil
+	})
+
 	type InstanceStopOptions struct {
 		ID    string `help:"instance ID"`
 		Force bool   `help:"Force stop instance"`
