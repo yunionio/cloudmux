@@ -17,6 +17,7 @@ package shell
 import (
 	"fmt"
 
+	"github.com/golang-plus/errors"
 	"yunion.io/x/pkg/util/shellutils"
 
 	"yunion.io/x/cloudmux/pkg/multicloud/aws"
@@ -26,9 +27,9 @@ func init() {
 	type AccountListOptions struct {
 	}
 	shellutils.R(&AccountListOptions{}, "account-list", "List accounts", func(cli *aws.SRegion, args *AccountListOptions) error {
-		accounts, err := cli.ListAccounts()
+		accounts, err := cli.GetClient().GetSubAccounts()
 		if err != nil {
-			return err
+			return errors.Wrap(err, "GetSubAccounts")
 		}
 		printList(accounts, 0, 0, 0, []string{})
 		return nil
