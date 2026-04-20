@@ -437,6 +437,9 @@ type ICloudContainer interface {
 
 	GetVolumentMounts() ([]ICloudVolumeMount, error)
 	GetDevices() ([]IContainerDevice, error)
+
+	Stop(ctx context.Context, opts *SContainerStopOptions) error
+	Start(ctx context.Context) error
 }
 
 type ICloudVolumeMount interface {
