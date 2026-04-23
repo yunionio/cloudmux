@@ -23,7 +23,7 @@ import (
 func init() {
 	type StorageListOptions struct {
 	}
-	shellutils.R(&StorageListOptions{}, "storage-list", "list storage", func(cli *proxmox.SRegion, args *StorageListOptions) error {
+	shellutils.R(&StorageListOptions{}, "storage-list", "list storage", func(cli *proxmox.SProxmoxClient, args *StorageListOptions) error {
 		storages, err := cli.GetStorages()
 		if err != nil {
 			return err
@@ -36,7 +36,7 @@ func init() {
 		ID string
 	}
 
-	shellutils.R(&StorageIdOptions{}, "storage-show", "show storage", func(cli *proxmox.SRegion, args *StorageIdOptions) error {
+	shellutils.R(&StorageIdOptions{}, "storage-show", "show storage", func(cli *proxmox.SProxmoxClient, args *StorageIdOptions) error {
 		storage, err := cli.GetStorage(args.ID)
 		if err != nil {
 			return err

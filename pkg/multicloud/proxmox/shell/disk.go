@@ -25,12 +25,26 @@ func init() {
 		NODE    string
 		STORAGE string
 	}
-	shellutils.R(&DiskListOptions{}, "disk-list", "list disks", func(cli *proxmox.SRegion, args *DiskListOptions) error {
+	shellutils.R(&DiskListOptions{}, "disk-list", "list disks", func(cli *proxmox.SProxmoxClient, args *DiskListOptions) error {
 		disks, err := cli.GetDisks(args.NODE, args.STORAGE)
 		if err != nil {
 			return err
 		}
 		printList(disks, 0, 0, 0, []string{})
+		return nil
+	})
+
+	type DiskGetOptions struct {
+		NODE    string
+		STORAGE string
+		VOLUME  string
+	}
+	shellutils.R(&DiskGetOptions{}, "disk-show", "show disk", func(cli *proxmox.SProxmoxClient, args *DiskGetOptions) error {
+		disk, err := cli.GetDisk(args.NODE, args.STORAGE, args.VOLUME)
+		if err != nil {
+			return err
+		}
+		printObject(disk)
 		return nil
 	})
 
@@ -41,7 +55,7 @@ func init() {
 		SIZE_GB int
 	}
 
-	shellutils.R(&DiskResizeOptions{}, "disk-resize", "resize disk size", func(cli *proxmox.SRegion, args *DiskResizeOptions) error {
+	shellutils.R(&DiskResizeOptions{}, "disk-resize", "resize disk size", func(cli *proxmox.SProxmoxClient, args *DiskResizeOptions) error {
 		return cli.ResizeDisk(args.NODE, args.VM_ID, args.DRIVER, args.SIZE_GB)
 	})
 
