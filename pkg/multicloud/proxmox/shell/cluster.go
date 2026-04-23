@@ -21,9 +21,21 @@ import (
 )
 
 func init() {
+
+	type ClusterShowOptions struct {
+	}
+	shellutils.R(&ClusterShowOptions{}, "cluster-show", "show cluster", func(cli *proxmox.SProxmoxClient, args *ClusterShowOptions) error {
+		cluster, err := cli.GetCluster()
+		if err != nil {
+			return err
+		}
+		printObject(cluster)
+		return nil
+	})
+
 	type ClusterListOptions struct {
 	}
-	shellutils.R(&ClusterListOptions{}, "cluster-list", "list clusters", func(cli *proxmox.SRegion, args *ClusterListOptions) error {
+	shellutils.R(&ClusterListOptions{}, "cluster-list", "list clusters", func(cli *proxmox.SProxmoxClient, args *ClusterListOptions) error {
 		clusters, err := cli.GetClusterAllResources()
 		if err != nil {
 			return err
@@ -32,7 +44,7 @@ func init() {
 		return nil
 	})
 
-	shellutils.R(&ClusterListOptions{}, "cluster-node-list", "list nodes", func(cli *proxmox.SRegion, args *ClusterListOptions) error {
+	shellutils.R(&ClusterListOptions{}, "cluster-node-list", "list nodes", func(cli *proxmox.SProxmoxClient, args *ClusterListOptions) error {
 		clusters, err := cli.GetClusterNodeResources()
 		if err != nil {
 			return err

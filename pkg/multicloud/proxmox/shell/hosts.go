@@ -23,7 +23,7 @@ import (
 func init() {
 	type HostListOptions struct {
 	}
-	shellutils.R(&HostListOptions{}, "host-list", "list hosts", func(cli *proxmox.SRegion, args *HostListOptions) error {
+	shellutils.R(&HostListOptions{}, "host-list", "list hosts", func(cli *proxmox.SProxmoxClient, args *HostListOptions) error {
 		hosts, err := cli.GetHosts()
 		if err != nil {
 			return err
@@ -36,7 +36,7 @@ func init() {
 		ID string
 	}
 
-	shellutils.R(&HostIdOptions{}, "host-show", "show host", func(cli *proxmox.SRegion, args *HostIdOptions) error {
+	shellutils.R(&HostIdOptions{}, "host-show", "show host", func(cli *proxmox.SProxmoxClient, args *HostIdOptions) error {
 		host, err := cli.GetHost(args.ID)
 		if err != nil {
 			return err
