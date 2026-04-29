@@ -68,7 +68,7 @@ func showErrorAndExit(e error) {
 	os.Exit(1)
 }
 
-func newClient(options *BaseOptions) (*proxmox.SRegion, error) {
+func newClient(options *BaseOptions) (*proxmox.SProxmoxClient, error) {
 	if len(options.Host) == 0 {
 		return nil, fmt.Errorf("Missing host")
 	}
@@ -108,7 +108,7 @@ func newClient(options *BaseOptions) (*proxmox.SRegion, error) {
 		return nil, err
 	}
 
-	return cli.GetRegion(), nil
+	return cli, nil
 }
 
 func Main() {
@@ -140,7 +140,7 @@ func Main() {
 		fmt.Print(subparser.HelpString())
 		return
 	}
-	var region *proxmox.SRegion
+	var region *proxmox.SProxmoxClient
 	region, e = newClient(options)
 	if e != nil {
 		showErrorAndExit(e)
