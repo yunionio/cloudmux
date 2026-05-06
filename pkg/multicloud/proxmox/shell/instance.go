@@ -26,7 +26,7 @@ func init() {
 	type InstanceListOptions struct {
 		HOST_ID string
 	}
-	shellutils.R(&InstanceListOptions{}, "instance-list", "list instances", func(cli *proxmox.SRegion, args *InstanceListOptions) error {
+	shellutils.R(&InstanceListOptions{}, "instance-list", "list instances", func(cli *proxmox.SProxmoxClient, args *InstanceListOptions) error {
 		instances, err := cli.GetInstances(args.HOST_ID)
 		if err != nil {
 			return err
@@ -39,7 +39,7 @@ func init() {
 		ID string
 	}
 
-	shellutils.R(&InstanceIdOptions{}, "instance-show", "show instance", func(cli *proxmox.SRegion, args *InstanceIdOptions) error {
+	shellutils.R(&InstanceIdOptions{}, "instance-show", "show instance", func(cli *proxmox.SProxmoxClient, args *InstanceIdOptions) error {
 		ret, err := cli.GetInstance(args.ID)
 		if err != nil {
 			return err
@@ -48,12 +48,12 @@ func init() {
 		return nil
 	})
 
-	shellutils.R(&InstanceIdOptions{}, "instance-stop", "stop instance", func(cli *proxmox.SRegion, args *InstanceIdOptions) error {
+	shellutils.R(&InstanceIdOptions{}, "instance-stop", "stop instance", func(cli *proxmox.SProxmoxClient, args *InstanceIdOptions) error {
 		id, _ := strconv.Atoi(args.ID)
 		return cli.StopVm(id)
 	})
 
-	shellutils.R(&InstanceIdOptions{}, "instance-delete", "delete instance", func(cli *proxmox.SRegion, args *InstanceIdOptions) error {
+	shellutils.R(&InstanceIdOptions{}, "instance-delete", "delete instance", func(cli *proxmox.SProxmoxClient, args *InstanceIdOptions) error {
 		id, _ := strconv.Atoi(args.ID)
 		return cli.DeleteVM(id)
 	})
@@ -64,7 +64,7 @@ func init() {
 		PublicKey string
 	}
 
-	shellutils.R(&InstanceStartOptions{}, "instance-start", "Start instance", func(cli *proxmox.SRegion, args *InstanceStartOptions) error {
+	shellutils.R(&InstanceStartOptions{}, "instance-start", "Start instance", func(cli *proxmox.SProxmoxClient, args *InstanceStartOptions) error {
 		id, _ := strconv.Atoi(args.ID)
 		return cli.StartVm(id)
 	})
@@ -75,7 +75,7 @@ func init() {
 		DRIVER string
 	}
 
-	shellutils.R(&InstanceAttachDiskOptions{}, "instance-detach-disk", "Attach instance disk", func(cli *proxmox.SRegion, args *InstanceAttachDiskOptions) error {
+	shellutils.R(&InstanceAttachDiskOptions{}, "instance-detach-disk", "Attach instance disk", func(cli *proxmox.SProxmoxClient, args *InstanceAttachDiskOptions) error {
 		return cli.DetachDisk(args.NODE, args.VM_ID, args.DRIVER)
 	})
 
@@ -85,7 +85,7 @@ func init() {
 		MemMb int
 	}
 
-	shellutils.R(&InstanceChangeConfigOptions{}, "instance-change-config", "Change instance config", func(cli *proxmox.SRegion, args *InstanceChangeConfigOptions) error {
+	shellutils.R(&InstanceChangeConfigOptions{}, "instance-change-config", "Change instance config", func(cli *proxmox.SProxmoxClient, args *InstanceChangeConfigOptions) error {
 		id, _ := strconv.Atoi(args.ID)
 		return cli.ChangeConfig(id, args.Cpu, args.MemMb)
 	})
@@ -97,7 +97,7 @@ func init() {
 		MemMb int
 	}
 
-	shellutils.R(&InstanceCreateOptions{}, "instance-create", "create instance ", func(cli *proxmox.SRegion, args *InstanceCreateOptions) error {
+	shellutils.R(&InstanceCreateOptions{}, "instance-create", "create instance ", func(cli *proxmox.SProxmoxClient, args *InstanceCreateOptions) error {
 		ret, err := cli.GenVM(args.Name, args.Node, args.Cpu, args.MemMb)
 		printObject(ret)
 		return err
@@ -108,7 +108,7 @@ func init() {
 		VM_ID int
 	}
 
-	shellutils.R(&InstanceVncOptions{}, "instance-vnc", "show instance vnc", func(cli *proxmox.SRegion, args *InstanceVncOptions) error {
+	shellutils.R(&InstanceVncOptions{}, "instance-vnc", "show instance vnc", func(cli *proxmox.SProxmoxClient, args *InstanceVncOptions) error {
 		ret, err := cli.GetVNCInfo(args.NODE, args.VM_ID)
 		if err != nil {
 			return err
