@@ -21,14 +21,28 @@ import (
 )
 
 func init() {
-	type ZoneListOptions struct {
+	type WireListOptions struct {
+		Node string
 	}
-	shellutils.R(&ZoneListOptions{}, "zone-list", "list zones", func(cli *proxmox.SRegion, args *ZoneListOptions) error {
-		zone, err := cli.GetZone()
+	shellutils.R(&WireListOptions{}, "wire-list", "list wires", func(cli *proxmox.SProxmoxClient, args *WireListOptions) error {
+		wires, err := cli.GetWires(args.Node)
 		if err != nil {
 			return err
 		}
-		printObject(zone)
+		printList(wires, 0, 0, 0, []string{})
+		return nil
+	})
+
+	type WireIdOptions struct {
+		ID string
+	}
+
+	shellutils.R(&WireIdOptions{}, "wire-show", "show wire", func(cli *proxmox.SProxmoxClient, args *WireIdOptions) error {
+		ret, err := cli.GetWire(args.ID)
+		if err != nil {
+			return err
+		}
+		printObject(ret)
 		return nil
 	})
 

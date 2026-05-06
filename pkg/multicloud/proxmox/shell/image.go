@@ -26,10 +26,11 @@ func init() {
 	type ImageListOptions struct {
 		NODE    string
 		STORAGE string
+		Content string `default:"iso"`
 	}
 
-	shellutils.R(&ImageListOptions{}, "image-list", "list images", func(cli *proxmox.SRegion, args *ImageListOptions) error {
-		images, err := cli.GetImages(args.NODE, args.STORAGE)
+	shellutils.R(&ImageListOptions{}, "image-list", "list images", func(cli *proxmox.SProxmoxClient, args *ImageListOptions) error {
+		images, err := cli.GetImages(args.NODE, args.STORAGE, args.Content)
 		if err != nil {
 			return err
 		}
@@ -37,24 +38,35 @@ func init() {
 		return nil
 	})
 
-	type ImageUploadOptions struct {
-		NODE     string
-		STORAGE  string
-		FILENAME string
+	type TemplateImageListOptions struct {
+		Node string
 	}
+	shellutils.R(&TemplateImageListOptions{}, "template-image-list", "list template images", func(cli *proxmox.SProxmoxClient, args *TemplateImageListOptions) error {
+		images, err := cli.GetTemplateImages(args.Node)
+		if err != nil {
+			return err
+		}
+		printList(images, 0, 0, 0, []string{})
+		return nil
+	})
 
-	shellutils.R(&ImageUploadOptions{}, "image-upload", "upload image", func(cli *proxmox.SRegion, args *ImageUploadOptions) error {
-		file, err := os.Open(args.FILENAME)
+	type ImportImageOptions struct {
+		HOST    string
+		STORAGE string
+		IMAGEID string
+		FORMAT  string
+		FILE    string
+	}
+	shellutils.R(&ImportImageOptions{}, "image-upload", "upload image", func(cli *proxmox.SProxmoxClient, args *ImportImageOptions) error {
+		file, err := os.Open(args.FILE)
 		if err != nil {
 			return err
 		}
 		defer file.Close()
-		image, err := cli.UploadImage(args.NODE, args.STORAGE, args.FILENAME, file)
+		err = cli.ImportImage(args.HOST, args.STORAGE, args.IMAGEID, args.FORMAT, file)
 		if err != nil {
 			return err
 		}
-		printObject(image)
 		return nil
 	})
-
 }
