@@ -315,6 +315,13 @@ type ICloudProvider interface {
 	GetIAiGateways() ([]IAiGateway, error)
 	GetIAiGatewayById(id string) (IAiGateway, error)
 	CreateIAiGateway(opts *AiGatewayCreateOptions) (IAiGateway, error)
+
+	GetNotices() ([]INotice, error)
+}
+
+type INotice interface {
+	GetTitle() string
+	GetContent() string
 }
 
 func IsSupportCapability(prod ICloudProvider, capa string) bool {
@@ -658,6 +665,10 @@ func (base *SBaseProvider) GetIAiGatewayById(id string) (IAiGateway, error) {
 
 func (base *SBaseProvider) CreateIAiGateway(opts *AiGatewayCreateOptions) (IAiGateway, error) {
 	return nil, errors.Wrapf(ErrNotImplemented, "CreateIAiGateway")
+}
+
+func (base *SBaseProvider) GetNotices() ([]INotice, error) {
+	return nil, errors.Wrapf(ErrNotImplemented, "GetNotices")
 }
 
 func NewBaseProvider(factory ICloudProviderFactory) SBaseProvider {
