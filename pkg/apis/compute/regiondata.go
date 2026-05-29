@@ -387,6 +387,12 @@ var (
 		City:        CITY_BANGKOK,
 		CountryCode: COUNTRY_CODE_TH,
 	}
+	RegionManila = cloudprovider.SGeographicInfo{
+		Latitude:    14.599,
+		Longitude:   120.984,
+		City:        CITY_MANILA,
+		CountryCode: COUNTRY_CODE_PH,
+	}
 
 	RegionSydney = cloudprovider.SGeographicInfo{
 		Latitude:    -33.869,
