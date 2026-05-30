@@ -229,6 +229,9 @@ const (
 	// 新西兰
 	CITY_NEW_ZEALAND = "New Zealand" // 新西兰
 
+	// 菲律宾
+	CITY_MANILA = "Manila" // 马尼拉
+
 	COUNTRY_CODE_CN = "CN" //中国
 	COUNTRY_CODE_JP = "JP" //日本
 	COUNTRY_CODE_SG = "SG" //新加坡
@@ -265,4 +268,5 @@ const (
 	COUNTRY_CODE_ES = "ES" //西班牙
 	COUNTRY_CODE_QA = "QA" //卡塔尔
 	COUNTRY_CODE_NZ = "NZ" //新西兰
+	COUNTRY_CODE_PH = "PH" //菲律宾
 )
