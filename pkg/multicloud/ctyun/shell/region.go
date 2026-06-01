@@ -28,7 +28,7 @@ func init() {
 		if err != nil {
 			return err
 		}
-		printList(regions, 0, 0, 0, nil)
+		printList(regions, 0, 0, 0, []string{"region_name", "region_code", "region_id", "region_parent"})
 		return nil
 	})
 }

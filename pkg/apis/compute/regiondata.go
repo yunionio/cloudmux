@@ -318,8 +318,8 @@ var (
 		CountryCode: COUNTRY_CODE_JP,
 	}
 	RegionSeoul = cloudprovider.SGeographicInfo{
-		Latitude:    34.694,
-		Longitude:   135.502,
+		Latitude:    37.566,
+		Longitude:   126.978,
 		City:        CITY_SEOUL,
 		CountryCode: COUNTRY_CODE_KR,
 	}
@@ -519,6 +519,12 @@ var (
 		City:        CITY_WARSAW,
 		CountryCode: COUNTRY_CODE_PL,
 	}
+	RegionIstanbul = cloudprovider.SGeographicInfo{
+		Latitude:    41.008,
+		Longitude:   28.978,
+		City:        CITY_ISTANBUL,
+		CountryCode: COUNTRY_CODE_TR,
+	}
 	RegionMadrid = cloudprovider.SGeographicInfo{
 		Latitude:    40.438,
 		Longitude:   -3.82,
@@ -646,8 +652,8 @@ var (
 	}
 
 	RegionMexico = cloudprovider.SGeographicInfo{
-		Latitude:    55.118,
-		Longitude:   141.038,
+		Latitude:    19.433,
+		Longitude:   -99.133,
 		City:        CITY_MEXICO,
 		CountryCode: COUNTRY_CODE_MX,
 	}

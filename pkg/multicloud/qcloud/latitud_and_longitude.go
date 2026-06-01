@@ -20,28 +20,47 @@ import (
 )
 
 // ref: https://cloud.tencent.com/document/product/213/6091
-// ref: github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/regions/regions.go
+// ref: https://cloud.tencent.com/developer/article/1930067
 var LatitudeAndLongitude = map[string]cloudprovider.SGeographicInfo{
 	// 华北
-	"ap-beijing":      api.RegionBeijing,
-	"ap-beijing-fsi":  api.RegionBeijing,
-	"ap-tianjin":      api.RegionTianjin,
+	"ap-beijing":           api.RegionBeijing,
+	"ap-beijing-fsi":       api.RegionBeijing,
+	"ap-tianjin":           api.RegionTianjin,
+	"ap-shijiazhuang-ec":   api.RegionShijiazhuang,
 
 	// 华东
 	"ap-shanghai":      api.RegionShanghai,
 	"ap-shanghai-fsi":  api.RegionShanghai,
 	"ap-shanghai-adc":  api.RegionShanghai,
 	"ap-nanjing":       api.RegionNanjing,
+	"ap-jinan-ec":      api.RegionJiNan,
+	"ap-hangzhou-ec":   api.RegionHangzhou,
+	"ap-fuzhou-ec":     api.RegionFujian,
+	"ap-hefei-ec":      api.RegionHefei,
 
 	// 华南
-	"ap-guangzhou":      api.RegionGuangzhou,
-	"ap-guangzhou-open": api.RegionGuangzhou,
-	"ap-shenzhen-fsi":   api.RegionShenzhen,
+	"ap-guangzhou":        api.RegionGuangzhou,
+	"ap-guangzhou-open":   api.RegionGuangzhou,
+	"ap-qingyuan":         api.RegionGuangzhou,
+	"ap-qingyuan-xinan":   api.RegionGuangzhou,
+	"ap-shenzhen":         api.RegionShenzhen,
+	"ap-shenzhen-fsi":     api.RegionShenzhen,
+	"ap-shenzhen-sycft":   api.RegionShenzhen,
+
+	// 华中
+	"ap-wuhan-ec":       api.RegionWuhan,
+	"ap-changsha-ec":    api.RegionChangsha,
+	"ap-zhengzhou-ec":   api.RegionZhengzhou,
 
 	// 西南 / 西北
 	"ap-chengdu":   api.RegionChengdu,
 	"ap-chongqing": api.RegionChongqing,
 	"ap-zhongwei":  api.RegionNingxia,
+	"ap-xian-ec":   api.RegionXian,
+	"ap-xibei-ec":  api.RegionLanzhou,
+
+	// 东北
+	"ap-shenyang-ec": api.RegionShenyang,
 
 	// 港澳台
 	"ap-hongkong": api.RegionHongkong,
