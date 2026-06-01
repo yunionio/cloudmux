@@ -60,7 +60,7 @@ var LatitudeAndLongitude = map[string]cloudprovider.SGeographicInfo{
 
 	// 中东 / 土耳其
 	"me-east-1": api.RegionDamman,
-	"tr-west-1": api.RegionWarsaw,
+	"tr-west-1": api.RegionIstanbul,
 
 	// 非洲
 	"af-south-1": api.RegionJohannesburg,

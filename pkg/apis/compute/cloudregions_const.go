@@ -179,6 +179,7 @@ const (
 
 	// 波兰
 	CITY_WARSAW = "Warsaw" // 华沙
+	CITY_ISTANBUL = "Istanbul" // 伊斯坦布尔
 
 	// 巴西
 	CITY_SAO_PAULO      = "Sao Paulo"      //圣保罗
@@ -269,4 +270,5 @@ const (
 	COUNTRY_CODE_QA = "QA" //卡塔尔
 	COUNTRY_CODE_NZ = "NZ" //新西兰
 	COUNTRY_CODE_PH = "PH" //菲律宾
+	COUNTRY_CODE_TR = "TR" //土耳其
 )
