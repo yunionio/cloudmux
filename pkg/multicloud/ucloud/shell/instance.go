@@ -67,10 +67,10 @@ func init() {
 		PASSWORD     string   `help:"password"`
 		VPC          string   `help:"VPC ID"`
 		NETWORK      string   `help:"Network ID"`
-		SECGROUP     []string `help:"secgroup ID"`
 		ZONE         string   `help:"zone ID"`
 		STORAGE      string   `help:"Storage type" choices:"CLOUD_NORMAL|CLOUD_SSD|LOCAL_NORMAL|LOCAL_SSD"`
 		DISKSIZE     int      `help:"root disk size GB"`
+		SECGROUP     []string `help:"secgroup ID"`
 	}
 	shellutils.R(&InstanceCrateOptions{}, "instance-create", "Create a instance", func(cli *ucloud.SRegion, args *InstanceCrateOptions) error {
 		disk := ucloud.SDisk{DiskType: args.STORAGE, SizeGB: args.DISKSIZE}
