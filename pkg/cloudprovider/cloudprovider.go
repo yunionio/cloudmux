@@ -430,6 +430,10 @@ func RegisterFactory(factory ICloudProviderFactory) {
 	providerTable[factory.GetId()] = factory
 }
 
+func RegisterFactoryAlias(alias string, factory ICloudProviderFactory) {
+	providerTable[alias] = factory
+}
+
 func GetProviderFactory(provider string) (ICloudProviderFactory, error) {
 	factory, ok := providerTable[provider]
 	if ok {
