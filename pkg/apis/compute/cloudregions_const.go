@@ -124,6 +124,7 @@ const (
 	CITY_N_CALIFORNIA   = "N. California"  //北加州
 	CITY_OREGON         = "Oregon"         //俄勒冈州
 	CITY_LOS_ANGELES    = "Los Angeles"    //洛杉矶
+	CITY_DENVER         = "Denver"           //丹佛
 	CITY_SAN_FRANCISCO  = "San Francisco"  //旧金山
 	CITY_UTAH           = "Utah"           //犹他州
 	CITY_WASHINGTON     = "Washington"     //华盛顿
