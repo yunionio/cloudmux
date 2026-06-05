@@ -393,6 +393,12 @@ var (
 		City:        CITY_MANILA,
 		CountryCode: COUNTRY_CODE_PH,
 	}
+	RegionHoChiMinh = cloudprovider.SGeographicInfo{
+		Latitude:    10.823,
+		Longitude:   106.630,
+		City:        CITY_HO_CHI_MINH,
+		CountryCode: COUNTRY_CODE_VN,
+	}
 
 	RegionSydney = cloudprovider.SGeographicInfo{
 		Latitude:    -33.869,
@@ -434,6 +440,12 @@ var (
 		Longitude:   27.9,
 		City:        CITY_JOHANNESBURG,
 		CountryCode: COUNTRY_CODE_ZA,
+	}
+	RegionLagos = cloudprovider.SGeographicInfo{
+		Latitude:    6.524,
+		Longitude:   3.379,
+		City:        CITY_LAGOS,
+		CountryCode: COUNTRY_CODE_NG,
 	}
 
 	// Middleeast
@@ -742,6 +754,18 @@ var (
 		Latitude:    34.052,
 		Longitude:   -118.244,
 		City:        CITY_LOS_ANGELES,
+		CountryCode: COUNTRY_CODE_US,
+	}
+	RegionDenver = cloudprovider.SGeographicInfo{
+		Latitude:    39.739,
+		Longitude:   -104.990,
+		City:        CITY_DENVER,
+		CountryCode: COUNTRY_CODE_US,
+	}
+	RegionWashingtonDC = cloudprovider.SGeographicInfo{
+		Latitude:    38.907,
+		Longitude:   -77.037,
+		City:        CITY_WASHINGTON,
 		CountryCode: COUNTRY_CODE_US,
 	}
 	RegionSaltLakeCity = cloudprovider.SGeographicInfo{
