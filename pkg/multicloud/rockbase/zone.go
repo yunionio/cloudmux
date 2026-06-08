@@ -16,7 +16,6 @@ package rockbase
 
 import (
 	"fmt"
-	"strings"
 
 	"yunion.io/x/pkg/errors"
 
@@ -66,10 +65,7 @@ func (self *SZone) GetId() string {
 }
 
 func (self *SZone) GetName() string {
-	if len(self.LocalName) > 0 {
-		return parseRockbaseLocalName(self.LocalName)
-	}
-	return self.GetId()
+	return self.LocalName
 }
 
 func (self *SZone) GetI18n() cloudprovider.SModelI18nTable {
@@ -77,17 +73,6 @@ func (self *SZone) GetI18n() cloudprovider.SModelI18nTable {
 	table := cloudprovider.SModelI18nTable{}
 	table["name"] = cloudprovider.NewSModelI18nEntry(name).CN(name).EN(name)
 	return table
-}
-
-func parseRockbaseLocalName(localName string) string {
-	localName = strings.TrimSpace(localName)
-	if idx := strings.Index(localName, "("); idx >= 0 {
-		return strings.TrimSpace(localName[:idx])
-	}
-	if idx := strings.Index(localName, "（"); idx >= 0 {
-		return strings.TrimSpace(localName[:idx])
-	}
-	return localName
 }
 
 func (self *SZone) GetGlobalId() string {
