@@ -109,7 +109,8 @@ func (self *SRockbaseClient) GetBalance() (*cloudprovider.SBalanceInfo, error) {
 	}
 	if ret.Amount < 0 {
 		ret.Status = api.CLOUD_PROVIDER_HEALTH_ARREARS
-	} else if ret.Amount < 100 {
+	}
+	if ret.Amount == 0 {
 		ret.Status = api.CLOUD_PROVIDER_HEALTH_INSUFFICIENT
 	}
 	return ret, nil
