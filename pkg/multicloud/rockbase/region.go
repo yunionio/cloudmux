@@ -43,7 +43,10 @@ func (self *SRegion) GetId() string {
 }
 
 func (self *SRegion) GetName() string {
-	return self.LocalName
+	if len(self.LocalName) > 0 {
+		return parseRockbaseLocalName(self.LocalName)
+	}
+	return self.GetId()
 }
 
 func (self *SRegion) GetI18n() cloudprovider.SModelI18nTable {

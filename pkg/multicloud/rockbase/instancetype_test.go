@@ -75,6 +75,75 @@ func TestParseAvailableInstanceTypes(t *testing.T) {
 	}
 }
 
+func TestParseAvailableInstanceTypesDisks(t *testing.T) {
+	raw := `{
+		"AvailableInstanceTypes": [
+			{
+				"Zone": "hk-01",
+				"Name": "N",
+				"Disks": [
+					{
+						"Name": "cloudDisk",
+						"BootDisk": [
+							{"Name": "CLOUD_NORMAL", "InstantResize": true, "MaximalSize": 500}
+						],
+						"DataDisk": [
+							{"Name": "CLOUD_NORMAL", "MinimalSize": 20, "MaximalSize": 32000},
+							{"Name": "CLOUD_SSD", "MinimalSize": 20, "MaximalSize": 32000}
+						]
+					},
+					{
+						"Name": "normalLocalDisk",
+						"BootDisk": [
+							{"Name": "LOCAL_NORMAL", "InstantResize": false, "MaximalSize": 500}
+						]
+					},
+					{
+						"Name": "ssdLocalDisk",
+						"BootDisk": [
+							{"Name": "LOCAL_SSD", "InstantResize": false, "MaximalSize": 500}
+						]
+					}
+				]
+			}
+		],
+		"RetCode": 0
+	}`
+	obj, err := jsonutils.ParseString(raw)
+	if err != nil {
+		t.Fatalf("ParseString() error = %v", err)
+	}
+	types, err := parseAvailableInstanceTypes(obj)
+	if err != nil {
+		t.Fatalf("parseAvailableInstanceTypes() error = %v", err)
+	}
+	if len(types[0].Disks) != 3 {
+		t.Fatalf("len(Disks) = %d, want 3", len(types[0].Disks))
+	}
+	if types[0].Disks[0].BootDisk[0].Name != "CLOUD_NORMAL" {
+		t.Fatalf("BootDisk Name = %s, want CLOUD_NORMAL", types[0].Disks[0].BootDisk[0].Name)
+	}
+	if len(types[0].Disks[0].DataDisk) != 2 {
+		t.Fatalf("len(DataDisk) = %d, want 2", len(types[0].Disks[0].DataDisk))
+	}
+
+	storageTypes := collectStorageTypesFromInstanceTypes(types, "hk-01")
+	want := []string{
+		"CLOUD_NORMAL",
+		"CLOUD_SSD",
+		"LOCAL_NORMAL",
+		"LOCAL_SSD",
+	}
+	if len(storageTypes) != len(want) {
+		t.Fatalf("collectStorageTypesFromInstanceTypes() = %v, want %v", storageTypes, want)
+	}
+	for i := range want {
+		if storageTypes[i] != want[i] {
+			t.Fatalf("storageTypes[%d] = %s, want %s", i, storageTypes[i], want[i])
+		}
+	}
+}
+
 func TestParseMemoryGBSingleInt(t *testing.T) {
 	obj, err := jsonutils.ParseString(`{"Cpu": 1, "Memory": 1024}`)
 	if err != nil {

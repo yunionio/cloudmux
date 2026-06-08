@@ -16,7 +16,9 @@ package rockbase
 
 import (
 	"fmt"
+	"sort"
 
+	api "yunion.io/x/cloudmux/pkg/apis/compute"
 	"yunion.io/x/jsonutils"
 )
 
@@ -31,6 +33,27 @@ type SAvailableInstanceType struct {
 	MachineClass  string
 	MachineSizes  []SMachineSize
 	UHostFamilies []SUHostFamily
+	Disks         []SDiskCategory
+}
+
+type SDiskCategory struct {
+	Name     string
+	BootDisk []SBootDiskInfo
+	DataDisk []SDataDiskInfo
+}
+
+type SBootDiskInfo struct {
+	Name          string
+	InstantResize bool
+	MaximalSize   int
+	Features      []string
+}
+
+type SDataDiskInfo struct {
+	Name        string
+	MinimalSize int
+	MaximalSize int
+	Features    []string
 }
 
 type SUHostFamily struct {
@@ -133,6 +156,45 @@ func parseMachineSize(obj jsonutils.JSONObject) SMachineSize {
 	return size
 }
 
+func parseBootDiskInfo(obj jsonutils.JSONObject) SBootDiskInfo {
+	ret := SBootDiskInfo{}
+	ret.Name, _ = obj.GetString("Name")
+	ret.InstantResize, _ = obj.Bool("InstantResize")
+	maxSize, _ := obj.Int("MaximalSize")
+	ret.MaximalSize = int(maxSize)
+	ret.Features = parseStringArray(obj, "Features")
+	return ret
+}
+
+func parseDataDiskInfo(obj jsonutils.JSONObject) SDataDiskInfo {
+	ret := SDataDiskInfo{}
+	ret.Name, _ = obj.GetString("Name")
+	minSize, _ := obj.Int("MinimalSize")
+	ret.MinimalSize = int(minSize)
+	maxSize, _ := obj.Int("MaximalSize")
+	ret.MaximalSize = int(maxSize)
+	ret.Features = parseStringArray(obj, "Features")
+	return ret
+}
+
+func parseDiskCategory(obj jsonutils.JSONObject) SDiskCategory {
+	ret := SDiskCategory{}
+	ret.Name, _ = obj.GetString("Name")
+	bootDisks, err := obj.GetArray("BootDisk")
+	if err == nil {
+		for _, boot := range bootDisks {
+			ret.BootDisk = append(ret.BootDisk, parseBootDiskInfo(boot))
+		}
+	}
+	dataDisks, err := obj.GetArray("DataDisk")
+	if err == nil {
+		for _, data := range dataDisks {
+			ret.DataDisk = append(ret.DataDisk, parseDataDiskInfo(data))
+		}
+	}
+	return ret
+}
+
 func parseAvailableInstanceType(obj jsonutils.JSONObject) SAvailableInstanceType {
 	ret := SAvailableInstanceType{}
 	ret.Zone, _ = obj.GetString("Zone")
@@ -156,6 +218,12 @@ func parseAvailableInstanceType(obj jsonutils.JSONObject) SAvailableInstanceType
 			f.Name, _ = family.GetString("Name")
 			f.CpuFrequency, _ = family.GetString("CpuFrequency")
 			ret.UHostFamilies = append(ret.UHostFamilies, f)
+		}
+	}
+	disks, err := obj.GetArray("Disks")
+	if err == nil {
+		for _, disk := range disks {
+			ret.Disks = append(ret.Disks, parseDiskCategory(disk))
 		}
 	}
 	return ret
@@ -205,6 +273,64 @@ func flattenInstancePackages(types []SAvailableInstanceType) []SInstancePackage 
 		}
 	}
 	return ret
+}
+
+var rockbaseStorageTypeOrder = []string{
+	api.STORAGE_ROCKBASE_CLOUD_NORMAL,
+	api.STORAGE_ROCKBASE_CLOUD_SSD,
+	api.STORAGE_ROCKBASE_CLOUD_ESSD,
+	api.STORAGE_ROCKBASE_CLOUD_RSSD,
+	api.STORAGE_ROCKBASE_LOCAL_NORMAL,
+	api.STORAGE_ROCKBASE_LOCAL_SSD,
+	api.STORAGE_ROCKBASE_EXCLUSIVE_LOCAL_DISK,
+}
+
+func collectStorageTypesFromInstanceTypes(types []SAvailableInstanceType, zoneId string) []string {
+	typeSet := map[string]struct{}{}
+	for i := range types {
+		if len(zoneId) > 0 && len(types[i].Zone) > 0 && types[i].Zone != zoneId {
+			continue
+		}
+		for _, disk := range types[i].Disks {
+			for _, boot := range disk.BootDisk {
+				if len(boot.Name) > 0 {
+					typeSet[boot.Name] = struct{}{}
+				}
+			}
+			for _, data := range disk.DataDisk {
+				if len(data.Name) > 0 {
+					typeSet[data.Name] = struct{}{}
+				}
+			}
+		}
+	}
+	ret := make([]string, 0, len(typeSet))
+	for _, storageType := range rockbaseStorageTypeOrder {
+		if _, ok := typeSet[storageType]; ok {
+			ret = append(ret, storageType)
+			delete(typeSet, storageType)
+		}
+	}
+	others := make([]string, 0, len(typeSet))
+	for storageType := range typeSet {
+		others = append(others, storageType)
+	}
+	sort.Strings(others)
+	ret = append(ret, others...)
+	return ret
+}
+
+// GetZoneStorageTypes 从 DescribeAvailableInstanceTypes 的 Disks 信息获取可用区存储类型。
+func (self *SRegion) GetZoneStorageTypes(zoneId string) ([]string, error) {
+	types, err := self.GetAvailableInstanceTypes(zoneId)
+	if err != nil {
+		return nil, err
+	}
+	storageTypes := collectStorageTypesFromInstanceTypes(types, zoneId)
+	if len(storageTypes) == 0 {
+		return nil, fmt.Errorf("no storage types found for zone %s", zoneId)
+	}
+	return storageTypes, nil
 }
 
 // GetAvailableInstanceTypes 获取地域/可用区下可售机型信息。
