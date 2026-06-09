@@ -34,15 +34,17 @@ func init() {
 	})
 
 	type EipAllocateOptions struct {
-		NAME string `help:"eip name"`
-		BW   int    `help:"Bandwidth limit in Mbps"`
-		BGP  string `help:"bgp type" choices:"Bgp|International"`
+		NAME       string `help:"eip name"`
+		BW         int    `help:"Bandwidth limit in Mbps"`
+		Bgp        string `help:"bgp type"`
+		ChargeType string `help:"charge type" choices:"traffic|bandwidth"`
 	}
 	shellutils.R(&EipAllocateOptions{}, "eip-create", "Allocate an EIP", func(cli *rockbase.SRegion, args *EipAllocateOptions) error {
 		option := cloudprovider.SEip{
 			Name:          args.NAME,
 			BandwidthMbps: args.BW,
-			BGPType:       args.BGP,
+			BGPType:       args.Bgp,
+			ChargeType:    args.ChargeType,
 		}
 		eip, err := cli.CreateEIP(&option)
 		if err != nil {

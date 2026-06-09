@@ -78,7 +78,7 @@ func init() {
 		if err != nil {
 			return err
 		}
-		instance, e := cli.CreateInstance(args.NAME, args.IMAGE, i.UHostType, args.PASSWORD, args.VPC, args.NETWORK, args.SECGROUP, args.ZONE, "", "", i.CPU, i.MemoryMB, i.GPU, []rockbase.SDisk{disk}, nil)
+		instance, e := cli.CreateInstance(args.NAME, args.IMAGE, i.UHostType, args.PASSWORD, args.VPC, args.NETWORK, args.SECGROUP, args.ZONE, "", "", i.CPU, i.MemoryMB, i.GPU, i.GpuType, []rockbase.SDisk{disk}, nil)
 		if e != nil {
 			return e
 		}
