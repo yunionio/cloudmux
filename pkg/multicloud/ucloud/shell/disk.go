@@ -22,10 +22,13 @@ import (
 
 func init() {
 	type DiskListOptions struct {
-		Zone string `help:"Zone ID"`
+		Zone     string `help:"Zone ID"`
+		DiskType string `help:"Disk type"`
+		IsBoot   string `help:"Is boot"`
+		DiskId   string `help:"Disk ID"`
 	}
 	shellutils.R(&DiskListOptions{}, "disk-list", "List disks", func(cli *ucloud.SRegion, args *DiskListOptions) error {
-		disks, e := cli.GetDisks(args.Zone, "", nil)
+		disks, e := cli.GetDisks(args.Zone, args.DiskType, args.IsBoot, args.DiskId)
 		if e != nil {
 			return e
 		}
