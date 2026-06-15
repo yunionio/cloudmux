@@ -15,6 +15,9 @@
 package shell
 
 import (
+	"fmt"
+	"strings"
+
 	"yunion.io/x/pkg/util/shellutils"
 
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
@@ -72,14 +75,32 @@ func init() {
 		STORAGE      string   `help:"Storage type" choices:"CLOUD_NORMAL|CLOUD_SSD|LOCAL_NORMAL|LOCAL_SSD"`
 		DISKSIZE     int      `help:"root disk size GB"`
 		SECGROUP     []string `help:"secgroup ID"`
+		TAG          []string `help:"tag to set, key:value"`
 	}
 	shellutils.R(&InstanceCrateOptions{}, "instance-create", "Create a instance", func(cli *rockbase.SRegion, args *InstanceCrateOptions) error {
-		disk := rockbase.SDisk{DiskType: args.STORAGE, SizeGB: args.DISKSIZE}
-		i, err := rockbase.ParseInstanceType(args.INSTANCETYPE)
-		if err != nil {
-			return err
+		tags := map[string]string{}
+		for _, t := range args.TAG {
+			parts := strings.SplitN(t, ":", 2)
+			if len(parts) != 2 {
+				return fmt.Errorf("invalid tag format %q, want key:value", t)
+			}
+			tags[parts[0]] = parts[1]
 		}
-		instance, e := cli.CreateInstance(args.NAME, args.IMAGE, i.UHostType, args.PASSWORD, args.VPC, args.NETWORK, args.SECGROUP, args.ZONE, "", "", i.CPU, i.MemoryMB, i.GPU, i.GpuType, []rockbase.SDisk{disk}, nil)
+		opts := &cloudprovider.SManagedVMCreateConfig{
+			Name:                args.NAME,
+			ExternalImageId:     args.IMAGE,
+			InstanceType:        args.INSTANCETYPE,
+			Password:            args.PASSWORD,
+			ExternalVpcId:       args.VPC,
+			ExternalNetworkId:   args.NETWORK,
+			ExternalSecgroupIds: args.SECGROUP,
+			SysDisk: cloudprovider.SDiskInfo{
+				StorageType: args.STORAGE,
+				SizeGB:      args.DISKSIZE,
+			},
+			Tags: tags,
+		}
+		instance, e := cli.CreateInstance(args.ZONE, opts)
 		if e != nil {
 			return e
 		}
