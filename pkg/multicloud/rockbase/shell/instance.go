@@ -17,6 +17,7 @@ package shell
 import (
 	"yunion.io/x/pkg/util/shellutils"
 
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
 	"yunion.io/x/cloudmux/pkg/multicloud/rockbase"
 )
 
@@ -115,6 +116,15 @@ func init() {
 		return nil
 	})
 
+	shellutils.R(&InstanceOperationOptions{}, "instance-vnc", "Get instance VNC info", func(cli *rockbase.SRegion, args *InstanceOperationOptions) error {
+		vnc, err := cli.GetInstanceVNCUrl(args.ID)
+		if err != nil {
+			return err
+		}
+		printObject(vnc)
+		return nil
+	})
+
 	/*
 		server-change-config 更改系统配置
 		server-reset
@@ -158,6 +168,24 @@ func init() {
 		if err != nil {
 			return err
 		}
+		return nil
+	})
+
+	type InstanceSaveImageOptions struct {
+		ID         string `help:"instance ID"`
+		IMAGE_NAME string `help:"image name"`
+		Notes      string `help:"image description"`
+	}
+	shellutils.R(&InstanceSaveImageOptions{}, "instance-save-image", "Save instance to image", func(cli *rockbase.SRegion, args *InstanceSaveImageOptions) error {
+		opts := cloudprovider.SaveImageOptions{
+			Name:  args.IMAGE_NAME,
+			Notes: args.Notes,
+		}
+		image, err := cli.SaveImage(args.ID, &opts)
+		if err != nil {
+			return err
+		}
+		printObject(image)
 		return nil
 	})
 }
