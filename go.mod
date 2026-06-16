@@ -13,10 +13,8 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.41.5
 	github.com/aws/aws-sdk-go-v2/config v1.31.12
 	github.com/aws/aws-sdk-go-v2/credentials v1.18.16
-	github.com/aws/aws-sdk-go-v2/service/organizations v1.51.1-0.20260401181752-9074b3ddace9
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.88.4
 	github.com/basgys/goxml2json v1.1.1-0.20181031222924-996d9fc8d313
-	github.com/coredns/coredns v1.3.0
 	github.com/fatih/color v1.13.0
 	github.com/golang-plus/errors v1.0.0
 	github.com/huaweicloud/huaweicloud-sdk-go v1.0.26
@@ -39,7 +37,7 @@ require (
 	moul.io/http2curl/v2 v2.3.0
 	yunion.io/x/jsonutils v1.0.1-0.20250507052344-1abcf4f443b1
 	yunion.io/x/log v1.0.1-0.20240305175729-7cf2d6cd5a91
-	yunion.io/x/pkg v1.10.4-0.20260224071200-5c269fa62429
+	yunion.io/x/pkg v1.10.4-0.20260422030155-01b100134978
 	yunion.io/x/s3cli v0.0.0-20241221171442-1c11599d28e1
 	yunion.io/x/structarg v0.0.0-20231017124457-df4d5009457c
 )
