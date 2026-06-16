@@ -13,11 +13,10 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.41.5
 	github.com/aws/aws-sdk-go-v2/config v1.31.12
 	github.com/aws/aws-sdk-go-v2/credentials v1.18.16
-	github.com/aws/aws-sdk-go-v2/service/organizations v1.51.1-0.20260401181752-9074b3ddace9
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.88.4
 	github.com/basgys/goxml2json v1.1.1-0.20181031222924-996d9fc8d313
-	github.com/coredns/coredns v1.3.0
 	github.com/fatih/color v1.13.0
+	github.com/golang-plus/errors v1.0.0
 	github.com/huaweicloud/huaweicloud-sdk-go v1.0.26
 	github.com/icholy/digest v1.1.0
 	github.com/jdcloud-api/jdcloud-sdk-go v1.55.0
@@ -59,7 +58,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.7.21 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/ini v1.8.3 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/v4a v1.4.9 // indirect
-	github.com/aws/aws-sdk-go-v2/service/costexplorer v1.63.5 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.13.1 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.9.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.13.9 // indirect
@@ -78,7 +76,6 @@ require (
 	github.com/go-logr/logr v1.4.1 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/gofrs/uuid v4.1.0+incompatible // indirect
-	github.com/golang-plus/errors v1.0.0 // indirect
 	github.com/golang-plus/uuid v1.0.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
