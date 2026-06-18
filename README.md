@@ -49,3 +49,4 @@ $ ./_output/bin/cmx --provider Aliyun  --access-key $your_access_key --secret $y
 # Aliyun
 $ ./_output/bin/cmx --provider Aliyun --region ap-southeast-1 --access-key $your_access_key  --secret $your_secret  instance-list --zone ap-southeast-1a
 ```
+
