@@ -4,8 +4,6 @@ go 1.24
 
 require (
 	cloud.google.com/go/storage v1.39.1
-	github.com/Azure/go-autorest/autorest v0.9.6
-	github.com/Azure/go-autorest/autorest/azure/auth v0.4.2
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.684
 	github.com/aliyun/aliyun-oss-go-sdk v2.0.4+incompatible
 	github.com/aokoli/goutils v1.0.1
@@ -47,11 +45,6 @@ require (
 	cloud.google.com/go/compute v1.24.0 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	cloud.google.com/go/iam v1.1.6 // indirect
-	github.com/Azure/go-autorest/autorest/adal v0.8.2 // indirect
-	github.com/Azure/go-autorest/autorest/azure/cli v0.3.1 // indirect
-	github.com/Azure/go-autorest/autorest/date v0.2.0 // indirect
-	github.com/Azure/go-autorest/logger v0.1.0 // indirect
-	github.com/Azure/go-autorest/tracing v0.5.0 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.1 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.9 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.21 // indirect
@@ -69,8 +62,6 @@ require (
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/beevik/etree v1.1.0 // indirect
 	github.com/bitly/go-simplejson v0.5.0 // indirect
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
-	github.com/dimchansky/utfbom v1.1.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-logr/logr v1.4.1 // indirect
