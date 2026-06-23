@@ -32,12 +32,14 @@ const (
 	OS_DIST_UBUNTU_SERVER = "Ubuntu Server"
 	OS_DIST_UBUNTU        = "Ubuntu"
 
-	OS_DIST_OPEN_SUSE = "OpenSUSE"
-	OS_DIST_SUSE      = "SUSE"
-	OS_DIST_DEBIAN    = "Debian"
-	OS_DIST_CORE_OS   = "CoreOS"
-	OS_DIST_EULER_OS  = "EulerOS"
-	OS_DIST_ALIYUN    = "Aliyun"
+	OS_DIST_OPEN_SUSE  = "OpenSUSE"
+	OS_DIST_SUSE       = "SUSE"
+	OS_DIST_DEBIAN     = "Debian"
+	OS_DIST_CORE_OS    = "CoreOS"
+	OS_DIST_EULER_OS   = "EulerOS"
+	OS_DIST_OPEN_EULER = "OpenEuler"
+	OS_DIST_ALIYUN     = "Aliyun"
+	OS_DIST_DEEPIN     = "Deepin"
 
 	OS_DIST_ALIBABA_CLOUD_LINUX = "Alibaba Cloud Linux"
 	OS_DIST_ANOLIS              = "Anolis OS"
@@ -136,6 +138,8 @@ func normalizeOsDistribution(osDist string, imageName string) string {
 		return OS_DIST_FREE_BSD
 	} else if strings.Contains(osDist, "euleros") {
 		return OS_DIST_EULER_OS
+	} else if strings.Contains(osDist, "openeuler") {
+		return OS_DIST_OPEN_EULER
 	} else if strings.Contains(osDist, "alibaba cloud linux") {
 		return OS_DIST_ALIBABA_CLOUD_LINUX
 	} else if strings.Contains(osDist, "anolis") {
@@ -152,49 +156,78 @@ func normalizeOsDistribution(osDist string, imageName string) string {
 		return OS_DIST_KYLIN
 	} else if strings.Contains(osDist, "uos") {
 		return OS_DIST_UOS
-	} else if strings.Contains(osDist, "windows") || regexp.MustCompile(".+win(xp|7|8|10|11|2003|2008|2012|2016|2019|2022)*").MatchString(osDist) {
+	} else if strings.Contains(osDist, "windows") || regexp.MustCompile("(^|[^a-z0-9])win(xp|7|8|10|11|2003|2008|2012|2016|2019|2022)([^a-z0-9]|$)").MatchString(osDist) {
 		for _, ver := range []string{"2003", "2008", "2012", "2016", "2019", "2022"} {
 			if strings.Contains(osDist, ver) {
 				return OS_DIST_WINDOWS_SERVER
 			}
 		}
 		return OS_DIST_WINDOWS
+	} else if strings.Contains(osDist, "deepin") {
+		return OS_DIST_DEEPIN
 	} else {
 		return OS_DIST_OTHER_LINUX
 	}
 }
 
 var imageVersions = map[string][]string{
-	OS_DIST_CENTOS:        {"5", "6", "7", "8"},
-	OS_DIST_CENTOS_STREAM: {"8", "9"},
+	// CentOS：补充停更版本和完整迭代，CentOS 8已EOL，Stream补充最新版本
+	OS_DIST_CENTOS:        {"4", "5", "6", "7", "8", "9"},
+	OS_DIST_CENTOS_STREAM: {"8", "9", "10"},
 
-	OS_DIST_RHEL:     {"5", "6", "7", "8", "9"},
-	OS_DIST_FREE_BSD: {"10", "11", "12"},
+	// RHEL：补充完整主版本，覆盖从5到最新的10
+	OS_DIST_RHEL: {"5", "6", "7", "8", "9", "10"},
+	// FreeBSD：补充最新稳定版，覆盖10到15
+	OS_DIST_FREE_BSD: {"10", "11", "12", "13", "14", "15"},
 
-	OS_DIST_UBUNTU_SERVER: {"10", "12", "14", "16", "18", "20", "22"},
-	OS_DIST_UBUNTU:        {"10", "12", "14", "16", "17", "18", "19", "20", "21", "22"},
+	// Ubuntu：Server版补充LTS版本（每2年一个），Desktop版补充所有主要版本
+	OS_DIST_UBUNTU_SERVER: {"10.04", "12.04", "14.04", "16.04", "18.04", "20.04", "22.04", "24.04",
+		"10", "12", "14", "16", "18", "20", "22", "24"},
+	OS_DIST_UBUNTU: {"10.04", "12.04", "14.04", "15.04", "16.04", "17.04", "18.04", "19.04", "20.04", "21.04", "22.04", "23.04", "24.04",
+		"10", "12", "14", "16", "17", "18", "19", "20", "21", "22", "23", "24"},
 
-	OS_DIST_OPEN_SUSE: {"11", "12"},
-	OS_DIST_SUSE:      {"10", "11", "12", "13"},
-	OS_DIST_DEBIAN:    {"6", "7", "8", "9", "10", "11"},
-	OS_DIST_CORE_OS:   {"7"},
-	OS_DIST_EULER_OS:  {"2"},
-	OS_DIST_ALIYUN:    {},
+	// OpenSUSE：补充Leap版本，SUSE补充SLES主版本
+	OS_DIST_OPEN_SUSE: {"11", "12", "13", "42", "15.0", "15.1", "15.2", "15.3", "15.4", "15.5", "15.6"},
+	OS_DIST_SUSE:      {"10", "11", "12", "15", "15 SP1", "15 SP2", "15 SP3", "15 SP4", "15 SP5"},
+	// Debian：补充从6到最新的13，覆盖所有稳定版
+	OS_DIST_DEBIAN: {"6", "7", "8", "9", "10", "11", "12", "13"},
+	// CoreOS：补充Container Linux和Fedora CoreOS的主要版本
+	OS_DIST_CORE_OS: {"7", "200", "213", "224", "234", "246", "251", "3033"},
+	// 欧拉OS：补充openEuler和EulerOS完整版本
+	OS_DIST_OPEN_EULER: {"2.0 SP1", "2.0 SP2", "2.0 SP3", "2.0 SP8", "3.0", "22.03", "23.09"},
+	OS_DIST_EULER_OS:   {"2"},
+	// 阿里云Linux：补充1代和2/3代版本
+	OS_DIST_ALIYUN: {"1", "2.1903", "2", "3.2104", "3.2304", "3"},
 
-	OS_DIST_ALIBABA_CLOUD_LINUX: {"2.1903", "3.2104"},
-	OS_DIST_ANOLIS:              {"7.9", "8.2", "8.4"},
-	OS_DIST_ROCKY_LINUX:         {"8.5", "8.6", "8.7", "8.8", "8.9", "8.10", "9.0", "9.1", "9.2", "9.3", "9.4", "9.5"},
-	OS_DIST_FEDORA:              {"33", "34", "35"},
-	OS_DIST_ALMA_LINUX:          {"8.5"},
-	OS_DIST_AMAZON_LINUX:        {"2023", "2"},
+	// 阿里云轻量版：补充完整版本
+	OS_DIST_ALIBABA_CLOUD_LINUX: {"2.1903", "2", "3.2104", "3.2304", "3.2404", "3"},
+	// 龙蜥OS：补充7/8系列完整小版本
+	OS_DIST_ANOLIS: {"7.6", "7.9", "7", "8.2", "8.4", "8.6", "8.8", "8", "9.0", "9.2", "9"},
+	// Rocky Linux：补充8/9全系列小版本
+	OS_DIST_ROCKY_LINUX: {"8.5", "8.6", "8.7", "8.8", "8.9", "8.10", "8", "9.0", "9.1", "9.2", "9.3", "9.4", "9.5", "9"},
+	// Fedora：补充近年主流版本（33到40）
+	OS_DIST_FEDORA: {"33", "34", "35", "36", "37", "38", "39", "40"},
+	// AlmaLinux：补充8/9全系列
+	OS_DIST_ALMA_LINUX: {"8.5", "8.6", "8.7", "8.8", "8.9", "8.10", "8", "9.0", "9.1", "9.2", "9.3", "9.4", "9.5", "9"},
+	// Amazon Linux：补充1/2/2023版本
+	OS_DIST_AMAZON_LINUX: {"2022", "2023", "1", "2"},
 
-	OS_DIST_WINDOWS_SERVER: {"2003", "2008", "2012", "2016", "2019", "2022"},
-	OS_DIST_WINDOWS:        {"XP", "7", "8", "Vista", "10", "11"},
+	// Windows Server：补充完整服务器版本
+	OS_DIST_WINDOWS_SERVER: {"2003", "2008", "2008 R2", "2012", "2012 R2", "2016", "2019", "2022"},
+	// Windows 桌面版：补充完整版本
+	OS_DIST_WINDOWS: {"XP", "Vista", "7", "8", "8.1", "10", "11"},
 
-	OS_DIST_KYLIN: {"V10"},
-	OS_DIST_UOS:   {"V20", "20 1050", "1050", "1060", "1070"},
+	// 麒麟OS：补充V10各版本和V11
+	OS_DIST_KYLIN: {"V10", "V10 SP1", "V10 SP2", "V10 SP3", "V11", "Nile"},
+	// UOS：补充统信UOS完整版本
+	OS_DIST_UOS: {"V20 1050", "20 1050", "1050", "V20 1060", "1060", "V20 1070", "1070", "V20 1080", "V20 1090", "V23", "Eagle", "V20"},
 
-	OS_DIST_TENCENTOS_SERVER: {"2.4", "3.1"},
+	// 腾讯云OS：补充完整版本
+	OS_DIST_TENCENTOS_SERVER: {"2.4", "3.1", "3.2", "3.3", "4.0", "4"},
+	// 其他Linux：预留空列表，可根据实际场景补充
+
+	OS_DIST_DEEPIN:      {"20", "20.9", "21", "21.9", "22", "22.9", "23", "23.9", "Crimson"},
+	OS_DIST_OTHER_LINUX: {},
 }
 
 func normalizeOsVersion(imageName string, osDist string, osVersion string) string {
@@ -209,7 +242,7 @@ func normalizeOsVersion(imageName string, osDist string, osVersion string) strin
 				parts = append(parts, fmt.Sprintf(`(?P<verstr>%s[.\d]*)`, version), "")
 				regexpStr := strings.Join(parts, `[\s-_]*`)
 				m := regexp.MustCompile(regexpStr).FindAllStringSubmatch(strings.ToLower(imageName), -1)
-				if m != nil && len(m) > 0 && len(m[0]) > 1 {
+				if len(m) > 0 && len(m[0]) > 1 {
 					verStr := m[0][1]
 					if strings.HasPrefix(verStr, version) && len(verStr) > len(version) && !strings.HasPrefix(verStr, version+".") {
 						verStr = version + "." + verStr[len(version):]
@@ -218,10 +251,17 @@ func normalizeOsVersion(imageName string, osDist string, osVersion string) strin
 				}
 			}
 		}
-		for i := len(versions) - 1; i > 0; i-- {
-			if strings.Contains(imageName, versions[i]) {
-				return versions[i]
+		imageNameLower := strings.ToLower(imageName)
+		bestMatch := ""
+		for i := 0; i < len(versions); i++ {
+			version := strings.ToLower(versions[i])
+			pattern := fmt.Sprintf(`(^|[^0-9])%s([^0-9]|$)`, regexp.QuoteMeta(version))
+			if regexp.MustCompile(pattern).MatchString(imageNameLower) && len(versions[i]) > len(bestMatch) {
+				bestMatch = versions[i]
 			}
+		}
+		if len(bestMatch) > 0 {
+			return bestMatch
 		}
 	}
 	return ""

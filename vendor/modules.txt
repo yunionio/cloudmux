@@ -752,7 +752,7 @@ yunion.io/x/jsonutils
 ## explicit; go 1.12
 yunion.io/x/log
 yunion.io/x/log/hooks
-# yunion.io/x/pkg v1.10.4-0.20251114095758-2a2f105d9712
+# yunion.io/x/pkg v1.10.4-0.20260422030155-01b100134978
 ## explicit; go 1.18
 yunion.io/x/pkg/appctx
 yunion.io/x/pkg/errors
