@@ -48,7 +48,14 @@ func (r *SRegion) GetId() string {
 }
 
 func (r *SRegion) GetName() string {
-	return r.RegionName
+	return fmt.Sprintf("%s %s", CLOUD_PROVIDER_ECLOUD_CN, r.RegionName)
+}
+
+func (r *SRegion) GetI18n() cloudprovider.SModelI18nTable {
+	en := fmt.Sprintf("%s %s", CLOUD_PROVIDER_ECLOUD_EN, r.RegionName)
+	table := cloudprovider.SModelI18nTable{}
+	table["name"] = cloudprovider.NewSModelI18nEntry(r.GetName()).CN(r.GetName()).EN(en)
+	return table
 }
 
 func (r *SRegion) GetGlobalId() string {
@@ -65,11 +72,6 @@ func (r *SRegion) Refresh() error {
 
 func (r *SRegion) IsEmulated() bool {
 	return false
-}
-
-func (r *SRegion) GetI18n() cloudprovider.SModelI18nTable {
-	table := cloudprovider.SModelI18nTable{}
-	return table
 }
 
 // GetLatitude() float32

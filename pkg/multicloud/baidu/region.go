@@ -83,15 +83,21 @@ func (region *SRegion) GetGeographicInfo() cloudprovider.SGeographicInfo {
 }
 
 func (region *SRegion) GetName() string {
-	if name, ok := regions[region.RegionId]; ok {
-		return name
+	name := region.RegionName
+	if n, ok := regions[region.RegionId]; ok {
+		name = n
 	}
-	return region.RegionName
+	return fmt.Sprintf("%s %s", CLOUD_PROVIDER_BAIDU_CN, name)
 }
 
 func (region *SRegion) GetI18n() cloudprovider.SModelI18nTable {
+	name := region.RegionName
+	if n, ok := regions[region.RegionId]; ok {
+		name = n
+	}
+	en := fmt.Sprintf("%s %s", CLOUD_PROVIDER_BAIDU_EN, name)
 	table := cloudprovider.SModelI18nTable{}
-	table["name"] = cloudprovider.NewSModelI18nEntry(region.GetName()).CN(region.GetName()).EN(region.RegionName)
+	table["name"] = cloudprovider.NewSModelI18nEntry(region.GetName()).CN(region.GetName()).EN(en)
 	return table
 }
 

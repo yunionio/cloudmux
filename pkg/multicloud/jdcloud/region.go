@@ -70,7 +70,7 @@ func (r *SRegion) GetId() string {
 }
 
 func (r *SRegion) GetName() string {
-	return r.Name
+	return fmt.Sprintf("%s %s", CLOUD_PROVIDER_JDCLOUD_CN, r.Name)
 }
 
 func (r *SRegion) GetGlobalId() string {

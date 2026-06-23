@@ -89,10 +89,11 @@ func (region *SRegion) GetId() string {
 }
 
 func (region *SRegion) GetName() string {
+	name := region.RegionId
 	if localName, ok := RegionLocations[region.RegionId]; ok {
-		return localName
+		name = localName
 	}
-	return region.RegionId
+	return fmt.Sprintf("%s %s", CLOUD_PROVIDER_VOLCENGINE_CN, name)
 }
 
 func (region *SRegion) GetGlobalId() string {
@@ -100,7 +101,14 @@ func (region *SRegion) GetGlobalId() string {
 }
 
 func (region *SRegion) GetI18n() cloudprovider.SModelI18nTable {
-	return cloudprovider.SModelI18nTable{}
+	name := region.RegionId
+	if localName, ok := RegionLocations[region.RegionId]; ok {
+		name = localName
+	}
+	en := fmt.Sprintf("%s %s", CLOUD_PROVIDER_VOLCENGINE_EN, name)
+	table := cloudprovider.SModelI18nTable{}
+	table["name"] = cloudprovider.NewSModelI18nEntry(region.GetName()).CN(region.GetName()).EN(en)
+	return table
 }
 
 func (region *SRegion) GetStatus() string {
