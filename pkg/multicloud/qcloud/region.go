@@ -69,11 +69,11 @@ func (self *SRegion) GetId() string {
 }
 
 func (self *SRegion) GetName() string {
-	return self.RegionName
+	return fmt.Sprintf("%s %s", CLOUD_PROVIDER_QCLOUD_CN, self.RegionName)
 }
 
 func (self *SRegion) GetI18n() cloudprovider.SModelI18nTable {
-	en := self.RegionName
+	en := fmt.Sprintf("%s %s", CLOUD_PROVIDER_QCLOUD_EN, self.RegionName)
 	table := cloudprovider.SModelI18nTable{}
 	table["name"] = cloudprovider.NewSModelI18nEntry(self.GetName()).CN(self.GetName()).EN(en)
 	return table
