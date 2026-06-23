@@ -56,11 +56,14 @@ func (zone *SZone) GetId() string {
 }
 
 func (zone *SZone) GetName() string {
-	return zone.AvailabilityZone
+	return fmt.Sprintf("%s %s", CLOUD_PROVIDER_KSYUN_CN, zone.AvailabilityZone)
 }
 
 func (zone *SZone) GetI18n() cloudprovider.SModelI18nTable {
-	return nil
+	en := fmt.Sprintf("%s %s", CLOUD_PROVIDER_KSYUN_EN, zone.AvailabilityZone)
+	table := cloudprovider.SModelI18nTable{}
+	table["name"] = cloudprovider.NewSModelI18nEntry(zone.GetName()).CN(zone.GetName()).EN(en)
+	return table
 }
 
 func (zone *SZone) GetGlobalId() string {
