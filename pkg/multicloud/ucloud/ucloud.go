@@ -143,10 +143,6 @@ func NewUcloudClient(cfg *UcloudClientConfig) (*SUcloudClient, error) {
 		return nil, err
 	}
 
-	err = client.fetchBuckets()
-	if err != nil {
-		return nil, err
-	}
 	return &client, nil
 }
 
