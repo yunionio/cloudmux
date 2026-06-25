@@ -635,8 +635,43 @@ func (region *SRegion) GetIStorages() ([]cloudprovider.ICloudStorage, error) {
 	return iStores, nil
 }
 
+func (region *SRegion) getOrCreateZone(zoneId string, cache map[string]*SZone) (*SZone, error) {
+	if len(zoneId) == 0 {
+		return nil, errors.Wrapf(cloudprovider.ErrNotFound, "empty zone")
+	}
+	if cache != nil {
+		if zone, ok := cache[zoneId]; ok {
+			return zone, nil
+		}
+	}
+	zone := &SZone{
+		region: region,
+		ZoneId: zoneId,
+	}
+	if cache != nil {
+		cache[zoneId] = zone
+	}
+	return zone, nil
+}
+
+func (region *SRegion) initInstanceHost(vm *SInstance, zoneCache map[string]*SZone) error {
+	zone, err := region.getOrCreateZone(vm.ZoneId, zoneCache)
+	if err != nil {
+		return err
+	}
+	vm.host = zone.getHost()
+	return nil
+}
+
 func (region *SRegion) GetIVMById(id string) (cloudprovider.ICloudVM, error) {
-	return region.GetInstance(id)
+	vm, err := region.GetInstance(id)
+	if err != nil {
+		return nil, err
+	}
+	if err := region.initInstanceHost(vm, nil); err != nil {
+		return nil, err
+	}
+	return vm, nil
 }
 
 func (region *SRegion) GetIVMs() ([]cloudprovider.ICloudVM, error) {
@@ -644,8 +679,12 @@ func (region *SRegion) GetIVMs() ([]cloudprovider.ICloudVM, error) {
 	if err != nil {
 		return nil, err
 	}
+	zoneCache := make(map[string]*SZone)
 	ret := []cloudprovider.ICloudVM{}
 	for i := range vms {
+		if err := region.initInstanceHost(&vms[i], zoneCache); err != nil {
+			return nil, err
+		}
 		ret = append(ret, &vms[i])
 	}
 	return ret, nil
