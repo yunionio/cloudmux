@@ -15,10 +15,13 @@
 package shell
 
 import (
-	"yunion.io/x/cloudmux/pkg/cloudprovider"
-	huawei "yunion.io/x/cloudmux/pkg/multicloud/hcso"
+	"time"
+
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/util/shellutils"
+
+	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	huawei "yunion.io/x/cloudmux/pkg/multicloud/hcso"
 )
 
 func init() {
@@ -40,6 +43,12 @@ func init() {
 		UNTIL string `help:"until"`
 	}
 	shellutils.R(&cloudprovider.MetricListOptions{}, "metrics-data-list", "List metrics", func(cli *huawei.SRegion, args *cloudprovider.MetricListOptions) error {
+		if args.StartTime.IsZero() {
+			args.StartTime = time.Now().Add(-time.Hour)
+		}
+		if args.EndTime.IsZero() {
+			args.EndTime = time.Now()
+		}
 		metrics, err := cli.GetClient().GetMetrics(args)
 		if err != nil {
 			return err

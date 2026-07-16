@@ -38,7 +38,7 @@ func init() {
 
 	shellutils.R(&cloudprovider.MetricListOptions{}, "metric-list", "List metrics", func(cli *ecloud.SRegion, args *cloudprovider.MetricListOptions) error {
 		if args.StartTime.IsZero() {
-			args.StartTime = time.Now().Add(time.Minute * -20)
+			args.StartTime = time.Now().Add(-time.Hour)
 		}
 		if args.EndTime.IsZero() {
 			args.EndTime = time.Now()
