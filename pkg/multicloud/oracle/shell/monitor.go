@@ -27,7 +27,7 @@ import (
 func init() {
 	shellutils.R(&cloudprovider.MetricListOptions{}, "metric-list", "List metrics in a namespace", func(cli *oracle.SRegion, args *cloudprovider.MetricListOptions) error {
 		if args.StartTime.IsZero() {
-			args.StartTime = time.Now().Add(time.Hour * -1)
+			args.StartTime = time.Now().Add(-time.Hour)
 		}
 		if args.EndTime.IsZero() {
 			args.EndTime = time.Now()

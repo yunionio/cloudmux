@@ -15,6 +15,8 @@
 package shell
 
 import (
+	"time"
+
 	"yunion.io/x/log"
 	"yunion.io/x/pkg/util/printutils"
 	"yunion.io/x/pkg/util/shellutils"
@@ -25,6 +27,12 @@ import (
 
 func init() {
 	shellutils.R(&cloudprovider.MetricListOptions{}, "metric-list", "List metrics in a namespace", func(cli *esxi.SESXiClient, args *cloudprovider.MetricListOptions) error {
+		if args.StartTime.IsZero() {
+			args.StartTime = time.Now().Add(-time.Hour)
+		}
+		if args.EndTime.IsZero() {
+			args.EndTime = time.Now()
+		}
 		metrics, err := cli.GetMetrics(args)
 		if err != nil {
 			return err
