@@ -15,14 +15,22 @@
 package shell
 
 import (
-	"yunion.io/x/cloudmux/pkg/multicloud/zstack"
+	"time"
+
 	"yunion.io/x/pkg/util/shellutils"
 
 	"yunion.io/x/cloudmux/pkg/cloudprovider"
+	"yunion.io/x/cloudmux/pkg/multicloud/zstack"
 )
 
 func init() {
 	shellutils.R(&cloudprovider.MetricListOptions{}, "metric-list", "List metrics in a namespace", func(cli *zstack.SRegion, args *cloudprovider.MetricListOptions) error {
+		if args.StartTime.IsZero() {
+			args.StartTime = time.Now().Add(-time.Hour)
+		}
+		if args.EndTime.IsZero() {
+			args.EndTime = time.Now()
+		}
 		metrics, err := cli.GetClient().GetMetrics(args)
 		if err != nil {
 			return err
