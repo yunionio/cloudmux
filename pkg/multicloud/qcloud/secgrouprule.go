@@ -78,8 +78,23 @@ func (self *SecurityGroupRule) GetDirection() secrules.TSecurityRuleDirection {
 }
 
 func (self *SecurityGroupRule) GetCIDRs() []string {
-	ret := []string{self.CidrBlock + self.SecurityGroupId + self.Ipv6CidrBlock + self.AddressTemplate.GetGlobalId()}
-	return ret
+	if len(self.AddressTemplate.AddressId) > 0 {
+		return []string{self.AddressTemplate.AddressId}
+	}
+	if len(self.AddressTemplate.AddressGroupId) > 0 {
+		return []string{self.AddressTemplate.AddressGroupId}
+	}
+	if len(self.SecurityGroupId) > 0 {
+		return []string{self.SecurityGroupId}
+	}
+	ip := self.CidrBlock
+	if len(ip) == 0 {
+		ip = self.Ipv6CidrBlock
+	}
+	if len(ip) == 0 {
+		ip = "0.0.0.0/0"
+	}
+	return []string{ip}
 }
 
 func (self *SecurityGroupRule) GetProtocol() string {
@@ -183,9 +198,11 @@ func (self *SRegion) UpdateSecurityGroupRule(groupId string, idx int, direction 
 	params[prefix+"PolicyIndex"] = fmt.Sprintf("%d", idx)
 	params[prefix+"Protocol"] = strings.ToUpper(opts.Protocol)
 	params[prefix+"Port"] = opts.Ports
-	params[prefix+"CidrBlock"] = opts.CIDR
 	params[prefix+"Action"] = action
 	params[prefix+"PolicyDescription"] = opts.Desc
+	if len(opts.CIDR) > 0 {
+		setSecurityGroupPolicyAddress(params, prefix, opts.CIDR)
+	}
 	_, err := self.vpcRequest("ReplaceSecurityGroupPolicy", params)
 	return err
 }
