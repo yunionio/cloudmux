@@ -94,6 +94,10 @@ type ICloudRegion interface {
 	GetISecurityGroupById(secgroupId string) (ICloudSecurityGroup, error)
 	CreateISecurityGroup(opts *SecurityGroupCreateInput) (ICloudSecurityGroup, error)
 
+	GetIIpSets() ([]ICloudIpSet, error)
+	GetIIpSetById(id string) (ICloudIpSet, error)
+	CreateIIpSet(opts *IpSetCreateOptions) (ICloudIpSet, error)
+
 	CreateIVpc(opts *VpcCreateOptions) (ICloudVpc, error)
 	CreateInternetGateway() (ICloudInternetGateway, error)
 	CreateEIP(eip *SEip) (ICloudEIP, error)
