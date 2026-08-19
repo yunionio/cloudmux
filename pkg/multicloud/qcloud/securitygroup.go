@@ -300,7 +300,7 @@ func (self *SRegion) CreateSecurityGroupRule(groupId string, opts *cloudprovider
 	if opts.Action == secrules.SecurityRuleDeny {
 		action = "drop"
 	}
-	if len(opts.CIDR) == 0 {
+	if len(opts.CIDR) == 0 && (len(opts.TargetType) == 0 || opts.TargetType == cloudprovider.SecurityGroupRuleTargetTypeCidr) {
 		opts.CIDR = "0.0.0.0/0"
 	}
 	params := map[string]string{
@@ -311,7 +311,7 @@ func (self *SRegion) CreateSecurityGroupRule(groupId string, opts *cloudprovider
 		prefix + "Action":            action,
 		prefix + "Port":              opts.Ports,
 	}
-	setSecurityGroupPolicyAddress(params, prefix, opts.CIDR)
+	setSecurityGroupPolicyAddress(params, prefix, opts.CIDR, opts.TargetType)
 
 	_, err := self.vpcRequest("CreateSecurityGroupPolicies", params)
 	if err != nil {
@@ -320,13 +320,16 @@ func (self *SRegion) CreateSecurityGroupRule(groupId string, opts *cloudprovider
 	return nil
 }
 
-func setSecurityGroupPolicyAddress(params map[string]string, prefix, cidr string) {
-	if strings.HasPrefix(cidr, "ipm-") {
+func setSecurityGroupPolicyAddress(params map[string]string, prefix, cidr, targetType string) {
+	switch targetType {
+	case cloudprovider.SecurityGroupRuleTargetTypeIpSet:
 		params[prefix+"AddressTemplate.AddressId"] = cidr
 		return
-	}
-	if strings.HasPrefix(cidr, "ipmg-") {
+	case cloudprovider.SecurityGroupRuleTargetTypeIpSetGroup:
 		params[prefix+"AddressTemplate.AddressGroupId"] = cidr
+		return
+	case cloudprovider.SecurityGroupRuleTargetTypeSecurityGroup:
+		params[prefix+"SecurityGroupId"] = cidr
 		return
 	}
 	if _, err := netutils.NewIPV6Prefix(cidr); err == nil {

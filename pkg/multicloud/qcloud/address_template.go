@@ -30,7 +30,7 @@ import (
 type AddressTemplate struct {
 	multicloud.SVirtualResourceBase
 	QcloudTags
-	region *SRegion
+	client *SQcloudClient
 
 	AddressSet          []string
 	AddressTemplateId   string
@@ -62,7 +62,7 @@ func (self *AddressTemplate) GetCreatedAt() time.Time {
 }
 
 func (self *AddressTemplate) Refresh() error {
-	tpl, err := self.region.GetAddressTemplate(self.AddressTemplateId)
+	tpl, err := self.client.GetAddressTemplate(self.AddressTemplateId)
 	if err != nil {
 		return err
 	}
@@ -83,14 +83,14 @@ func (self *AddressTemplate) GetAddresses() []string {
 }
 
 func (self *AddressTemplate) Update(opts *cloudprovider.IpSetUpdateOptions) error {
-	return self.region.ModifyAddressTemplate(self.AddressTemplateId, opts)
+	return self.client.ModifyAddressTemplate(self.AddressTemplateId, opts)
 }
 
 func (self *AddressTemplate) Delete() error {
-	return self.region.DeleteAddressTemplate(self.AddressTemplateId)
+	return self.client.DeleteAddressTemplate(self.AddressTemplateId)
 }
 
-func (self *SRegion) AddressList(addressId, addressName string, offset, limit int) ([]AddressTemplate, int, error) {
+func (client *SQcloudClient) AddressList(addressId, addressName string, offset, limit int) ([]AddressTemplate, int, error) {
 	params := map[string]string{}
 	filter := 0
 	if len(addressId) > 0 {
@@ -108,7 +108,7 @@ func (self *SRegion) AddressList(addressId, addressName string, offset, limit in
 		limit = 20
 	}
 	params["Limit"] = fmt.Sprintf("%d", limit)
-	body, err := self.vpcRequest("DescribeAddressTemplates", params)
+	body, err := client.vpcRequest("DescribeAddressTemplates", params)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -121,29 +121,29 @@ func (self *SRegion) AddressList(addressId, addressName string, offset, limit in
 	return addressTemplates, int(total), nil
 }
 
-func (self *SRegion) GetAddressTemplate(id string) (*AddressTemplate, error) {
-	templates, _, err := self.AddressList(id, "", 0, 1)
+func (client *SQcloudClient) GetAddressTemplate(id string) (*AddressTemplate, error) {
+	templates, _, err := client.AddressList(id, "", 0, 1)
 	if err != nil {
 		return nil, err
 	}
 	for i := range templates {
 		if templates[i].AddressTemplateId == id {
-			templates[i].region = self
+			templates[i].client = client
 			return &templates[i], nil
 		}
 	}
 	return nil, errors.Wrapf(cloudprovider.ErrNotFound, "%s", id)
 }
 
-func (self *SRegion) GetIIpSets() ([]cloudprovider.ICloudIpSet, error) {
+func (client *SQcloudClient) GetIIpSets() ([]cloudprovider.ICloudIpSet, error) {
 	ret := []cloudprovider.ICloudIpSet{}
 	for {
-		part, total, err := self.AddressList("", "", len(ret), 100)
+		part, total, err := client.AddressList("", "", len(ret), 100)
 		if err != nil {
 			return nil, err
 		}
 		for i := range part {
-			part[i].region = self
+			part[i].client = client
 			ret = append(ret, &part[i])
 		}
 		if len(part) == 0 || len(ret) >= total {
@@ -153,22 +153,22 @@ func (self *SRegion) GetIIpSets() ([]cloudprovider.ICloudIpSet, error) {
 	return ret, nil
 }
 
-func (self *SRegion) GetIIpSetById(id string) (cloudprovider.ICloudIpSet, error) {
-	return self.GetAddressTemplate(id)
+func (client *SQcloudClient) GetIIpSetById(id string) (cloudprovider.ICloudIpSet, error) {
+	return client.GetAddressTemplate(id)
 }
 
-func (self *SRegion) CreateAddressTemplate(opts *cloudprovider.IpSetCreateOptions) (*AddressTemplate, error) {
+func (client *SQcloudClient) CreateAddressTemplate(opts *cloudprovider.IpSetCreateOptions) (*AddressTemplate, error) {
 	params := map[string]string{
 		"AddressTemplateName": opts.Name,
 	}
 	for i := range opts.Addresses {
 		params[fmt.Sprintf("Addresses.%d", i)] = opts.Addresses[i]
 	}
-	body, err := self.vpcRequest("CreateAddressTemplate", params)
+	body, err := client.vpcRequest("CreateAddressTemplate", params)
 	if err != nil {
 		return nil, errors.Wrapf(err, "CreateAddressTemplate")
 	}
-	ret := &AddressTemplate{region: self}
+	ret := &AddressTemplate{client: client}
 	err = body.Unmarshal(ret, "AddressTemplate")
 	if err != nil {
 		return nil, errors.Wrapf(err, "Unmarshal")
@@ -176,11 +176,11 @@ func (self *SRegion) CreateAddressTemplate(opts *cloudprovider.IpSetCreateOption
 	return ret, nil
 }
 
-func (self *SRegion) CreateIIpSet(opts *cloudprovider.IpSetCreateOptions) (cloudprovider.ICloudIpSet, error) {
-	return self.CreateAddressTemplate(opts)
+func (client *SQcloudClient) CreateIIpSet(opts *cloudprovider.IpSetCreateOptions) (cloudprovider.ICloudIpSet, error) {
+	return client.CreateAddressTemplate(opts)
 }
 
-func (self *SRegion) ModifyAddressTemplate(id string, opts *cloudprovider.IpSetUpdateOptions) error {
+func (client *SQcloudClient) ModifyAddressTemplate(id string, opts *cloudprovider.IpSetUpdateOptions) error {
 	params := map[string]string{
 		"AddressTemplateId": id,
 	}
@@ -190,14 +190,26 @@ func (self *SRegion) ModifyAddressTemplate(id string, opts *cloudprovider.IpSetU
 	for i := range opts.Addresses {
 		params[fmt.Sprintf("Addresses.%d", i)] = opts.Addresses[i]
 	}
-	_, err := self.vpcRequest("ModifyAddressTemplateAttribute", params)
+	_, err := client.vpcRequest("ModifyAddressTemplateAttribute", params)
 	return errors.Wrapf(err, "ModifyAddressTemplateAttribute")
 }
 
-func (self *SRegion) DeleteAddressTemplate(id string) error {
+func (client *SQcloudClient) DeleteAddressTemplate(id string) error {
 	params := map[string]string{
 		"AddressTemplateId": id,
 	}
-	_, err := self.vpcRequest("DeleteAddressTemplate", params)
+	_, err := client.vpcRequest("DeleteAddressTemplate", params)
 	return errors.Wrapf(err, "DeleteAddressTemplate")
+}
+
+func (self *SRegion) GetIIpSets() ([]cloudprovider.ICloudIpSet, error) {
+	return []cloudprovider.ICloudIpSet{}, nil
+}
+
+func (self *SRegion) GetIIpSetById(id string) (cloudprovider.ICloudIpSet, error) {
+	return nil, cloudprovider.ErrNotFound
+}
+
+func (self *SRegion) CreateIIpSet(opts *cloudprovider.IpSetCreateOptions) (cloudprovider.ICloudIpSet, error) {
+	return nil, cloudprovider.ErrNotSupported
 }
