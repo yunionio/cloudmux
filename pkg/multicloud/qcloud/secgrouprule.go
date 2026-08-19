@@ -77,6 +77,19 @@ func (self *SecurityGroupRule) GetDirection() secrules.TSecurityRuleDirection {
 	return self.Direction
 }
 
+func (self *SecurityGroupRule) GetTargetType() string {
+	if len(self.AddressTemplate.AddressId) > 0 {
+		return cloudprovider.SecurityGroupRuleTargetTypeIpSet
+	}
+	if len(self.AddressTemplate.AddressGroupId) > 0 {
+		return cloudprovider.SecurityGroupRuleTargetTypeIpSetGroup
+	}
+	if len(self.SecurityGroupId) > 0 {
+		return cloudprovider.SecurityGroupRuleTargetTypeSecurityGroup
+	}
+	return cloudprovider.SecurityGroupRuleTargetTypeCidr
+}
+
 func (self *SecurityGroupRule) GetCIDRs() []string {
 	if len(self.AddressTemplate.AddressId) > 0 {
 		return []string{self.AddressTemplate.AddressId}
@@ -201,7 +214,7 @@ func (self *SRegion) UpdateSecurityGroupRule(groupId string, idx int, direction 
 	params[prefix+"Action"] = action
 	params[prefix+"PolicyDescription"] = opts.Desc
 	if len(opts.CIDR) > 0 {
-		setSecurityGroupPolicyAddress(params, prefix, opts.CIDR)
+		setSecurityGroupPolicyAddress(params, prefix, opts.CIDR, opts.TargetType)
 	}
 	_, err := self.vpcRequest("ReplaceSecurityGroupPolicy", params)
 	return err

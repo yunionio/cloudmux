@@ -543,6 +543,7 @@ type ISecurityGroupRule interface {
 	GetPorts() string
 	GetDescription() string
 	GetCIDRs() []string
+	GetTargetType() string
 
 	Update(opts *SecurityGroupRuleUpdateOptions) error
 	Delete() error
