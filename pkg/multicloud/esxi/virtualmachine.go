@@ -299,9 +299,9 @@ func (svm *SVirtualMachine) moveVirtualDiskFile(ctx context.Context, ds *SDatast
 		return errors.Wrapf(err, "getDatastoreObj")
 	}
 	fm := obj.NewFileManager(ds.datacenter.getObjectDatacenter(), true)
-	err = fm.MoveFile(ctx, src, dst)
+	err = fm.Move(ctx, src, dst)
 	if err != nil {
-		return errors.Wrapf(err, "rename %s -> %s", src, dst)
+		return errors.Wrapf(err, "move %s -> %s", src, dst)
 	}
 	return nil
 }
@@ -392,8 +392,10 @@ func (svm *SVirtualMachine) rebuildDisk(ctx context.Context, disk *SVirtualDisk,
 		UnitNumber:    unitNumber,
 		Key:           diskKey,
 		ImagePath:     imagePath,
+		DestPath:      origPath,
 		IsRoot:        len(imagePath) > 0,
-	}, false, true)
+		Datastore:     ds,
+	}, false)
 	if err != nil {
 		if restoreErr := svm.restoreRootDiskAfterRebuild(ctx, disk, ds, origPath, backupPath); restoreErr != nil {
 			log.Errorf("restore root disk %s from %s failed: %s", origPath, backupPath, restoreErr)
@@ -1261,7 +1263,7 @@ func (svm *SVirtualMachine) CreateDisk(ctx context.Context, opts *cloudprovider.
 		Key:           diskKey,
 		Datastore:     ds,
 		Preallocation: opts.Preallocation,
-	}, true, false)
+	}, true)
 }
 
 // createDriverAndDisk will create a driver and disk associated with the driver
@@ -1295,7 +1297,7 @@ func (svm *SVirtualMachine) createDriverAndDisk(ctx context.Context, ds *SDatast
 			IsRoot:        false,
 			Datastore:     ds,
 			Preallocation: preallocation,
-		}, true, false)
+		}, true)
 }
 
 func (svm *SVirtualMachine) getDatastoreAndRootImagePath(suffixCheck bool) (string, *SDatastore, error) {
@@ -1343,43 +1345,30 @@ func (svm *SVirtualMachine) GetRootImagePath() (string, error) {
 	return path, nil
 }
 
-func isDatastoreFileNotFound(err error) bool {
-	if err == nil {
-		return false
-	}
-	if errors.Cause(err) == cloudprovider.ErrNotFound {
-		return true
-	}
-	if types.IsFileNotFound(err) {
-		return true
-	}
-	if e := errors.Cause(err); soap.IsSoapFault(e) {
-		if _, ok := soap.ToSoapFault(e).VimFault().(*types.FileNotFound); ok {
-			return true
+func (svm *SVirtualMachine) CopyRootDisk(ctx context.Context, imagePath, destPath string, datastore *SDatastore) (string, error) {
+	var (
+		newImagePath string
+		err          error
+	)
+	if len(destPath) > 0 {
+		newImagePath = destPath
+		if datastore == nil {
+			_, datastore, err = svm.getDatastoreAndRootImagePath(false)
+			if err != nil {
+				return "", errors.Wrapf(err, "GetRootImagePath")
+			}
 		}
-	}
-	msg := strings.ToLower(err.Error())
-	return strings.Contains(msg, "filenotfound") ||
-		strings.Contains(msg, "not found") ||
-		strings.Contains(msg, "找不到文件") ||
-		strings.Contains(msg, "notfounderror")
-}
-
-func (svm *SVirtualMachine) CopyRootDisk(ctx context.Context, imagePath string, overwrite bool) (string, error) {
-	newImagePath, datastore, err := svm.getDatastoreAndRootImagePath(false)
-	if err != nil {
-		return "", errors.Wrapf(err, "GetRootImagePath")
+	} else {
+		newImagePath, datastore, err = svm.getDatastoreAndRootImagePath(false)
+		if err != nil {
+			return "", errors.Wrapf(err, "GetRootImagePath")
+		}
 	}
 	ds, err := datastore.getDatastoreObj(ctx)
 	if err != nil {
 		return "", errors.Wrapf(err, "getDatastoreObj")
 	}
-	fm := ds.NewFileManager(datastore.datacenter.getObjectDatacenter(), overwrite)
-	if overwrite {
-		if err := fm.DeleteFile(ctx, newImagePath); err != nil && !isDatastoreFileNotFound(err) {
-			log.Errorf("delete existing root disk %s before overwrite: %s", newImagePath, err)
-		}
-	}
+	fm := ds.NewFileManager(datastore.datacenter.getObjectDatacenter(), true)
 	err = fm.Copy(ctx, imagePath, newImagePath)
 	if err != nil {
 		return "", errors.Wrapf(err, "unable to copy system disk %s -> %s", imagePath, newImagePath)
@@ -1387,12 +1376,12 @@ func (svm *SVirtualMachine) CopyRootDisk(ctx context.Context, imagePath string, 
 	return newImagePath, nil
 }
 
-func (svm *SVirtualMachine) createDiskWithDeviceChange(ctx context.Context, deviceChange []types.BaseVirtualDeviceConfigSpec, config SDiskConfig, check bool, overwrite bool) error {
+func (svm *SVirtualMachine) createDiskWithDeviceChange(ctx context.Context, deviceChange []types.BaseVirtualDeviceConfigSpec, config SDiskConfig, check bool) error {
 	var err error
 	// copy disk
 	if len(config.ImagePath) > 0 {
 		config.IsRoot = true
-		config.ImagePath, err = svm.CopyRootDisk(ctx, config.ImagePath, overwrite)
+		config.ImagePath, err = svm.CopyRootDisk(ctx, config.ImagePath, config.DestPath, config.Datastore)
 		if err != nil {
 			return errors.Wrap(err, "unable to copyRootDisk")
 		}
@@ -1440,8 +1429,8 @@ func (svm *SVirtualMachine) createDiskWithDeviceChange(ctx context.Context, devi
 	return cloudprovider.ErrTimeout
 }
 
-func (svm *SVirtualMachine) createDiskInternal(ctx context.Context, config SDiskConfig, check bool, overwrite bool) error {
-	return svm.createDiskWithDeviceChange(ctx, nil, config, check, overwrite)
+func (svm *SVirtualMachine) createDiskInternal(ctx context.Context, config SDiskConfig, check bool) error {
+	return svm.createDiskWithDeviceChange(ctx, nil, config, check)
 }
 
 func (svm *SVirtualMachine) Renew(bc billing.SBillingCycle) error {
