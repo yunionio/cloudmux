@@ -1343,21 +1343,43 @@ func (svm *SVirtualMachine) GetRootImagePath() (string, error) {
 	return path, nil
 }
 
+func isDatastoreFileNotFound(err error) bool {
+	if err == nil {
+		return false
+	}
+	if errors.Cause(err) == cloudprovider.ErrNotFound {
+		return true
+	}
+	if types.IsFileNotFound(err) {
+		return true
+	}
+	if e := errors.Cause(err); soap.IsSoapFault(e) {
+		if _, ok := soap.ToSoapFault(e).VimFault().(*types.FileNotFound); ok {
+			return true
+		}
+	}
+	msg := strings.ToLower(err.Error())
+	return strings.Contains(msg, "filenotfound") ||
+		strings.Contains(msg, "not found") ||
+		strings.Contains(msg, "找不到文件") ||
+		strings.Contains(msg, "notfounderror")
+}
+
 func (svm *SVirtualMachine) CopyRootDisk(ctx context.Context, imagePath string, overwrite bool) (string, error) {
 	newImagePath, datastore, err := svm.getDatastoreAndRootImagePath(false)
 	if err != nil {
 		return "", errors.Wrapf(err, "GetRootImagePath")
-	}
-	if overwrite {
-		if err := datastore.Delete2(ctx, newImagePath, false, true); err != nil {
-			log.Errorf("delete existing root disk %s before overwrite: %s", newImagePath, err)
-		}
 	}
 	ds, err := datastore.getDatastoreObj(ctx)
 	if err != nil {
 		return "", errors.Wrapf(err, "getDatastoreObj")
 	}
 	fm := ds.NewFileManager(datastore.datacenter.getObjectDatacenter(), overwrite)
+	if overwrite {
+		if err := fm.DeleteFile(ctx, newImagePath); err != nil && !isDatastoreFileNotFound(err) {
+			log.Errorf("delete existing root disk %s before overwrite: %s", newImagePath, err)
+		}
+	}
 	err = fm.Copy(ctx, imagePath, newImagePath)
 	if err != nil {
 		return "", errors.Wrapf(err, "unable to copy system disk %s -> %s", imagePath, newImagePath)
