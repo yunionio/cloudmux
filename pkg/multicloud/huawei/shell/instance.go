@@ -84,7 +84,7 @@ func init() {
 	})
 
 	shellutils.R(&InstanceOperationOptions{}, "instance-vnc", "Show instance vnc", func(cli *huawei.SRegion, args *InstanceOperationOptions) error {
-		info, err := cli.GetInstanceVNCUrl(args.ID)
+		info, err := cli.GetInstanceVNCUrl(args.ID, true)
 		if err != nil {
 			return err
 		}
