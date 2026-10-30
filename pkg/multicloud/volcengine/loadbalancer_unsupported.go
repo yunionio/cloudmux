@@ -41,6 +41,9 @@ func (i *SLoadbalancerListener) GetILoadBalancerListenerRuleById(ruleId string) 
 	return nil, cloudprovider.ErrNotSupported
 }
 func (i *SLoadbalancerListener) GetILoadbalancerListenerRules() ([]cloudprovider.ICloudLoadbalancerListenerRule, error) {
+	if i.Protocol == "TCP" || i.Protocol == "UDP" {
+		return []cloudprovider.ICloudLoadbalancerListenerRule{}, nil
+	}
 	return nil, cloudprovider.ErrNotSupported
 }
 func (i *SLoadbalancerListener) Start() error { return cloudprovider.ErrNotSupported }

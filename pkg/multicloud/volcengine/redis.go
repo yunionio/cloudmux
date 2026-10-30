@@ -140,7 +140,7 @@ func (i *SRedisInstance) GetNetworkId() string     { return i.SubnetId }
 func (i *SRedisInstance) GetNetworkType() string   { return "vpc" }
 func (i *SRedisInstance) GetZoneId() string {
 	if len(i.ZoneIds) > 0 {
-		return i.ZoneIds[0]
+		return i.region.GetGlobalId() + "/" + i.ZoneIds[0]
 	}
 	return ""
 }

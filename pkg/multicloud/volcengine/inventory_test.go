@@ -131,7 +131,7 @@ func TestRedisRepeatedDiscoveryAndReadOnly(t *testing.T) {
 		}
 		i := items[0]
 		tags, e := i.GetTags()
-		if e != nil || tags["owner"] != "test" || i.GetGlobalId() != "redis-test" || i.GetCapacityMB() != 2048 || i.GetPrivateConnectPort() != 6379 || i.GetPrivateDNS() != "private.example.invalid" || i.GetProjectId() != "test-project" || i.GetArchType() != "master" || i.GetAuthMode() != "on" {
+		if e != nil || tags["owner"] != "test" || i.GetGlobalId() != "redis-test" || i.GetCapacityMB() != 2048 || i.GetZoneId() != r.GetGlobalId()+"/cn-beijing-a" || i.GetPrivateConnectPort() != 6379 || i.GetPrivateDNS() != "private.example.invalid" || i.GetProjectId() != "test-project" || i.GetArchType() != "master" || i.GetAuthMode() != "on" {
 			t.Fatalf("incorrect Redis mapping: %+v", i)
 		}
 		if i.Delete() == nil || i.Restart() == nil || i.SetTags(nil, false) == nil {
