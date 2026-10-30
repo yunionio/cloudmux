@@ -42,6 +42,13 @@ func (client *SVolcEngineClient) inventoryRequest(region, service, action string
 		default:
 			return nil, cloudprovider.ErrNotSupported
 		}
+	case "rds-mysql", "rds-mssql":
+		version = "2022-01-01"
+		switch action {
+		case "DescribeRegions", "DescribeDBInstances", "DescribeDBInstanceDetail":
+		default:
+			return nil, cloudprovider.ErrNotSupported
+		}
 	case "clb":
 		version, method = "2020-04-01", http.MethodGet
 		switch action {
@@ -77,7 +84,7 @@ func (client *SVolcEngineClient) inventoryRequest(region, service, action string
 	}
 	// Reuse the verified, proxy-aware transport. The PostgreSQL region catalog is
 	// separate and is never used to decide support for another product.
-	resp, err := client.getPostgresqlClient().httpClient.Do(client.getDefaultCredential(region, service).Sign(req))
+	resp, err := client.getPostgresqlClient().httpClient.Do(client.getDefaultCredential(region, strings.ReplaceAll(service, "-", "_")).Sign(req))
 	if err != nil {
 		return nil, errors.Wrapf(err, "%s %s", service, action)
 	}
@@ -135,7 +142,7 @@ func (region *SRegion) inventoryPages(service, action, arrayKey, totalKey, idKey
 		batch, err := result.GetArray(arrayKey)
 		// Redis omits Instances entirely for explicitly empty regions. A missing
 		// positive-total list, null array or API error is still rejected.
-		if err != nil && service == "redis" && expected == 0 && !result.Contains(arrayKey) {
+		if err != nil && (service == "redis" || service == "rds-mysql" || service == "rds-mssql") && expected == 0 && !result.Contains(arrayKey) {
 			return items, nil
 		}
 		if err != nil {
