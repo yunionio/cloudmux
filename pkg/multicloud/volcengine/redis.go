@@ -16,6 +16,7 @@ package volcengine
 
 import (
 	"strconv"
+	"strings"
 	"time"
 	billing "yunion.io/x/cloudmux/pkg/apis/billing"
 	api "yunion.io/x/cloudmux/pkg/apis/compute"
@@ -163,11 +164,12 @@ func (i *SRedisInstance) GetConnections() int          { return i.MaxConnections
 func (i *SRedisInstance) GetMaintainStartTime() string { return "" }
 func (i *SRedisInstance) GetMaintainEndTime() string   { return "" }
 func (i *SRedisInstance) GetAuthMode() string {
-	switch i.VpcAuthMode {
-	case "Open":
-		return "on"
-	case "Close":
+	// Volcengine open means password-free access, the inverse of auth_mode.
+	switch strings.ToLower(i.VpcAuthMode) {
+	case "open":
 		return "off"
+	case "close":
+		return "on"
 	default:
 		return "unknown"
 	}

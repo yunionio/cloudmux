@@ -111,7 +111,7 @@ func TestInventoryWritesAndEndpointsRejected(t *testing.T) {
 	}
 }
 func redisFixture(id string) map[string]interface{} {
-	return map[string]interface{}{"InstanceId": id, "RegionId": "cn-beijing", "InstanceName": "test", "Status": "Running", "Capacity": map[string]int{"Total": 2048}, "InstanceClass": "redis.shard.2g", "ProjectName": "test-project", "VpcId": "vpc-test", "SubnetId": "subnet-test", "ZoneIds": []string{"cn-beijing-a"}, "EngineVersion": "7.0", "NodeNumber": 2, "VpcAuthMode": "Open", "Tags": []map[string]string{{"Key": "owner", "Value": "test"}}, "VisitAddrs": []map[string]string{{"AddrType": "Public", "Address": "public.example.invalid", "Port": "6380"}, {"AddrType": "Private", "Address": "private.example.invalid", "VIP": "10.0.0.1", "Port": "6379"}}}
+	return map[string]interface{}{"InstanceId": id, "RegionId": "cn-beijing", "InstanceName": "test", "Status": "Running", "Capacity": map[string]int{"Total": 2048}, "InstanceClass": "redis.shard.2g", "ProjectName": "test-project", "VpcId": "vpc-test", "SubnetId": "subnet-test", "ZoneIds": []string{"cn-beijing-a"}, "EngineVersion": "7.0", "NodeNumber": 2, "VpcAuthMode": "close", "Tags": []map[string]string{{"Key": "owner", "Value": "test"}}, "VisitAddrs": []map[string]string{{"AddrType": "Public", "Address": "public.example.invalid", "Port": "6380"}, {"AddrType": "Private", "Address": "private.example.invalid", "VIP": "10.0.0.1", "Port": "6379"}}}
 }
 func TestRedisRepeatedDiscoveryAndReadOnly(t *testing.T) {
 	r := inventoryTestRegion(t, func(s, a string, p map[string]interface{}) (int, interface{}) {
@@ -249,6 +249,15 @@ func TestRedisOmittedEmptyInstances(t *testing.T) {
 			}
 		} else if e == nil {
 			t.Fatal("missing positive-total list accepted")
+		}
+	}
+}
+
+func TestRedisPasswordFreeAccessSemantics(t *testing.T) {
+	for input, want := range map[string]string{"open": "off", "OPEN": "off", "close": "on", "Close": "on", "": "unknown"} {
+		i := SRedisInstance{VpcAuthMode: input}
+		if got := i.GetAuthMode(); got != want {
+			t.Fatalf("VpcAuthMode %q mapped to %q, want %q", input, got, want)
 		}
 	}
 }
