@@ -52,3 +52,34 @@ API references:
 - https://docs.volcengine.com/docs/RDS_for_PG/describeregions
 - https://docs.volcengine.com/docs/RDS_for_PG/describedbinstances
 - https://docs.volcengine.com/docs/RDS_for_PG/describedbinstancedetail
+
+
+## Additional read-only inventory
+
+Redis (`2020-12-07`), CLB (`2020-04-01`) and VKE (`2022-05-12`) are
+supported through explicit Describe/List allowlists, verified HTTPS, account
+proxy settings and complete-list validation. Schemas were checked against
+`volcengine/volcengine-go-sdk` at `7a94574ceb30be91c364dfdac484e901438c0743`.
+
+- Redis: instance configuration, MiB capacity, primary private/public endpoints,
+  VPC/subnet, global zone ID, tags and project mapping. No credentials, accounts,
+  data, backups, parameters or performance measurements are read.
+- CLB: instances, listeners, referenced server groups and backend ECS/IP targets.
+  TCP/UDP listeners correctly have no HTTP forwarding rules. HTTP forwarding
+  rules, certificate/ACL inventory and security-group/EIP relationship discovery
+  are not implemented and return unsupported errors rather than fake empty lists.
+  Unknown health/performance values must not be interpreted as measured zeros.
+- VKE: clusters, node pools and nodes, including cluster-to-pool/node ownership.
+  Kubeconfig retrieval and Kubernetes workload access are deliberately unsupported.
+
+Writes return unsupported errors. Pagination, permission failures, changed totals,
+missing arrays, duplicate IDs and mismatched resource/parent identities fail the
+relevant discovery without returning partial inventory. Unimplemented child
+resource discovery may be reported by Cloudpods as unsupported; this is not a
+claim of full provider product parity.
+
+Further work: MySQL/SQL Server need engine-aware RDS reconciliation that preserves
+existing PostgreSQL inventory on permission/service-availability failures. SLS
+needs a resource model, account-isolated synchronization and a frontend view.
+Model token usage and charges need separately defined usage/billing data sources;
+resource discovery alone cannot supply that information.
