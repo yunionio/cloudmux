@@ -144,10 +144,10 @@ func (client *SVolcEngineClient) isPostgresqlRegion(region string) (bool, error)
 	return pg.regions[region], nil
 }
 
-// GetIDBInstances currently inventories PostgreSQL only. Read errors and
+// getPostgresqlInstances inventories PostgreSQL only. Read errors and
 // inconsistent pagination must never be returned as a successful empty set:
 // the caller reconciles this set with its existing inventory.
-func (region *SRegion) GetIDBInstances() ([]cloudprovider.ICloudDBInstance, error) {
+func (region *SRegion) getPostgresqlInstances() ([]cloudprovider.ICloudDBInstance, error) {
 	supported, err := region.client.isPostgresqlRegion(region.RegionId)
 	if err != nil {
 		return nil, err
@@ -204,6 +204,12 @@ func (region *SRegion) GetIDBInstances() ([]cloudprovider.ICloudDBInstance, erro
 }
 
 func (region *SRegion) GetIDBInstanceById(id string) (cloudprovider.ICloudDBInstance, error) {
+	if strings.HasPrefix(id, "mysql-") {
+		return region.getReadonlyRDSInstance("rds-mysql", id)
+	}
+	if strings.HasPrefix(id, "mssql-") {
+		return region.getReadonlyRDSInstance("rds-mssql", id)
+	}
 	return region.GetPostgresqlInstance(id)
 }
 
