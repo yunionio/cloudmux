@@ -133,6 +133,11 @@ func (region *SRegion) inventoryPages(service, action, arrayKey, totalKey, idKey
 			return nil, errors.Errorf("%s inventory changed during pagination; retry", action)
 		}
 		batch, err := result.GetArray(arrayKey)
+		// Redis omits Instances entirely for explicitly empty regions. A missing
+		// positive-total list, null array or API error is still rejected.
+		if err != nil && service == "redis" && expected == 0 && !result.Contains(arrayKey) {
+			return items, nil
+		}
 		if err != nil {
 			return nil, errors.Wrapf(err, "invalid %s %s", action, arrayKey)
 		}
