@@ -78,8 +78,11 @@ relevant discovery without returning partial inventory. Unimplemented child
 resource discovery may be reported by Cloudpods as unsupported; this is not a
 claim of full provider product parity.
 
-Further work: MySQL/SQL Server need engine-aware RDS reconciliation that preserves
-existing PostgreSQL inventory on permission/service-availability failures. SLS
-needs a resource model, account-isolated synchronization and a frontend view.
-Model token usage and charges need separately defined usage/billing data sources;
-resource discovery alone cannot supply that information.
+MySQL and SQL Server use read-only RDS discovery (`2022-01-01`). The RDS
+reconciliation result is atomic across PostgreSQL, MySQL and SQL Server: any
+permission, detail, or pagination failure fails the complete regional discovery,
+preserving previously synchronized engines. Regions explicitly absent from an
+engine region catalog are skipped; denied access is never interpreted as absence.
+
+SLS and model usage/billing require new resource types or pages and are out of
+scope. This extension only adds adapters for existing Cloudpods resource types.

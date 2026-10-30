@@ -121,7 +121,7 @@ func TestPostgresqlInventoryPaginationAndMapping(t *testing.T) {
 		}
 	})
 	for iteration := 0; iteration < 2; iteration++ {
-		instances, err := region.GetIDBInstances()
+		instances, err := region.getPostgresqlInstances()
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -190,7 +190,7 @@ func TestPostgresqlInventoryDoesNotReturnPartialOrMalformedSets(t *testing.T) {
 				}
 				return tc.status, tc.result
 			})
-			instances, err := region.GetIDBInstances()
+			instances, err := region.getPostgresqlInstances()
 			if err == nil || instances != nil {
 				t.Fatalf("unsafe successful inventory: %v %v", instances, err)
 			}
@@ -205,7 +205,7 @@ func TestPostgresqlInventoryDoesNotReturnPartialOrMalformedSets(t *testing.T) {
 		}
 		return 403, map[string]interface{}{"ResponseMetadata": map[string]interface{}{"Error": map[string]string{"Code": "AccessDenied"}}}
 	})
-	if instances, err := region.GetIDBInstances(); err == nil || instances != nil {
+	if instances, err := region.getPostgresqlInstances(); err == nil || instances != nil {
 		t.Fatal("second page failure returned a partial inventory")
 	}
 }
@@ -232,7 +232,7 @@ func TestPostgresqlDetailIdentityAndPermissionFailures(t *testing.T) {
 				}
 				return 200, map[string]interface{}{"Result": data}
 			})
-			if instances, err := region.GetIDBInstances(); err == nil || instances != nil {
+			if instances, err := region.getPostgresqlInstances(); err == nil || instances != nil {
 				t.Fatal("invalid detail returned a successful inventory")
 			}
 		})
@@ -248,12 +248,12 @@ func TestPostgresqlEmptyInventoryAndUnsupportedRegion(t *testing.T) {
 		listCalls++
 		return 200, map[string]interface{}{"Result": map[string]interface{}{"Total": 0, "Instances": []interface{}{}}}
 	})
-	instances, err := region.GetIDBInstances()
+	instances, err := region.getPostgresqlInstances()
 	if err != nil || len(instances) != 0 || listCalls != 1 {
 		t.Fatalf("empty list: %v %v", instances, err)
 	}
 	region.RegionId = "ap-southeast-3"
-	instances, err = region.GetIDBInstances()
+	instances, err = region.getPostgresqlInstances()
 	if instances != nil || errors.Cause(err) != cloudprovider.ErrNotSupported || listCalls != 1 {
 		t.Fatal("unsupported region was treated as an empty inventory")
 	}
