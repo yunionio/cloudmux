@@ -236,3 +236,19 @@ func TestInventoryValidEmpty(t *testing.T) {
 		t.Fatalf("%v %v", items, e)
 	}
 }
+
+func TestRedisOmittedEmptyInstances(t *testing.T) {
+	for _, total := range []int{0, 1} {
+		r := inventoryTestRegion(t, func(s, a string, p map[string]interface{}) (int, interface{}) {
+			return 200, result(map[string]interface{}{"TotalInstancesNum": total})
+		})
+		items, e := r.inventoryPages("redis", "DescribeDBInstances", "Instances", "TotalInstancesNum", "InstanceId", nil)
+		if total == 0 {
+			if e != nil || len(items) != 0 {
+				t.Fatalf("explicit empty region %v", e)
+			}
+		} else if e == nil {
+			t.Fatal("missing positive-total list accepted")
+		}
+	}
+}
