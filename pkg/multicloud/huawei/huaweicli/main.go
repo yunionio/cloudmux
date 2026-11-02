@@ -31,11 +31,13 @@ import (
 )
 
 type BaseOptions struct {
-	Debug      bool   `help:"Show debug" default:"false"`
-	AccessKey  string `help:"Access key" default:"$HUAWEI_ACCESS_KEY" metavar:"HUAWEI_ACCESS_KEY"`
-	Secret     string `help:"Secret" default:"$HUAWEI_SECRET" metavar:"HUAWEI_SECRET"`
-	RegionId   string `help:"RegionId" default:"$HUAWEI_REGION" metavar:"HUAWEI_REGION"`
-	SUBCOMMAND string `help:"huaweicli subcommand" subcommand:"true"`
+	Debug        bool   `help:"Show debug" default:"false"`
+	AccessKey    string `help:"Access key" default:"$HUAWEI_ACCESS_KEY" metavar:"HUAWEI_ACCESS_KEY"`
+	Secret       string `help:"Secret" default:"$HUAWEI_SECRET" metavar:"HUAWEI_SECRET"`
+	RegionId     string `help:"RegionId" default:"$HUAWEI_REGION" metavar:"HUAWEI_REGION"`
+	AccountId    string `help:"Organization member account id" default:"$HUAWEI_ACCOUNT_ID" metavar:"HUAWEI_ACCOUNT_ID"`
+	AssumeAgency string `help:"Agency name assumed for member account" default:"$HUAWEI_ASSUME_AGENCY" metavar:"HUAWEI_ASSUME_AGENCY"`
+	SUBCOMMAND   string `help:"huaweicli subcommand" subcommand:"true"`
 }
 
 func getSubcommandParser() (*structarg.ArgumentParser, error) {
@@ -90,7 +92,7 @@ func newClient(options *BaseOptions) (*huawei.SRegion, error) {
 		huawei.NewHuaweiClientConfig(
 			options.AccessKey,
 			options.Secret,
-		).Debug(options.Debug).
+		).AccountId(options.AccountId).AssumeAgency(options.AssumeAgency).Debug(options.Debug).
 			CloudproviderConfig(
 				cloudprovider.ProviderConfig{
 					ProxyFunc: proxyFunc,
