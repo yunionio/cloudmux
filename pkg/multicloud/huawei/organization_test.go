@@ -63,7 +63,7 @@ func TestOrganizationSubAccount(t *testing.T) {
 	self := cli.organizationSubAccount(SOrganizationAccount{
 		Id: "self", Name: "master", Status: "active",
 	}, "self", nil)
-	if self.Account != "ak" || self.Id != "self" || self.Name != "master/mgmt" {
+	if self.Account != "ak" || self.Id != "self" || self.Name != "master" {
 		t.Fatalf("self account %#v", self)
 	}
 	if self.DefaultProjectId != "0" || self.HealthStatus != api.CLOUD_PROVIDER_HEALTH_NORMAL {
@@ -73,7 +73,7 @@ func TestOrganizationSubAccount(t *testing.T) {
 	member := cli.organizationSubAccount(SOrganizationAccount{
 		Id: "member", Name: "dev", Status: "suspended", Description: "desc",
 	}, "self", map[string]string{"L1": "ou"})
-	if member.Account != "ak/member" || member.Id != "member" || member.Name != "dev/member" {
+	if member.Account != "ak/member" || member.Id != "member" || member.Name != "dev" {
 		t.Fatalf("member account %#v", member)
 	}
 	if member.HealthStatus != api.CLOUD_PROVIDER_HEALTH_SUSPENDED || member.Desc != "desc" || member.Tags["L1"] != "ou" {
