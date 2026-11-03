@@ -330,16 +330,12 @@ func (self *SHuaweiClient) organizationSubAccount(account SOrganizationAccount, 
 	if len(display) == 0 {
 		display = account.Id
 	}
+	subAccount.Name = display
 	// 当前凭证所属账号直接使用原始 AK，其余成员账号用 AK/账号ID，后续通过委托访问。
 	if account.Id == currentId {
-		subAccount.Name = fmt.Sprintf("%s/%s", display, self.cpcfg.Name)
 		subAccount.Account = self.accessKey
 		subAccount.Id = account.Id
 	} else {
-		subAccount.Name = display
-		if display != account.Id {
-			subAccount.Name = fmt.Sprintf("%s/%s", display, account.Id)
-		}
 		subAccount.Account = fmt.Sprintf("%s/%s", self.accessKey, account.Id)
 		subAccount.Id = account.Id
 	}
