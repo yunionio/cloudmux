@@ -321,6 +321,8 @@ func (self *SAliyunClient) GetMetrics(opts *cloudprovider.MetricListOptions) ([]
 		return self.GetK8sMetrics(opts)
 	case cloudprovider.METRIC_RESOURCE_TYPE_EIP:
 		return self.GetEipMetrics(opts)
+	case cloudprovider.METRIC_RESOURCE_TYPE_NAT:
+		return self.GetNatMetrics(opts)
 	default:
 		return nil, errors.Wrapf(cloudprovider.ErrNotImplemented, "%s", opts.ResourceType)
 	}
@@ -568,6 +570,10 @@ func (self *SAliyunClient) GetRdsMetrics(opts *cloudprovider.MetricListOptions) 
 		metricTags = map[string]string{
 			"ConnectionUsage": "",
 		}
+	case cloudprovider.RDS_METRIC_TYPE_CONN_COUNT:
+		metricTags = map[string]string{
+			"ConnectionCount": "",
+		}
 	case cloudprovider.RDS_METRIC_TYPE_QPS:
 		metricTags = map[string]string{
 			"MySQL_QPS": "",
@@ -737,6 +743,43 @@ func (self *SAliyunClient) GetEipMetrics(opts *cloudprovider.MetricListOptions) 
 						Timestamp: time.UnixMilli(result[i].Timestamp),
 						Value:     result[i].GetValue(),
 						Tags:      tags,
+					},
+				},
+			})
+		}
+	}
+	return ret, nil
+}
+
+func (self *SAliyunClient) GetNatMetrics(opts *cloudprovider.MetricListOptions) ([]cloudprovider.MetricValues, error) {
+	metricTags := map[string]string{}
+	switch opts.MetricType {
+	case cloudprovider.NAT_METRIC_TYPE_NET_BPS_RX:
+		metricTags = map[string]string{
+			"BWRateInFromOutside": "",
+		}
+	case cloudprovider.NAT_METRIC_TYPE_NET_BPS_TX:
+		metricTags = map[string]string{
+			"BWRateOutToOutside": "",
+		}
+	default:
+		return nil, errors.Wrapf(cloudprovider.ErrNotImplemented, "%s", opts.MetricType)
+	}
+	ret := []cloudprovider.MetricValues{}
+	for metric := range metricTags {
+		result, err := self.ListMetrics("acs_nat_gateway", metric, opts.StartTime, opts.EndTime)
+		if err != nil {
+			log.Errorf("ListMetric(%s) error: %v", metric, err)
+			continue
+		}
+		for i := range result {
+			ret = append(ret, cloudprovider.MetricValues{
+				Id:         result[i].InstanceId,
+				MetricType: opts.MetricType,
+				Values: []cloudprovider.MetricValue{
+					{
+						Timestamp: time.UnixMilli(result[i].Timestamp),
+						Value:     result[i].GetValue(),
 					},
 				},
 			})
