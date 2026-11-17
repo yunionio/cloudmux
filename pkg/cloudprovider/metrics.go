@@ -357,10 +357,10 @@ const (
 	WIRE_METRIC_TYPE_NET_RT               TMetricType = "wire_net.rt"               // 响应时间ms
 	WIRE_METRIC_TYPE_NET_UNREACHABLE_RATE TMetricType = "wire_net.unreachable_rate" // 不可达率
 
-	// EIP入带宽
+	// EIP入带宽（含阿里云/飞天 ECS 固定公网 IP）
 	// 支持平台: aliyun, apsara, huawei, hcso, aws, qcloud
 	EIP_METRIC_TYPE_NET_BPS_RX TMetricType = "eip_net.bps_recv"
-	// EIP出带宽
+	// EIP出带宽（含阿里云/飞天 ECS 固定公网 IP）
 	// 支持平台: aliyun, apsara, huawei, hcso, aws, qcloud
 	EIP_METRIC_TYPE_NET_BPS_TX TMetricType = "eip_net.bps_sent"
 

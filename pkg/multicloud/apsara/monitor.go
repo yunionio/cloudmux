@@ -643,15 +643,19 @@ func (self *SApsaraClient) GetElbMetrics(opts *cloudprovider.MetricListOptions) 
 
 func (self *SApsaraClient) GetEipMetrics(opts *cloudprovider.MetricListOptions) ([]cloudprovider.MetricValues, error) {
 	metricTags, tagKey := map[string]string{}, ""
+	// Fixed/public IPs on ECS are emulated EIPs (ExternalId == instanceId).
+	ecsPublicIpMetric := ""
 	switch opts.MetricType {
 	case cloudprovider.EIP_METRIC_TYPE_NET_BPS_RX:
 		metricTags = map[string]string{
 			"net_rx.rate": "",
 		}
+		ecsPublicIpMetric = "VPC_PublicIP_InternetInRate"
 	case cloudprovider.EIP_METRIC_TYPE_NET_BPS_TX:
 		metricTags = map[string]string{
 			"net_tx.rate": "",
 		}
+		ecsPublicIpMetric = "VPC_PublicIP_InternetOutRate"
 	case cloudprovider.EIP_METRIC_TYPE_NET_DROP_SPEED_TX:
 		metricTags = map[string]string{
 			"out_ratelimit_drop_speed": "",
@@ -682,6 +686,28 @@ func (self *SApsaraClient) GetEipMetrics(opts *cloudprovider.MetricListOptions) 
 					},
 				},
 			})
+		}
+	}
+	if len(ecsPublicIpMetric) > 0 {
+		result, err := self.ListMetrics("acs_ecs_dashboard", ecsPublicIpMetric, "", opts.StartTime, opts.EndTime)
+		if err != nil {
+			log.Errorf("ListMetric(%s) error: %v", ecsPublicIpMetric, err)
+		} else {
+			for i := range result {
+				if len(result[i].InstanceId) == 0 {
+					continue
+				}
+				ret = append(ret, cloudprovider.MetricValues{
+					Id:         result[i].InstanceId,
+					MetricType: opts.MetricType,
+					Values: []cloudprovider.MetricValue{
+						{
+							Timestamp: time.UnixMilli(result[i].Timestamp),
+							Value:     result[i].GetValue(),
+						},
+					},
+				})
+			}
 		}
 	}
 	return ret, nil
