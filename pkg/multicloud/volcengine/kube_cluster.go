@@ -99,7 +99,7 @@ func (c *SKubeCluster) Refresh() error {
 	return nil
 }
 func (c *SKubeCluster) GetIKubeNodes() ([]cloudprovider.ICloudKubeNode, error) {
-	items, e := c.region.inventoryPages("vke", "ListNodes", "Items", "TotalCount", "Id", map[string]interface{}{"ClusterId": c.Id})
+	items, e := c.region.inventoryPages("vke", "ListNodes", "Items", "TotalCount", "Id", map[string]interface{}{"ClusterIds": []string{c.Id}})
 	if e != nil {
 		return nil, e
 	}
@@ -117,7 +117,7 @@ func (c *SKubeCluster) GetIKubeNodes() ([]cloudprovider.ICloudKubeNode, error) {
 	return ret, nil
 }
 func (c *SKubeCluster) GetIKubeNodePools() ([]cloudprovider.ICloudKubeNodePool, error) {
-	items, e := c.region.inventoryPages("vke", "ListNodePools", "Items", "TotalCount", "Id", map[string]interface{}{"ClusterId": c.Id})
+	items, e := c.region.inventoryPages("vke", "ListNodePools", "Items", "TotalCount", "Id", map[string]interface{}{"ClusterIds": []string{c.Id}})
 	if e != nil {
 		return nil, e
 	}
